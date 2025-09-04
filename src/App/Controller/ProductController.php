@@ -15,6 +15,21 @@ class ProductController
         $this->productRepository = $productRepository;
     }
 
+    // Add this __invoke method that Slim expects
+    public function __invoke(Request $request, Response $response, array $args): Response
+    {
+        // This is a fallback method that can handle generic requests
+        // or you can use it to route to specific methods based on the request
+        $route = $request->getAttribute('route');
+        $method = $route->getArgument('method', 'index');
+        
+        if (method_exists($this, $method)) {
+            return $this->$method($request, $response, $args);
+        }
+        
+        throw new \RuntimeException("Method {$method} not found");
+    }
+
     public function getAll(Request $request, Response $response): Response
     {
         $products = $this->productRepository->findAll();

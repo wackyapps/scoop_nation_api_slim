@@ -20,10 +20,7 @@ DB::$encoding = DB_CHARSET;
 
 // Build PHP-DI container instance
 $containerBuilder = new ContainerBuilder();
-
-// Load dependencies from the dependencies.php file
-$containerBuilder->addDefinitions(__DIR__ . '/../src/App/dependencies.php');
-
+$containerBuilder->useAutowiring(true);
 $container = $containerBuilder->build();
 
 // Create Slim app instance with PHP-DI bridge
@@ -45,10 +42,21 @@ $app->get('/', function (Request $request, Response $response) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-// Routes using ProductController
-$app->get('/api/products', [ProductController::class, 'getAll']);
-$app->get('/api/products/category/{categoryId}', [ProductController::class, 'getByCategory']);
-$app->get('/api/products/search', [ProductController::class, 'search']);
+// Routes using ProductController with closures
+$app->get('/api/products', function (Request $request, Response $response) use ($container) {
+    $controller = $container->get(App\Controller\ProductController::class);
+    return $controller->getAll($request, $response);
+});
+
+$app->get('/api/products/category/{categoryId}', function (Request $request, Response $response, array $args) use ($container) {
+    $controller = $container->get(App\Controller\ProductController::class);
+    return $controller->getByCategory($request, $response, $args);
+});
+
+$app->get('/api/products/search', function (Request $request, Response $response) use ($container) {
+    $controller = $container->get(App\Controller\ProductController::class);
+    return $controller->search($request, $response);
+});
 
 // Run the application
 $app->run();
