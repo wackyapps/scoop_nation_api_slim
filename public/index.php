@@ -38,9 +38,9 @@ $app->get('/', function (Request $request, Response $response) {
             '/api/products/category/{categoryId}' => 'Get products by category',
             '/api/products/search' => 'Search products',
             '/api/bundles' => 'Get all bundles',
+            '/api/bundles/search' => 'Search bundles by name',
             '/api/bundles/{id}' => 'Get bundle with products',
             '/api/bundles/{id}/products' => 'Get bundle pricing info',
-            '/api/bundles/search' => 'Search bundles by name',
             '/api/bundles/product/{productId}' => 'Get bundles by product'
         ]
     ]));
@@ -64,19 +64,10 @@ $app->get('/api/products/search', function (Request $request, Response $response
 });
 
 // Routes using BundleController with closures
+// IMPORTANT: Define specific routes BEFORE parameterized routes
 $app->get('/api/bundles', function (Request $request, Response $response) use ($container) {
     $controller = $container->get(App\Controller\BundleController::class);
     return $controller->getAll($request, $response);
-});
-
-$app->get('/api/bundles/{id}', function (Request $request, Response $response, array $args) use ($container) {
-    $controller = $container->get(App\Controller\BundleController::class);
-    return $controller->getBundleWithProducts($request, $response, $args);
-});
-
-$app->get('/api/bundles/{id}/products', function (Request $request, Response $response, array $args) use ($container) {
-    $controller = $container->get(App\Controller\BundleController::class);
-    return $controller->getPricingInfo($request, $response, $args);
 });
 
 $app->get('/api/bundles/search', function (Request $request, Response $response) use ($container) {
@@ -87,6 +78,17 @@ $app->get('/api/bundles/search', function (Request $request, Response $response)
 $app->get('/api/bundles/product/{productId}', function (Request $request, Response $response, array $args) use ($container) {
     $controller = $container->get(App\Controller\BundleController::class);
     return $controller->getBundlesByProduct($request, $response, $args);
+});
+
+// Parameterized routes should come AFTER specific routes
+$app->get('/api/bundles/{id}', function (Request $request, Response $response, array $args) use ($container) {
+    $controller = $container->get(App\Controller\BundleController::class);
+    return $controller->getBundleWithProducts($request, $response, $args);
+});
+
+$app->get('/api/bundles/{id}/products', function (Request $request, Response $response, array $args) use ($container) {
+    $controller = $container->get(App\Controller\BundleController::class);
+    return $controller->getPricingInfo($request, $response, $args);
 });
 
 // Run the application
