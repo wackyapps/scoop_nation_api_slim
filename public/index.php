@@ -1,26 +1,39 @@
 <?php
 declare(strict_types=1);
 
+use DI\Bridge\Slim\Bridge;
+use DI\ContainerBuilder;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Slim\Factory\AppFactory;
-use App\DatabaseMeekro;
 
-require dirname(__DIR__) . '/vendor/autoload.php';
-require dirname(__DIR__) . '/src/App/Constants.php';
-require dirname(__DIR__) . '/src/App/meekrodb/db.class.php';
-require dirname(__DIR__) . '/src/App/DatabaseMeekro.php';
+require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../src/App/Constants.php';
+require __DIR__ . '/../src/App/meekrodb/db.class.php';
 
-$app = AppFactory::create();
+// Configure MeekroDB
+DB::$host = DB_HOST;
+DB::$user = DB_USER;
+DB::$password = DB_PASS;
+DB::$dbName = DB_NAME;
+DB::$port = DB_PORT;
+DB::$encoding = DB_CHARSET;
+
+// Build PHP-DI container instance
+$containerBuilder = new ContainerBuilder();
+
+// Load dependencies from the dependencies.php file
+$containerBuilder->addDefinitions(__DIR__ . '/../src/App/dependencies.php');
+
+$container = $containerBuilder->build();
+
+// Create Slim app instance with PHP-DI bridge
+$app = Bridge::create($container);
 
 // Add error middleware
 $app->addErrorMiddleware(true, true, true);
 
-// Initialize database connection
-DatabaseMeekro::initialize();
-
-// Root route
-$app->get('/', function (Request $request, Response $response, $args) {
+// Your routes here
+$app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write(json_encode([
         'message' => 'ScoopNation API is running',
         'endpoints' => [
@@ -31,16 +44,16 @@ $app->get('/', function (Request $request, Response $response, $args) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-// API products route - USING STATIC CALLS
-$app->get('/api/products', function (Request $request, Response $response, $args) {
+// Example route using repository through dependency injection
+$app->get('/api/products', function (Request $request, Response $response) use ($container) {
     try {
-        // Use MeekroDB static calls directly
-        $data = \DB::query('SELECT * FROM product');
+        $productRepository = $container->get(ProductRepository::class);
+        $products = $productRepository->findAll();
         
         $response->getBody()->write(json_encode([
             'success' => true,
-            'data' => $data,
-            'count' => count($data)
+            'data' => $products,
+            'count' => count($products)
         ]));
         
         return $response->withHeader('Content-Type', 'application/json');
@@ -51,44 +64,6 @@ $app->get('/api/products', function (Request $request, Response $response, $args
         ]));
         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
     }
-});
-
-// API product by ID route - USING STATIC CALLS
-$app->get('/api/products/{id}', function (Request $request, Response $response, $args) {
-    try {
-        $id = $args['id'];
-        $product = \DB::queryFirstRow('SELECT * FROM product WHERE id = %s', $id);
-        
-        if ($product) {
-            $response->getBody()->write(json_encode([
-                'success' => true,
-                'data' => $product
-            ]));
-        } else {
-            $response->getBody()->write(json_encode([
-                'success' => false,
-                'error' => 'Product not found'
-            ]));
-            return $response->withStatus(404);
-        }
-        
-        return $response->withHeader('Content-Type', 'application/json');
-    } catch (Exception $e) {
-        $response->getBody()->write(json_encode([
-            'success' => false,
-            'error' => $e->getMessage()
-        ]));
-        return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-    }
-});
-
-// Catch-all route for 404 errors
-$app->map(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], '/{routes:.+}', function ($request, $response) {
-    $response->getBody()->write(json_encode([
-        'success' => false,
-        'error' => 'Route not found'
-    ]));
-    return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
 });
 
 // Run the application
