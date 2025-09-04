@@ -2,12 +2,25 @@
 declare(strict_types=1);
 namespace App\Repository;
 
-use DB;
+require_once __DIR__ . '/../meekrodb/db.class.php';
+
+use DB; // Import the MeekroDB class
 
 abstract class BaseRepository implements RepositoryInterface
 {
     protected $table;
     protected $primaryKey = 'id';
+
+    // Add this method for custom queries
+    protected function executeQuery(string $query, array $params = []): array
+    {
+        return DB::query($query, ...$params);
+    }
+
+    protected function executeQueryFirstRow(string $query, array $params = [])
+    {
+        return DB::queryFirstRow($query, ...$params);
+    }
 
     public function find($id)
     {

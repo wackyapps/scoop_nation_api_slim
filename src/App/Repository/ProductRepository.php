@@ -20,11 +20,7 @@ class ProductRepository extends BaseRepository
 
     public function search(string $keyword, array $orderBy = null, $limit = null, $offset = null): array
     {
-        $query = "
-            SELECT * FROM product 
-            WHERE title LIKE %ss OR description LIKE %ss
-        ";
-        
+        $query = "SELECT * FROM {$this->table} WHERE title LIKE %ss OR description LIKE %ss";
         $params = ["%{$keyword}%", "%{$keyword}%"];
 
         if ($orderBy) {
@@ -46,7 +42,7 @@ class ProductRepository extends BaseRepository
             $params[] = $offset;
         }
 
-        return DB::query($query, ...$params);
+        return $this->executeQuery($query, $params);
     }
 
     public function findWithImages($productId)
@@ -58,12 +54,11 @@ class ProductRepository extends BaseRepository
             WHERE p.id = %i
         ";
         
-        return DB::query($query, $productId);
+        return $this->executeQuery($query, [$productId]);
     }
 
     // get all products 
     public function getAllProducts() {
-        $query = "SELECT * FROM product";
-        return DB::query($query);
+        return $this->findAll();
     }
 }
