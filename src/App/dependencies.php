@@ -13,6 +13,7 @@ use App\Repository\VariantRepository;
 use App\Repository\BundleRepository;
 use App\Repository\PromoCodeRepository;
 use App\Controller\ProductController;
+use App\Controller\BundleController;
 use Psr\Container\ContainerInterface;
 use DI\Container;
 
@@ -68,6 +69,11 @@ return [
         return new ProductController($productRepository);
     },
 
+    BundleController::class => function (Container $container) {
+        $bundleRepository = $container->get(BundleRepository::class);
+        return new BundleController($bundleRepository);
+    },
+
     // Aliases
     'category_repository' => function (Container $container) {
         return $container->get(CategoryRepository::class);
@@ -77,7 +83,15 @@ return [
         return $container->get(ProductRepository::class);
     },
 
+    'bundle_repository' => function (Container $container) {
+        return $container->get(BundleRepository::class);
+    },
+
     'product_controller' => function (Container $container) {
         return $container->get(ProductController::class);
+    },
+
+    'bundle_controller' => function (Container $container) {
+        return $container->get(BundleController::class);
     },
 ];

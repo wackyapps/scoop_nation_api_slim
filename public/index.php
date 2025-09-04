@@ -36,7 +36,12 @@ $app->get('/', function (Request $request, Response $response) {
         'endpoints' => [
             '/api/products' => 'Get all products',
             '/api/products/category/{categoryId}' => 'Get products by category',
-            '/api/products/search' => 'Search products'
+            '/api/products/search' => 'Search products',
+            '/api/bundles' => 'Get all bundles',
+            '/api/bundles/{id}' => 'Get bundle with products',
+            '/api/bundles/{id}/products' => 'Get bundle pricing info',
+            '/api/bundles/search' => 'Search bundles by name',
+            '/api/bundles/product/{productId}' => 'Get bundles by product'
         ]
     ]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -56,6 +61,32 @@ $app->get('/api/products/category/{categoryId}', function (Request $request, Res
 $app->get('/api/products/search', function (Request $request, Response $response) use ($container) {
     $controller = $container->get(App\Controller\ProductController::class);
     return $controller->search($request, $response);
+});
+
+// Routes using BundleController with closures
+$app->get('/api/bundles', function (Request $request, Response $response) use ($container) {
+    $controller = $container->get(App\Controller\BundleController::class);
+    return $controller->getAll($request, $response);
+});
+
+$app->get('/api/bundles/{id}', function (Request $request, Response $response, array $args) use ($container) {
+    $controller = $container->get(App\Controller\BundleController::class);
+    return $controller->getBundleWithProducts($request, $response, $args);
+});
+
+$app->get('/api/bundles/{id}/products', function (Request $request, Response $response, array $args) use ($container) {
+    $controller = $container->get(App\Controller\BundleController::class);
+    return $controller->getPricingInfo($request, $response, $args);
+});
+
+$app->get('/api/bundles/search', function (Request $request, Response $response) use ($container) {
+    $controller = $container->get(App\Controller\BundleController::class);
+    return $controller->searchByName($request, $response);
+});
+
+$app->get('/api/bundles/product/{productId}', function (Request $request, Response $response, array $args) use ($container) {
+    $controller = $container->get(App\Controller\BundleController::class);
+    return $controller->getBundlesByProduct($request, $response, $args);
 });
 
 // Run the application
