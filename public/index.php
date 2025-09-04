@@ -32,39 +32,23 @@ $app = Bridge::create($container);
 // Add error middleware
 $app->addErrorMiddleware(true, true, true);
 
-// Your routes here
+// Root route
 $app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write(json_encode([
         'message' => 'ScoopNation API is running',
         'endpoints' => [
             '/api/products' => 'Get all products',
-            '/api/products/{id}' => 'Get specific product'
+            '/api/products/category/{categoryId}' => 'Get products by category',
+            '/api/products/search' => 'Search products'
         ]
     ]));
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-// Example route using repository through dependency injection
-$app->get('/api/products', function (Request $request, Response $response) use ($container) {
-    try {
-        $productRepository = $container->get(ProductRepository::class);
-        $products = $productRepository->findAll();
-        
-        $response->getBody()->write(json_encode([
-            'success' => true,
-            'data' => $products,
-            'count' => count($products)
-        ]));
-        
-        return $response->withHeader('Content-Type', 'application/json');
-    } catch (Exception $e) {
-        $response->getBody()->write(json_encode([
-            'success' => false,
-            'error' => $e->getMessage()
-        ]));
-        return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-    }
-});
+// Routes using ProductController
+$app->get('/api/products', [ProductController::class, 'getAll']);
+$app->get('/api/products/category/{categoryId}', [ProductController::class, 'getByCategory']);
+$app->get('/api/products/search', [ProductController::class, 'search']);
 
 // Run the application
 $app->run();

@@ -12,66 +12,72 @@ use App\Repository\CartItemRepository;
 use App\Repository\VariantRepository;
 use App\Repository\BundleRepository;
 use App\Repository\PromoCodeRepository;
+use App\Controller\ProductController;
 use Psr\Container\ContainerInterface;
+use DI\Container;
 
 return [
     // Repository dependencies
-    CategoryRepository::class => function (ContainerInterface $container) {
+    CategoryRepository::class => function (Container $container) {
         return new CategoryRepository();
     },
 
-    ProductRepository::class => function (ContainerInterface $container) {
+    ProductRepository::class => function (Container $container) {
         return new ProductRepository();
     },
 
-    UserRepository::class => function (ContainerInterface $container) {
+    UserRepository::class => function (Container $container) {
         return new UserRepository();
     },
 
-    OrderRepository::class => function (ContainerInterface $container) {
+    OrderRepository::class => function (Container $container) {
         return new OrderRepository();
     },
 
-    OrderItemRepository::class => function (ContainerInterface $container) {
+    OrderItemRepository::class => function (Container $container) {
         return new OrderItemRepository();
     },
 
-    ImageRepository::class => function (ContainerInterface $container) {
+    ImageRepository::class => function (Container $container) {
         return new ImageRepository();
     },
 
-    WishlistRepository::class => function (ContainerInterface $container) {
+    WishlistRepository::class => function (Container $container) {
         return new WishlistRepository();
     },
 
-    CartItemRepository::class => function (ContainerInterface $container) {
+    CartItemRepository::class => function (Container $container) {
         return new CartItemRepository();
     },
 
-    VariantRepository::class => function (ContainerInterface $container) {
+    VariantRepository::class => function (Container $container) {
         return new VariantRepository();
     },
 
-    BundleRepository::class => function (ContainerInterface $container) {
+    BundleRepository::class => function (Container $container) {
         return new BundleRepository();
     },
 
-    PromoCodeRepository::class => function (ContainerInterface $container) {
+    PromoCodeRepository::class => function (Container $container) {
         return new PromoCodeRepository();
     },
 
-    // You can also add aliases for easier access
-    'category_repository' => function (ContainerInterface $container) {
+    // Controller dependencies
+    ProductController::class => function (Container $container) {
+        $productRepository = $container->get(ProductRepository::class);
+        return new ProductController($productRepository);
+    },
+
+    // Aliases
+    'category_repository' => function (Container $container) {
         return $container->get(CategoryRepository::class);
     },
 
-    'product_repository' => function (ContainerInterface $container) {
+    'product_repository' => function (Container $container) {
         return $container->get(ProductRepository::class);
     },
 
-    'user_repository' => function (ContainerInterface $container) {
-        return $container->get(UserRepository::class);
+    'product_controller' => function (Container $container) {
+        return $container->get(ProductController::class);
     },
-
-    // Add more aliases as needed...
 ];

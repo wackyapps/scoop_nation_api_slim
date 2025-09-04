@@ -60,4 +60,10 @@ class ProductRepository extends BaseRepository
         
         return DB::query($query, $productId);
     }
+
+    // get all products 
+    public function getAllProducts() {
+        $query = "SELECT * FROM product";
+        return DB::query($query);
+    }
 }
