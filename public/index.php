@@ -5,6 +5,7 @@ use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use Slim\Middleware\BodyParsingMiddleware;
 
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../src/App/Constants.php';
@@ -26,11 +27,39 @@ $container = $containerBuilder->build();
 // Create Slim app instance with PHP-DI bridge
 $app = Bridge::create($container);
 
+// Add CORS middleware
+$app->add(function ($request, $handler) {
+    $response = $handler->handle($request);
+    
+    return $response
+        ->withHeader('Access-Control-Allow-Origin', '*')
+        ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+});
+
+// Handle preflight OPTIONS requests
+$app->options('/{routes:.+}', function ($request, $response) {
+    return $response;
+});
+
+// Add body parsing middleware
+$app->addBodyParsingMiddleware();
+
 // Add error middleware
 $app->addErrorMiddleware(true, true, true);
 
+// Disable cache middleware
+$app->add(function ($request, $handler) {
+    $response = $handler->handle($request);
+    
+    return $response
+        ->withHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        ->withHeader('Pragma', 'no-cache')
+        ->withHeader('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
+});
+
 // Root route
-$app->get('/', function (Request $request, Response $response) {
+$app->get('/', function ($request, $response) {
     $response->getBody()->write(json_encode([
         'message' => 'ScoopNation API is running',
         'endpoints' => [
@@ -47,49 +76,12 @@ $app->get('/', function (Request $request, Response $response) {
     return $response->withHeader('Content-Type', 'application/json');
 });
 
-// Routes using ProductController with closures
-$app->get('/api/products', function (Request $request, Response $response) use ($container) {
-    $controller = $container->get(App\Controller\ProductController::class);
-    return $controller->getAll($request, $response);
-});
+// Make $app available to route files
+global $app;
 
-$app->get('/api/products/category/{categoryId}', function (Request $request, Response $response, array $args) use ($container) {
-    $controller = $container->get(App\Controller\ProductController::class);
-    return $controller->getByCategory($request, $response, $args);
-});
-
-$app->get('/api/products/search', function (Request $request, Response $response) use ($container) {
-    $controller = $container->get(App\Controller\ProductController::class);
-    return $controller->search($request, $response);
-});
-
-// Routes using BundleController with closures
-// IMPORTANT: Define specific routes BEFORE parameterized routes
-$app->get('/api/bundles', function (Request $request, Response $response) use ($container) {
-    $controller = $container->get(App\Controller\BundleController::class);
-    return $controller->getAll($request, $response);
-});
-
-$app->get('/api/bundles/search', function (Request $request, Response $response) use ($container) {
-    $controller = $container->get(App\Controller\BundleController::class);
-    return $controller->searchByName($request, $response);
-});
-
-$app->get('/api/bundles/product/{productId}', function (Request $request, Response $response, array $args) use ($container) {
-    $controller = $container->get(App\Controller\BundleController::class);
-    return $controller->getBundlesByProduct($request, $response, $args);
-});
-
-// Parameterized routes should come AFTER specific routes
-$app->get('/api/bundles/{id}', function (Request $request, Response $response, array $args) use ($container) {
-    $controller = $container->get(App\Controller\BundleController::class);
-    return $controller->getBundleWithProducts($request, $response, $args);
-});
-
-$app->get('/api/bundles/{id}/products', function (Request $request, Response $response, array $args) use ($container) {
-    $controller = $container->get(App\Controller\BundleController::class);
-    return $controller->getPricingInfo($request, $response, $args);
-});
+// Load route files and pass the container
+require __DIR__ . '/../src/App/Routes/products.routes.php';
+require __DIR__ . '/../src/App/Routes/bundles.routes.php';
 
 // Run the application
 $app->run();
