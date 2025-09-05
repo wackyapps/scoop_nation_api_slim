@@ -77,6 +77,35 @@ class ProductController
      *   ]
      * }
      */
+
+    /**
+     * Get all products
+     * 
+     * @OA\Get(
+     *     path="/api/products",
+     *     summary="Get all products",
+     *     tags={"Products"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Product")
+     *             ),
+     *             @OA\Property(property="count", type="integer", example=10)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(ref="#/components/schemas/Error")
+     *     )
+     * )
+     */
     public function getAll(Request $request, Response $response): Response
     {
         $products = $this->productRepository->findAll();
@@ -112,6 +141,45 @@ class ProductController
      *     }
      *   ]
      * }
+     */
+
+    /**
+     * Get products by category
+     * 
+     * @OA\Get(
+     *     path="/api/products/category/{categoryId}",
+     *     summary="Get products by category",
+     *     tags={"Products"},
+     *     @OA\Parameter(
+     *         name="categoryId",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Product")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Category not found",
+     *         @OA\JsonContent(ref="#/components/schemas/Error")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(ref="#/components/schemas/Error")
+     *     )
+     * )
      */
     public function getByCategory(Request $request, Response $response, array $args): Response
     {
@@ -153,6 +221,41 @@ class ProductController
      * Search for products containing "chocolate"
      * GET /api/products/search?q=chocolate
      */
+
+    /**
+     * Search products
+     * 
+     * @OA\Get(
+     *     path="/api/products/search",
+     *     summary="Search products",
+     *     tags={"Products"},
+     *     @OA\Parameter(
+     *         name="query",
+     *         in="query",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Product")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(ref="#/components/schemas/Error")
+     *     )
+     * )
+     */
+    
     public function search(Request $request, Response $response): Response
     {
         $queryParams = $request->getQueryParams();

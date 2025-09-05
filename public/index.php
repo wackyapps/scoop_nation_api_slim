@@ -80,10 +80,11 @@ $app->get('/', function ($request, $response) {
 global $app;
 
 // Load route files and pass the container
-require __DIR__ . '/../src/App/Routes/products.routes.php';
-require __DIR__ . '/../src/App/Routes/bundles.routes.php';
-require __DIR__ . '/../src/App/Routes/user.routes.php';
-require __DIR__ . '/../src/App/Routes/customer.routes.php';
+require __DIR__ . '/../src/App/Routes/products.routes.php'; // Product routes
+require __DIR__ . '/../src/App/Routes/bundles.routes.php'; // Bundle routes
+require __DIR__ . '/../src/App/Routes/user.routes.php'; // User routes
+require __DIR__ . '/../src/App/Routes/customer.routes.php'; // Customer routes
+require __DIR__ . '/../src/App/Routes/swagger.routes.php'; // Swagger routes
 
 // Run the application
 $app->run();
