@@ -10,17 +10,15 @@ use OpenApi\Analysis;
 use OpenApi\Annotations as OA;
 use OpenApi\Generator;
 use OpenApi\Processors\Concerns\DocblockTrait;
-use OpenApi\Processors\Concerns\TypesTrait;
 
 /**
  * Augments shared and operations parameters from docblock comments.
  */
-class AugmentParameters
+class AugmentParameters implements ProcessorInterface
 {
     use DocblockTrait;
-    use TypesTrait;
 
-    protected bool $augmentOperationParameters;
+    protected $augmentOperationParameters = true;
 
     public function __construct(bool $augmentOperationParameters = true)
     {
@@ -42,7 +40,7 @@ class AugmentParameters
         return $this;
     }
 
-    public function __invoke(Analysis $analysis): void
+    public function __invoke(Analysis $analysis)
     {
         $this->augmentSharedParameters($analysis);
         if ($this->augmentOperationParameters) {
@@ -93,12 +91,6 @@ class AugmentParameters
                                 }
                             }
                         }
-                    }
-                }
-
-                foreach ($operation->parameters as $parameter) {
-                    if (!Generator::isDefault($parameter->schema)) {
-                        $this->mapNativeType($parameter->schema, $parameter->schema->type);
                     }
                 }
             }

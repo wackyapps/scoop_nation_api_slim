@@ -10,11 +10,11 @@ use OpenApi\Analysis;
 use OpenApi\Annotations as OA;
 use OpenApi\Generator;
 
-class AugmentRefs
+class AugmentRefs implements ProcessorInterface
 {
     use Concerns\RefTrait;
 
-    public function __invoke(Analysis $analysis): void
+    public function __invoke(Analysis $analysis)
     {
         $this->resolveAllOfRefs($analysis);
         $this->resolveFQCNRefs($analysis);
@@ -22,7 +22,7 @@ class AugmentRefs
     }
 
     /**
-     * Update refs broken due to <code>allOf</code> augmenting.
+     * Update refs broken due to `allOf` augmenting.
      */
     protected function resolveAllOfRefs(Analysis $analysis): void
     {
@@ -59,19 +59,14 @@ class AugmentRefs
     protected function resolveFQCNRefs(Analysis $analysis): void
     {
         /** @var OA\AbstractAnnotation[] $annotations */
-        $annotations = $analysis->getAnnotationsOfType(OA\Components::componentTypes());
+        $annotations = $analysis->getAnnotationsOfType([OA\Examples::class, OA\Header::class, OA\Link::class, OA\Parameter::class, OA\PathItem::class, OA\RequestBody::class, OA\Response::class, OA\Schema::class, OA\SecurityScheme::class]);
 
         foreach ($annotations as $annotation) {
             if (property_exists($annotation, 'ref') && !Generator::isDefault($annotation->ref) && is_string($annotation->ref) && !$this->isRef($annotation->ref)) {
-                // check if we can resolve the ref to a component
-                $resolved = false;
-                foreach (OA\Components::componentTypes() as $type) {
-                    if ($refSchema = $analysis->getAnnotationForSource($annotation->ref, $type)) {
-                        $resolved = true;
-                        $annotation->ref = OA\Components::ref($refSchema);
-                    }
-                }
-                if (!$resolved && ($refAnnotation = $analysis->getAnnotationForSource($annotation->ref, get_class($annotation)))) {
+                // check if we have a schema for this
+                if ($refSchema = $analysis->getSchemaForSource($annotation->ref)) {
+                    $annotation->ref = OA\Components::ref($refSchema);
+                } elseif ($refAnnotation = $analysis->getAnnotationForSource($annotation->ref, get_class($annotation))) {
                     $annotation->ref = OA\Components::ref($refAnnotation);
                 }
             }

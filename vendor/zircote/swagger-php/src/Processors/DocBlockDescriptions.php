@@ -14,13 +14,13 @@ use OpenApi\Generator;
  * Checks if the annotation has a summary and/or description property
  * and uses the text in the comment block (above the annotations) as summary and/or description.
  *
- * Use <code>null</code>, for example: <code>@Annotation(description=null)</code>, if you don't want the annotation to have a description.
+ * Use `null`, for example: `@Annotation(description=null)`, if you don't want the annotation to have a description.
  */
-class DocBlockDescriptions
+class DocBlockDescriptions implements ProcessorInterface
 {
     use Concerns\DocblockTrait;
 
-    public function __invoke(Analysis $analysis): void
+    public function __invoke(Analysis $analysis)
     {
         /** @var OA\AbstractAnnotation $annotation */
         foreach ($analysis->annotations as $annotation) {

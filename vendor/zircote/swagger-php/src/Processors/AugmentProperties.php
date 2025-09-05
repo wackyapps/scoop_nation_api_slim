@@ -14,14 +14,24 @@ use OpenApi\Generator;
 /**
  * Use the property context to extract useful information and inject that into the annotation.
  */
-class AugmentProperties
+class AugmentProperties implements ProcessorInterface
 {
     use Concerns\DocblockTrait;
     use Concerns\RefTrait;
     use Concerns\TypesTrait;
 
-    public function __invoke(Analysis $analysis): void
+    public function __invoke(Analysis $analysis)
     {
+        $refs = [];
+        if (!Generator::isDefault($analysis->openapi->components) && !Generator::isDefault($analysis->openapi->components->schemas)) {
+            foreach ($analysis->openapi->components->schemas as $schema) {
+                if (!Generator::isDefault($schema->schema)) {
+                    $refKey = $this->toRefKey($schema->_context, $schema->_context->class);
+                    $refs[$refKey] = OA\Components::ref($schema);
+                }
+            }
+        }
+
         /** @var OA\Property[] $properties */
         $properties = $analysis->getAnnotationsOfType(OA\Property::class);
 
@@ -39,7 +49,7 @@ class AugmentProperties
             $typeAndDescription = $this->extractVarTypeAndDescription((string) $context->comment);
 
             if (Generator::isDefault($property->type)) {
-                $this->augmentType($analysis, $property, $context, $typeAndDescription['type']);
+                $this->augmentType($analysis, $property, $context, $refs, $typeAndDescription['type']);
             } else {
                 if (!is_array($property->type)) {
                     $this->mapNativeType($property, $property->type);
@@ -63,11 +73,11 @@ class AugmentProperties
         }
     }
 
-    protected function augmentType(Analysis $analysis, OA\Property $property, Context $context, ?string $varType): void
+    protected function augmentType(Analysis $analysis, OA\Property $property, Context $context, array $refs, ?string $varType): void
     {
         // docblock typehints
         if ($varType) {
-            $allTypes = trim($varType);
+            $allTypes = strtolower(trim($varType));
 
             if ($this->isNullable($allTypes) && Generator::isDefault($property->nullable)) {
                 $property->nullable = true;
@@ -78,26 +88,33 @@ class AugmentProperties
             $type = $typeMatches[1];
 
             // finalise property type/ref
-            if (!$this->mapNativeType($property, $type) && Generator::isDefault($property->items)) {
-                $schema = $analysis->getSchemaForSource($context->fullyQualifiedName($type));
-                if (Generator::isDefault($property->ref) && $schema) {
-                    $property->ref = OA\Components::ref($schema);
+            if (!$this->mapNativeType($property, $type)) {
+                $refKey = $this->toRefKey($context, $type);
+                if (Generator::isDefault($property->ref) && array_key_exists($refKey, $refs)) {
+                    $property->ref = $refs[$refKey];
                 }
             }
 
             // ok, so we possibly have a type or ref
             if (!Generator::isDefault($property->ref) && $typeMatches[2] === '' && !Generator::isDefault($property->nullable) && $property->nullable) {
-                $schema = $analysis->getSchemaForSource($context->fullyQualifiedName($type));
-                if ($schema) {
-                    $property->ref = OA\Components::ref($schema);
-                }
+                $refKey = $this->toRefKey($context, $type);
+                $property->oneOf = [
+                    $schema = new OA\Schema([
+                        'ref' => $refs[$refKey],
+                        '_context' => new Context(['generated' => true], $property->_context),
+                    ]),
+                ];
+                $analysis->addAnnotation($schema, $schema->_context);
+                $property->nullable = true;
             } elseif ($typeMatches[2] === '[]') {
                 if (Generator::isDefault($property->items)) {
-                    $property->items = new OA\Items([
-                        'type' => $property->type,
-                        '_context' => new Context(['generated' => true], $context),
-                    ]);
-                    $analysis->addAnnotation($property->items, $property->items->_context);
+                    $property->items = $items = new OA\Items(
+                        [
+                            'type' => $property->type,
+                            '_context' => new Context(['generated' => true], $context),
+                        ]
+                    );
+                    $analysis->addAnnotation($items, $items->_context);
                     if (!Generator::isDefault($property->ref)) {
                         $property->items->ref = $property->ref;
                         $property->ref = Generator::UNDEFINED;
@@ -127,20 +144,24 @@ class AugmentProperties
                 $property->minimum = 0;
             } elseif ($type === 'non-zero-int') {
                 $property->type = 'integer';
-                $property->not = $property->_context->isVersion('3.1.x') ? ['const' => 0] : ['enum' => [0]];
+                if ($property->_context->isVersion(OA\OpenApi::VERSION_3_1_0)) {
+                    $property->not = ['const' => 0];
+                } else {
+                    $property->not = ['enum' => [0]];
+                }
             }
         }
 
         // native typehints
         if ($context->type && !Generator::isDefault($context->type)) {
-            if ($context->nullable === true && Generator::isDefault($property->nullable)) {
+            if ($context->nullable === true) {
                 $property->nullable = true;
             }
             $type = strtolower($context->type);
             if (!$this->mapNativeType($property, $type)) {
-                $schema = $analysis->getSchemaForSource($context->fullyQualifiedName($type));
-                if (Generator::isDefault($property->ref) && $schema) {
-                    $this->applyRef($analysis, $property, OA\Components::ref($schema));
+                $refKey = $this->toRefKey($context, $type);
+                if (Generator::isDefault($property->ref) && array_key_exists($refKey, $refs)) {
+                    $this->applyRef($analysis, $property, $refs[$refKey]);
                 } else {
                     if (is_string($context->type) && $typeSchema = $analysis->getSchemaForSource($context->type)) {
                         if (Generator::isDefault($property->format)) {
