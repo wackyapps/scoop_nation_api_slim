@@ -82,6 +82,8 @@ global $app;
 // Load route files and pass the container
 require __DIR__ . '/../src/App/Routes/products.routes.php';
 require __DIR__ . '/../src/App/Routes/bundles.routes.php';
+require __DIR__ . '/../src/App/Routes/user.routes.php';
+require __DIR__ . '/../src/App/Routes/customer.routes.php';
 
 // Run the application
 $app->run();
