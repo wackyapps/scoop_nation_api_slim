@@ -8,8 +8,8 @@ class ComposerStaticInit63661d32234c94a7c47675fbaa16f77c
 {
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
-        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '253c157292f75eb38082b5acb06f3f01' => __DIR__ . '/..' . '/nikic/fast-route/src/functions.php',
+        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         'b33e3d135e5d9e47d845c576147bda89' => __DIR__ . '/..' . '/php-di/php-di/src/functions.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
@@ -52,7 +52,6 @@ class ComposerStaticInit63661d32234c94a7c47675fbaa16f77c
         ),
         'D' => 
         array (
-            'Darkaonline\\L5Swagger\\' => 22,
             'DI\\Bridge\\Slim\\' => 15,
             'DI\\' => 3,
         ),
@@ -124,10 +123,6 @@ class ComposerStaticInit63661d32234c94a7c47675fbaa16f77c
         'FastRoute\\' => 
         array (
             0 => __DIR__ . '/..' . '/nikic/fast-route/src',
-        ),
-        'Darkaonline\\L5Swagger\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/darkaonline/l5-swagger/src',
         ),
         'DI\\Bridge\\Slim\\' => 
         array (

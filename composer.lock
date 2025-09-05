@@ -4,53 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3cf1fd5fdfc6d721365081e80e5c69ee",
+    "content-hash": "b6a9aecd47e2957cbd4e07944fbfeed7",
     "packages": [
-        {
-            "name": "darkaonline/l5-swagger",
-            "version": "v0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/DarkaOnLine/L5-Swagger.git",
-                "reference": "de0bc194dcca85d42d25893f715bc97545905a14"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/de0bc194dcca85d42d25893f715bc97545905a14",
-                "reference": "de0bc194dcca85d42d25893f715bc97545905a14",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0",
-                "zircote/swagger-php": "*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Darkaonline\\L5Swagger\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Darius Matulionis",
-                    "email": "darius@matulionis.lt"
-                }
-            ],
-            "description": "Swagger integration to Laravel 5",
-            "keywords": [
-                "laravel",
-                "swagger"
-            ],
-            "support": {
-                "issues": "https://github.com/DarkaOnLine/L5-Swagger/issues",
-                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/master"
-            },
-            "time": "2015-03-23T12:26:30+00:00"
-        },
         {
             "name": "fig/http-message-util",
             "version": "1.1.5",

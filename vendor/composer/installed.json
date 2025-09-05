@@ -1,54 +1,6 @@
 {
     "packages": [
         {
-            "name": "darkaonline/l5-swagger",
-            "version": "v0.1",
-            "version_normalized": "0.1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/DarkaOnLine/L5-Swagger.git",
-                "reference": "de0bc194dcca85d42d25893f715bc97545905a14"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/DarkaOnLine/L5-Swagger/zipball/de0bc194dcca85d42d25893f715bc97545905a14",
-                "reference": "de0bc194dcca85d42d25893f715bc97545905a14",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4.0",
-                "zircote/swagger-php": "*"
-            },
-            "time": "2015-03-23T12:26:30+00:00",
-            "type": "library",
-            "installation-source": "dist",
-            "autoload": {
-                "psr-4": {
-                    "Darkaonline\\L5Swagger\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Darius Matulionis",
-                    "email": "darius@matulionis.lt"
-                }
-            ],
-            "description": "Swagger integration to Laravel 5",
-            "keywords": [
-                "laravel",
-                "swagger"
-            ],
-            "support": {
-                "issues": "https://github.com/DarkaOnLine/L5-Swagger/issues",
-                "source": "https://github.com/DarkaOnLine/L5-Swagger/tree/master"
-            },
-            "install-path": "../darkaonline/l5-swagger"
-        },
-        {
             "name": "fig/http-message-util",
             "version": "1.1.5",
             "version_normalized": "1.1.5.0",
