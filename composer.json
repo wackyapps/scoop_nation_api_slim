@@ -24,7 +24,7 @@
         }
     },
     "scripts": {
-        "swagger": "vendor/bin/openapi src/App -o public/swagger.json",
+        "swagger": "vendor/bin/openapi src/App/Controller src/App/Repository src/App/SwaggerDefinitions.php --exclude vendor --exclude src/App/meekrodb -o public/swagger.json",
         "swagger:ui": "php -S localhost:8081 -t public/",
         "lint": "phpcs src/",
         "lint:fix": "phpcbf src/",
