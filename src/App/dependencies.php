@@ -12,11 +12,12 @@ use App\Repository\CartItemRepository;
 use App\Repository\VariantRepository;
 use App\Repository\BundleRepository;
 use App\Repository\PromoCodeRepository;
-use App\Repository\CustomerRepository; // ADD THIS LINE
+use App\Repository\CustomerRepository;
+use App\Controller\CategoryController; // ADD THIS LINE
 use App\Controller\ProductController;
 use App\Controller\BundleController;
-use App\Controller\CustomerController; // ADD THIS LINE
-use App\Controller\UserController; // ADD THIS LINE IF NOT ALREADY THERE
+use App\Controller\CustomerController;
+use App\Controller\UserController;
 use Psr\Container\ContainerInterface;
 use DI\Container;
 
@@ -66,11 +67,16 @@ return [
         return new PromoCodeRepository();
     },
 
-    CustomerRepository::class => function (Container $container) { // ADD THIS ENTRY
+    CustomerRepository::class => function (Container $container) {
         return new CustomerRepository();
     },
 
     // Controller dependencies
+    CategoryController::class => function (Container $container) { // ADD THIS ENTRY
+        $categoryRepository = $container->get(CategoryRepository::class);
+        return new CategoryController($categoryRepository);
+    },
+
     ProductController::class => function (Container $container) {
         $productRepository = $container->get(ProductRepository::class);
         return new ProductController($productRepository);
@@ -81,12 +87,12 @@ return [
         return new BundleController($bundleRepository);
     },
 
-    CustomerController::class => function (Container $container) { // ADD THIS ENTRY
+    CustomerController::class => function (Container $container) {
         $customerRepository = $container->get(CustomerRepository::class);
         return new CustomerController($customerRepository);
     },
 
-    UserController::class => function (Container $container) { // ADD THIS ENTRY IF NOT ALREADY THERE
+    UserController::class => function (Container $container) {
         $userRepository = $container->get(UserRepository::class);
         return new UserController($userRepository);
     },
@@ -104,12 +110,16 @@ return [
         return $container->get(BundleRepository::class);
     },
 
-    'customer_repository' => function (Container $container) { // ADD THIS ENTRY
+    'customer_repository' => function (Container $container) {
         return $container->get(CustomerRepository::class);
     },
 
-    'user_repository' => function (Container $container) { // ADD THIS ENTRY IF NOT ALREADY THERE
+    'user_repository' => function (Container $container) {
         return $container->get(UserRepository::class);
+    },
+
+    'category_controller' => function (Container $container) { // ADD THIS ENTRY
+        return $container->get(CategoryController::class);
     },
 
     'product_controller' => function (Container $container) {
@@ -120,11 +130,11 @@ return [
         return $container->get(BundleController::class);
     },
 
-    'customer_controller' => function (Container $container) { // ADD THIS ENTRY
+    'customer_controller' => function (Container $container) {
         return $container->get(CustomerController::class);
     },
 
-    'user_controller' => function (Container $container) { // ADD THIS ENTRY IF NOT ALREADY THERE
+    'user_controller' => function (Container $container) {
         return $container->get(UserController::class);
     },
 ];

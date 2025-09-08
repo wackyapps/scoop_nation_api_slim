@@ -63,6 +63,10 @@ $app->get('/', function ($request, $response) {
     $response->getBody()->write(json_encode([
         'message' => 'ScoopNation API is running',
         'endpoints' => [
+            '/api/categories' => 'Get all categories (basic info)',
+            '/api/categories/with-products' => 'Get all categories with banners and products',
+            '/api/categories/{id}' => 'Get category by ID (basic info)',
+            '/api/categories/{id}/with-products' => 'Get category with banner and products',
             '/api/products' => 'Get all products',
             '/api/products/category/{categoryId}' => 'Get products by category',
             '/api/products/search' => 'Search products',
@@ -70,7 +74,9 @@ $app->get('/', function ($request, $response) {
             '/api/bundles/search' => 'Search bundles by name',
             '/api/bundles/{id}' => 'Get bundle with products',
             '/api/bundles/{id}/products' => 'Get bundle pricing info',
-            '/api/bundles/product/{productId}' => 'Get bundles by product'
+            '/api/bundles/product/{productId}' => 'Get bundles by product',
+            '/api/users' => 'User management endpoints',
+            '/api/customers' => 'Customer management endpoints'
         ]
     ]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -80,6 +86,7 @@ $app->get('/', function ($request, $response) {
 global $app;
 
 // Load route files and pass the container
+require __DIR__ . '/../src/App/Routes/category.routes.php'; // ADD THIS LINE
 require __DIR__ . '/../src/App/Routes/products.routes.php';
 require __DIR__ . '/../src/App/Routes/bundles.routes.php';
 require __DIR__ . '/../src/App/Routes/user.routes.php';
