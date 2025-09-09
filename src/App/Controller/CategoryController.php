@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Repository\CategoryRepository;
@@ -8,7 +9,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class CategoryController
 {
-    private $categoryRepository;
+    private CategoryRepository $categoryRepository;
 
     public function __construct(CategoryRepository $categoryRepository)
     {
@@ -44,10 +45,11 @@ class CategoryController
     /**
      * Get specific category with banner and products
      */
-    public function getCategoryWithBannerAndProducts(Request $request, Response $response, array $args): Response
+    public function getCategoryWithBannerAndProducts(Request $request, Response $response): Response
     {
         try {
-            $categoryId = (int) $args['id'];
+            $id = $request->getAttribute('id');
+            $categoryId = (int) $id;
             
             if ($categoryId <= 0) {
                 $response->getBody()->write(json_encode([
@@ -114,10 +116,11 @@ class CategoryController
     /**
      * Get category by ID (basic info)
      */
-    public function getCategoryById(Request $request, Response $response, array $args): Response
+    public function getCategoryById(Request $request, Response $response): Response
     {
         try {
-            $categoryId = (int) $args['id'];
+            $id = $request->getAttribute('id');
+            $categoryId = (int) $id;
             
             if ($categoryId <= 0) {
                 $response->getBody()->write(json_encode([
