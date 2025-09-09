@@ -79,7 +79,10 @@ class ProductController
      */
     public function getAll(Request $request, Response $response): Response
     {
-        $products = $this->productRepository->findAll();
+        // Extract branch_id from request (e.g., header, query param, or session)
+        $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+
+        $products = $this->productRepository->getAllProducts($branchId);
         
         $response->getBody()->write(json_encode([
             'success' => true,
@@ -116,7 +119,10 @@ class ProductController
     public function getByCategory(Request $request, Response $response, array $args): Response
     {
         $categoryId = (int) $args['categoryId'];
-        $products = $this->productRepository->findByCategory($categoryId);
+        // Extract branch_id from request
+        $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+
+        $products = $this->productRepository->findByCategory($categoryId, $branchId);
         
         $response->getBody()->write(json_encode([
             'success' => true,
@@ -157,8 +163,10 @@ class ProductController
     {
         $queryParams = $request->getQueryParams();
         $keyword = $queryParams['q'] ?? '';
-        
-        $products = $this->productRepository->search($keyword);
+        // Extract branch_id from request
+        $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+
+        $products = $this->productRepository->search($keyword, $branchId);
         
         $response->getBody()->write(json_encode([
             'success' => true,

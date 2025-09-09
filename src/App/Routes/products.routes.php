@@ -5,11 +5,13 @@ $app->get('/api/products', function ($request, $response) use ($app) {
     return $controller->getAll($request, $response);
 });
 
+// Accepts an optional X-Branch-Id header to filter branch-specific products
 $app->get('/api/products/category/{categoryId}', function ($request, $response, $args) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\ProductController::class);
     return $controller->getByCategory($request, $response, $args);
 });
 
+// Accepts an optional X-Branch-Id header to filter branch-specific products
 $app->get('/api/products/search', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\ProductController::class);
     return $controller->search($request, $response);
