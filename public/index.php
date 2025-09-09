@@ -76,7 +76,8 @@ $app->get('/', function ($request, $response) {
             '/api/bundles/{id}/products' => 'Get bundle pricing info',
             '/api/bundles/product/{productId}' => 'Get bundles by product',
             '/api/users' => 'User management endpoints',
-            '/api/customers' => 'Customer management endpoints'
+            '/api/customers' => 'Customer management endpoints',
+            '/api/banners/active' => 'Get all active banner campaigns for today with banners and meta'
         ]
     ]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -86,11 +87,12 @@ $app->get('/', function ($request, $response) {
 global $app;
 
 // Load route files and pass the container
-require __DIR__ . '/../src/App/Routes/category.routes.php'; // ADD THIS LINE
+require __DIR__ . '/../src/App/Routes/category.routes.php';
 require __DIR__ . '/../src/App/Routes/products.routes.php';
 require __DIR__ . '/../src/App/Routes/bundles.routes.php';
 require __DIR__ . '/../src/App/Routes/user.routes.php';
 require __DIR__ . '/../src/App/Routes/customer.routes.php';
+require __DIR__ . '/../src/App/Routes/banner.routes.php';
 
 // Run the application
 $app->run();

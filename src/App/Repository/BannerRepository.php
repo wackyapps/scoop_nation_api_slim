@@ -89,7 +89,7 @@ class BannerRepository extends BaseRepository
         $banners = $this->getBannersForCampaign($campaignId);
         
         foreach ($banners as &$banner) {
-            $banner['meta'] = $this->getMediaMeta($banner['imageID']);
+            $banner['meta'] = $this->getMediaMeta((int)$banner['imageID']); // Cast to int
         }
         
         return $banners;
@@ -107,7 +107,7 @@ class BannerRepository extends BaseRepository
         $result = [];
         
         foreach ($campaigns as $campaign) {
-            $campaign['banners'] = $this->getBannersWithMetaForCampaign($campaign['id']);
+            $campaign['banners'] = $this->getBannersWithMetaForCampaign((int)$campaign['id']); // Cast to int
             $result[] = $campaign;
         }
         
