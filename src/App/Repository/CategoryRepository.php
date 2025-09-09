@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Repository;
 
 use DB;
@@ -28,14 +29,19 @@ class CategoryRepository extends BaseRepository
 
     /**
      * Get all categories with their banners and associated products including discounts, variants, bundles, and images
+     * Filters by branch_id if provided (NULL for global categories)
+     *
+     * @param int|null $branchId The ID of the branch to filter categories, or null for all
+     * @return array Array of categories with products
      */
-    public function getAllCategoriesWithBannersAndProducts()
+    public function getAllCategoriesWithBannersAndProducts(?int $branchId = null)
     {
         $query = "
             SELECT 
                 c.id as category_id,
                 c.name as category_name,
                 c.mainImage as category_banner,
+                c.branch_id,
                 
                 -- Product fields
                 p.id as product_id,
@@ -86,10 +92,11 @@ class CategoryRepository extends BaseRepository
             LEFT JOIN bundle_product bp ON p.id = bp.productId OR v.id = bp.variantId
             LEFT JOIN bundle b ON bp.bundleId = b.id
             WHERE p.inStock = 1
+            " . ($branchId ? "AND (c.branch_id = %i OR c.branch_id IS NULL)" : "") . "
             ORDER BY c.name, p.title, v.name, v.value
         ";
         
-        $results = DB::query($query);
+        $results = $branchId ? DB::query($query, $branchId) : DB::query($query);
         
         // Group products by category
         $categories = [];
@@ -101,6 +108,7 @@ class CategoryRepository extends BaseRepository
                     'id' => $categoryId,
                     'name' => $row['category_name'],
                     'banner' => $row['category_banner'],
+                    'branch_id' => $row['branch_id'],
                     'products' => []
                 ];
             }
@@ -158,14 +166,20 @@ class CategoryRepository extends BaseRepository
 
     /**
      * Get specific category with banner and products including discounts, variants, bundles, and images
+     * Filters by branch_id if provided
+     *
+     * @param int $categoryId The ID of the category
+     * @param int|null $branchId The ID of the branch to filter, or null for all
+     * @return array|null Category data with products, or null if not found
      */
-    public function getCategoryWithBannerAndProducts($categoryId)
+    public function getCategoryWithBannerAndProducts(int $categoryId, ?int $branchId = null)
     {
         $query = "
             SELECT 
                 c.id as category_id,
                 c.name as category_name,
                 c.mainImage as category_banner,
+                c.branch_id,
                 
                 -- Product fields
                 p.id as product_id,
@@ -216,10 +230,11 @@ class CategoryRepository extends BaseRepository
             LEFT JOIN bundle_product bp ON p.id = bp.productId OR v.id = bp.variantId
             LEFT JOIN bundle b ON bp.bundleId = b.id
             WHERE c.id = %i AND p.inStock = 1
+            " . ($branchId ? "AND (c.branch_id = %i OR c.branch_id IS NULL)" : "") . "
             ORDER BY p.title, v.name, v.value
         ";
         
-        $results = DB::query($query, $categoryId);
+        $results = $branchId ? DB::query($query, $categoryId, $branchId) : DB::query($query, $categoryId);
         
         if (empty($results)) {
             return null;
@@ -229,6 +244,7 @@ class CategoryRepository extends BaseRepository
             'id' => $results[0]['category_id'],
             'name' => $results[0]['category_name'],
             'banner' => $results[0]['category_banner'],
+            'branch_id' => $results[0]['branch_id'],
             'products' => []
         ];
         
@@ -371,17 +387,29 @@ class CategoryRepository extends BaseRepository
 
     /**
      * Get category by ID with basic info
+     * Filters by branch_id if provided
+     *
+     * @param int $categoryId The ID of the category
+     * @param int|null $branchId The ID of the branch to filter, or null for all
+     * @return array|null Category data, or null if not found
      */
-    public function getCategoryById($categoryId)
+    public function getCategoryById(int $categoryId, ?int $branchId = null)
     {
-        return $this->findOneBy(['id' => $categoryId]);
+        $query = "SELECT * FROM category WHERE id = %i" . ($branchId ? " AND (branch_id = %i OR branch_id IS NULL)" : "");
+        $result = $branchId ? DB::queryFirstRow($query, $categoryId, $branchId) : $this->findOneBy(['id' => $categoryId]);
+        return $result ?: null;
     }
 
     /**
      * Get all categories with basic info
+     * Filters by branch_id if provided
+     *
+     * @param int|null $branchId The ID of the branch to filter categories, or null for all
+     * @return array Array of categories
      */
-    public function getAllCategories()
+    public function getAllCategories(?int $branchId = null)
     {
-        return $this->findAll();
+        $query = "SELECT * FROM category" . ($branchId ? " WHERE (branch_id = %i OR branch_id IS NULL)" : "");
+        return $branchId ? DB::query($query, $branchId) : $this->findAll();
     }
 }

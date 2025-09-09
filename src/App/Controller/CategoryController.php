@@ -22,7 +22,10 @@ class CategoryController
     public function getAllCategoriesWithBannersAndProducts(Request $request, Response $response): Response
     {
         try {
-            $categories = $this->categoryRepository->getAllCategoriesWithBannersAndProducts();
+            // Extract branch_id from request (e.g., header, query param, or session)
+            $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+
+            $categories = $this->categoryRepository->getAllCategoriesWithBannersAndProducts($branchId);
             
             $response->getBody()->write(json_encode([
                 'success' => true,
@@ -59,7 +62,10 @@ class CategoryController
                 return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
             }
             
-            $category = $this->categoryRepository->getCategoryWithBannerAndProducts($categoryId);
+            // Extract branch_id from request
+            $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+
+            $category = $this->categoryRepository->getCategoryWithBannerAndProducts($categoryId, $branchId);
             
             if (!$category) {
                 $response->getBody()->write(json_encode([
@@ -93,7 +99,10 @@ class CategoryController
     public function getAllCategories(Request $request, Response $response): Response
     {
         try {
-            $categories = $this->categoryRepository->getAllCategories();
+            // Extract branch_id from request
+            $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+
+            $categories = $this->categoryRepository->getAllCategories($branchId);
             
             $response->getBody()->write(json_encode([
                 'success' => true,
@@ -130,7 +139,10 @@ class CategoryController
                 return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
             }
             
-            $category = $this->categoryRepository->getCategoryById($categoryId);
+            // Extract branch_id from request
+            $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+
+            $category = $this->categoryRepository->getCategoryById($categoryId, $branchId);
             
             if (!$category) {
                 $response->getBody()->write(json_encode([
