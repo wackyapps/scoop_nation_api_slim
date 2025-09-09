@@ -18,12 +18,15 @@ class BannerController
 
     /**
      * Get all active banner campaigns for today's date and time
-     * Returns campaigns with associated banners and meta data
+     * Returns campaigns with associated banners and meta data, filtered by branch if provided
      */
     public function getActiveBannerCampaignsForDateAndTime(Request $request, Response $response): Response
     {
         try {
-            $campaigns = $this->bannerRepository->getActiveCampaignsWithBannersAndMeta();
+            // Extract branch_id from request (e.g., header, query param, or session)
+            $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+
+            $campaigns = $this->bannerRepository->getActiveCampaignsWithBannersAndMeta($branchId);
 
             if (empty($campaigns)) {
                 $response->getBody()->write(json_encode([

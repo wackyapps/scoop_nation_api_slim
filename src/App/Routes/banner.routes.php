@@ -6,4 +6,5 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 // Get all active banner campaigns for today's date and time with banners and meta
+// Accepts an optional X-Branch-Id header to filter branch-specific banners
 $app->get('/api/banners/active', [BannerController::class, 'getActiveBannerCampaignsForDateAndTime']);

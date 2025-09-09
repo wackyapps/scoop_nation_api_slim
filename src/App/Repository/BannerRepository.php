@@ -12,22 +12,24 @@ class BannerRepository extends BaseRepository
 
     /**
      * Get all active banner campaigns that are currently running
-     * (is_active = 1 and current date is between start_date and end_date)
+     * Filters by branch_id if provided (NULL for global banners)
      *
+     * @param int|null $branchId The ID of the branch to filter banners, or null for all
      * @return array Array of active campaigns with basic info
      */
-    public function getActiveBannerCampaigns(): array
+    public function getActiveBannerCampaigns(?int $branchId = null): array
     {
         $query = "
-            SELECT id, name, description, start_date, end_date, is_active, created_at, updated_at
+            SELECT id, name, description, start_date, end_date, is_active, created_at, updated_at, branch_id
             FROM banner_campaign
             WHERE is_active = 1
             AND start_date <= NOW()
             AND end_date >= NOW()
+            " . ($branchId ? "AND (branch_id = %i OR branch_id IS NULL)" : "") . "
             ORDER BY start_date ASC
         ";
         
-        return DB::query($query);
+        return $branchId ? DB::query($query, $branchId) : DB::query($query);
     }
 
     /**
@@ -99,11 +101,12 @@ class BannerRepository extends BaseRepository
      * Get all active campaigns with their banners and meta
      * Combines active campaigns with their banners and meta for frontend use
      *
+     * @param int|null $branchId The ID of the branch to filter banners, or null for all
      * @return array Array of campaigns, each with 'banners' key containing banners with meta
      */
-    public function getActiveCampaignsWithBannersAndMeta(): array
+    public function getActiveCampaignsWithBannersAndMeta(?int $branchId = null): array
     {
-        $campaigns = $this->getActiveBannerCampaigns();
+        $campaigns = $this->getActiveBannerCampaigns($branchId);
         $result = [];
         
         foreach ($campaigns as $campaign) {
@@ -118,19 +121,23 @@ class BannerRepository extends BaseRepository
      * Get a single banner campaign by ID with banners and meta
      *
      * @param int $campaignId The ID of the banner campaign
-     * @return array|null Campaign data with banners and meta, or null if not found
+     * @param int|null $branchId The ID of the branch to verify campaign applicability
+     * @return array|null Campaign data with banners and meta, or null if not found/active
      */
-    public function getCampaignWithBannersAndMeta(int $campaignId): ?array
+    public function getCampaignWithBannersAndMeta(int $campaignId, ?int $branchId = null): ?array
     {
         $campaign = $this->findOneBy(['id' => $campaignId]);
         if (!$campaign) {
             return null;
         }
         
-        // Check if active
+        // Check if active and branch matches (if specified)
         $now = date('Y-m-d H:i:s');
         if ($campaign['is_active'] != 1 || $campaign['start_date'] > $now || $campaign['end_date'] < $now) {
-            return null; // Or return inactive flag, depending on needs
+            return null;
+        }
+        if ($branchId && $campaign['branch_id'] !== null && $campaign['branch_id'] != $branchId) {
+            return null; // Campaign is branch-specific and doesn't match
         }
         
         $campaign['banners'] = $this->getBannersWithMetaForCampaign($campaignId);
