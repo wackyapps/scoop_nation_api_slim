@@ -6,10 +6,13 @@ use DI\ContainerBuilder;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Middleware\BodyParsingMiddleware;
+use App\Services\Authentication\JWTMiddleware; // Add this use statement for the middleware
 
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../src/App/Constants.php';
 require __DIR__ . '/../src/App/meekrodb/db.class.php';
+// require for JWT Middleware
+require __DIR__ . '/../src/App/Services/Authentication/JWTMiddleware.php';
 
 // Configure MeekroDB
 DB::$host = DB_HOST;
@@ -26,6 +29,11 @@ $container = $containerBuilder->build();
 
 // Create Slim app instance with PHP-DI bridge
 $app = Bridge::create($container);
+
+/**
+ * Add JWT Middleware
+ */
+$app->add(new JWTMiddleware());
 
 // Add CORS middleware
 $app->add(function ($request, $handler) {
@@ -57,6 +65,7 @@ $app->add(function ($request, $handler) {
         ->withHeader('Pragma', 'no-cache')
         ->withHeader('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
 });
+
 
 // Root route
 $app->get('/', function ($request, $response) {
