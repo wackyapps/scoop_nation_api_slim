@@ -1,4 +1,5 @@
 <?php
+
 // Customer routes - IMPORTANT: Define specific routes BEFORE parameterized routes
 
 // Search customers by name or email - SPECIFIC ROUTE FIRST

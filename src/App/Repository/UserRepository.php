@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Repository;
+
+use DB;
+use App\Services\EmailService;
 
 class UserRepository extends BaseRepository
 {
@@ -27,8 +31,9 @@ class UserRepository extends BaseRepository
             SELECT 
                 u.*,
                 c.id as customer_id,
-                c.firstname,
-                c.lastname,
+                c.fullname,
+                c.gender,
+                c.date_of_birth,
                 c.phone,
                 c.company,
                 c.address,
@@ -40,11 +45,10 @@ class UserRepository extends BaseRepository
                 c.updatedAt as customer_updated
             FROM `user` u
             LEFT JOIN `customer` c ON u.id = c.user_id
-            WHERE u.id = ?
+            WHERE u.id = %i
         ";
         
-        $result = $this->executeQuery($sql, [$userId]);
-        return is_object($result) ? $result->fetch() : $result;
+        return DB::queryFirstRow($sql, $userId);
     }
 
     /**
@@ -56,8 +60,9 @@ class UserRepository extends BaseRepository
             SELECT 
                 u.*,
                 c.id as customer_id,
-                c.firstname,
-                c.lastname,
+                c.fullname,
+                c.gender,
+                c.date_of_birth,
                 c.phone,
                 c.company,
                 c.address,
@@ -69,46 +74,102 @@ class UserRepository extends BaseRepository
                 c.updatedAt as customer_updated
             FROM `user` u
             LEFT JOIN `customer` c ON u.id = c.user_id
-            WHERE u.email = ?
+            WHERE u.email = %s
         ";
         
-        $result = $this->executeQuery($sql, [$email]);
-        return is_object($result) ? $result->fetch() : $result;
+        return DB::queryFirstRow($sql, $email);
     }
 
     /**
-     * Create a new user and optionally link to an existing customer
+     * Register a new customer user and create customer record
      */
-    public function createUserWithCustomerLink(array $userData, ?int $customerId = null): int
+    public function registerCustomerUser(array $userData, array $customerData)
     {
-        $this->getDB()->beginTransaction();
-        
+        DB::startTransaction();
         try {
-            // Insert user
-            $userId = $this->insert($userData);
+            $userData['role'] = 'customer';
+            $userId = $this->save($userData);
             
-            // If customer ID provided, link the customer to this user
-            if ($customerId !== null) {
-                $this->linkCustomerToUser($customerId, $userId);
-            }
+            $customerData['user_id'] = $userId;
+            $customerRepository = new CustomerRepository();
+            $customerRepository->save($customerData);
             
-            $this->getDB()->commit();
+            DB::commit();
             return $userId;
-            
         } catch (\Exception $e) {
-            $this->getDB()->rollBack();
+            DB::rollback();
             throw $e;
         }
     }
 
     /**
-     * Link an existing customer to a user
+     * Login customer user - verify credentials
      */
-    public function linkCustomerToUser(int $customerId, int $userId): bool
+    public function loginCustomerUser(string $email, string $password): ?array
     {
-        $sql = "UPDATE `customer` SET user_id = ? WHERE id = ?";
-        $stmt = $this->getDB()->prepare($sql);
-        return $stmt->execute([$userId, $customerId]);
+        $user = $this->findByEmailWithProfile($email);
+        if ($user && $user->role === 'customer' && password_verify($password, $user->password)) {
+            return $user;
+        }
+        return null;
+    }
+
+    /**
+     * Register user with specific role (admin or rider)
+     */
+    public function registerUserWithRole(array $userData, string $role)
+    {
+        if (!in_array($role, ['admin', 'rider'])) {
+            throw new \Exception('Invalid role for this method');
+        }
+        $userData['role'] = $role;
+        return $this->save($userData);
+    }
+
+    /**
+     * Handle forgot password - generate and send OTP
+     */
+    public function forgotUserPassword(string $email): bool
+    {
+        $user = $this->findByEmail($email);
+        if (!$user) {
+            return false;
+        }
+        
+        // Generate OTP (assuming you have an OtpService)
+        $otpService = new OtpService();
+        $otp = $otpService->generateOtp();
+        $otpService->saveOtp($user->id, $otp);
+        
+        // Send email (assuming EmailService exists)
+        $emailService = new EmailService();
+        return $emailService->sendOtp($email, $otp);
+    }
+
+    /**
+     * Save user profile updates
+     */
+    public function saveProfile(int $userId, array $userData, array $customerData): bool
+    {
+        DB::startTransaction();
+        try {
+            $this->update($userId, $userData);
+            
+            $customerRepository = new CustomerRepository();
+            $customer = $customerRepository->findOneBy(['user_id' => $userId]);
+            if ($customer) {
+                $customerRepository->update($customer['id'], $customerData);
+            } else {
+                $customerData['user_id'] = $userId;
+                $customerRepository->save($customerData);
+            }
+            
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
     }
 
     /**
@@ -120,10 +181,10 @@ class UserRepository extends BaseRepository
             SELECT 
                 u.*,
                 c.id as customer_id,
-                c.firstname,
-                c.lastname,
+                c.fullname,
+                c.gender,
+                c.date_of_birth,
                 c.phone,
-                c.email as customer_email,
                 c.company,
                 c.address,
                 c.apartment,
@@ -134,25 +195,23 @@ class UserRepository extends BaseRepository
             LEFT JOIN `customer` c ON u.id = c.user_id
         ";
         
-        // Add ORDER BY if specified
-        if ($orderBy !== null) {
-            $orderParts = [];
+        if ($orderBy) {
+            $sql .= " ORDER BY ";
+            $orders = [];
             foreach ($orderBy as $field => $direction) {
-                $orderParts[] = "u.{$field} {$direction}";
+                $orders[] = "u.{$field} {$direction}";
             }
-            $sql .= " ORDER BY " . implode(', ', $orderParts);
+            $sql .= implode(', ', $orders);
         }
         
-        // Add LIMIT and OFFSET if specified
-        if ($limit !== null) {
-            $sql .= " LIMIT " . (int)$limit;
-            if ($offset !== null) {
-                $sql .= " OFFSET " . (int)$offset;
+        if ($limit) {
+            $sql .= " LIMIT %i";
+            if ($offset) {
+                $sql .= " OFFSET %i";
             }
         }
         
-        $result = $this->executeQuery($sql);
-        return is_object($result) ? $result->fetchAll() : $result;
+        return DB::query($sql, $limit ? ($offset ? [$limit, $offset] : [$limit]) : []);
     }
 
     /**
@@ -160,13 +219,13 @@ class UserRepository extends BaseRepository
      */
     public function findGuestCustomers(): array
     {
-        $sql = "
-            SELECT c.* 
-            FROM `customer` c 
-            WHERE c.user_id IS NULL
-        ";
-        
-        $result = $this->executeQuery($sql);
-        return is_object($result) ? $result->fetchAll() : $result;
+        $customerRepository = new CustomerRepository();
+        return $customerRepository->findBy(['user_id' => null]);
+    }
+
+    public function linkCustomerToUser(int $customerId, int $userId)
+    {
+        $customerRepository = new CustomerRepository();
+        return $customerRepository->update($customerId, ['user_id' => $userId]);
     }
 }

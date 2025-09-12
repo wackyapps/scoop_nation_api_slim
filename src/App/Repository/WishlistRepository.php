@@ -1,39 +1,40 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Repository;
+
+use DB;
 
 class WishlistRepository extends BaseRepository
 {
     protected $table = 'wishlist';
     protected $primaryKey = 'id';
 
-    public function findByUser($userId, array $orderBy = null, $limit = null, $offset = null): array
+    /**
+     * Add product to favorite (wishlist)
+     */
+    public function addProductToFavorite(int $userId, int $productId): int
     {
-        $criteria = ['userId' => $userId];
-        return $this->findBy($criteria, $orderBy, $limit, $offset);
+        // Check if already exists
+        $existing = $this->findOneBy(['userId' => $userId, 'productId' => $productId]);
+        if ($existing) {
+            return $existing['id'];
+        }
+        
+        return $this->save(['userId' => $userId, 'productId' => $productId]);
     }
 
-    public function userHasProduct($userId, $productId): bool
+    /**
+     * Remove product from favorite (wishlist)
+     */
+    public function removeProductFromFavorite(int $userId, int $productId): bool
     {
-        $query = "
-            SELECT COUNT(*) as count 
-            FROM wishlist 
-            WHERE userId = %i AND productId = %i
-        ";
+        $wishlistItem = $this->findOneBy(['userId' => $userId, 'productId' => $productId]);
+        if (!$wishlistItem) {
+            return false;
+        }
         
-        $result = DB::queryFirstRow($query, $userId, $productId);
-        return (int) $result['count'] > 0;
-    }
-
-    public function getUserWishlistWithProducts($userId): array
-    {
-        $query = "
-            SELECT w.*, p.title, p.price, p.mainImage, p.slug 
-            FROM wishlist w 
-            JOIN product p ON w.productId = p.id 
-            WHERE w.userId = %i
-        ";
-        
-        return DB::query($query, $userId);
+        $this->delete($wishlistItem['id']);
+        return true;
     }
 }

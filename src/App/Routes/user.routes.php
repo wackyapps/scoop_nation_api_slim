@@ -44,3 +44,59 @@ $app->post('/api/users/{id}/link-customer/{customerId}', function ($request, $re
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
     return $controller->linkCustomerToUser($request, $response, $args);
 });
+
+// New routes for added methods
+
+// Register new customer user
+$app->post('/api/users/register-customer', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->registerCustomerUser($request, $response);
+});
+
+// Login customer user
+$app->post('/api/users/login-customer', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->loginCustomerUser($request, $response);
+});
+
+// Register user with role (admin only)
+$app->post('/api/users/register-with-role', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->registerUserWithRole($request, $response);
+});
+
+// Forgot password
+$app->post('/api/users/forgot-password', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->forgotUserPassword($request, $response);
+});
+
+// Add new address
+$app->post('/api/users/{userId}/add-address', function ($request, $response, $args) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->addNewAddress($request, $response, $args);
+});
+
+// Remove address
+$app->delete('/api/users/{userId}/remove-address/{addressId}', function ($request, $response, $args) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->removeAddress($request, $response, $args);
+});
+
+// Add product to favorite
+$app->post('/api/users/{userId}/favorites/add/{productId}', function ($request, $response, $args) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->addProductToFavorite($request, $response, $args);
+});
+
+// Remove product from favorite
+$app->delete('/api/users/{userId}/favorites/remove/{productId}', function ($request, $response, $args) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->removeProductFromFavorite($request, $response, $args);
+});
+
+// Save profile
+$app->put('/api/users/{id}/profile', function ($request, $response, $args) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->saveProfile($request, $response, $args);
+});

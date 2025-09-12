@@ -13,7 +13,7 @@ use PHPMailer\PHPMailer\SMTP;
 require_once __DIR__ . '/../../constants.php';
 
 
-class EmailService
+class OtpService
 {
     private $mailer;
 

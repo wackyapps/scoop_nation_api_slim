@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use DB;
+
 class CustomerRepository extends BaseRepository
 {
     protected $table = 'customer';
@@ -25,16 +27,14 @@ class CustomerRepository extends BaseRepository
             SELECT * 
             FROM `customer` 
             WHERE 
-                firstname LIKE ? OR 
-                lastname LIKE ? OR 
-                email LIKE ? OR 
-                CONCAT(firstname, ' ', lastname) LIKE ?
-            ORDER BY firstname, lastname
+                fullname LIKE %ss OR 
+                email LIKE %ss OR 
+                phone LIKE %ss
+            ORDER BY fullname
         ";
         
         $searchTerm = "%{$query}%";
-        $result = $this->executeQuery($sql, [$searchTerm, $searchTerm, $searchTerm, $searchTerm]);
-        return is_object($result) ? $result->fetchAll() : $result;
+        return DB::query($sql, $searchTerm, $searchTerm, $searchTerm);
     }
 
     /**
@@ -42,7 +42,7 @@ class CustomerRepository extends BaseRepository
      */
     public function findByCity(string $city): array
     {
-        return $this->findBy(['city' => $city], ['firstname' => 'ASC', 'lastname' => 'ASC']);
+        return $this->findBy(['city' => $city], ['fullname' => 'ASC']);
     }
 
     /**
@@ -50,7 +50,7 @@ class CustomerRepository extends BaseRepository
      */
     public function findByCountry(string $country): array
     {
-        return $this->findBy(['country' => $country], ['city' => 'ASC', 'firstname' => 'ASC']);
+        return $this->findBy(['country' => $country], ['city' => 'ASC', 'fullname' => 'ASC']);
     }
 
     /**
@@ -70,11 +70,10 @@ class CustomerRepository extends BaseRepository
             SELECT c.*, u.role as user_role 
             FROM `customer` c 
             INNER JOIN `user` u ON c.user_id = u.id 
-            ORDER BY c.firstname, c.lastname
+            ORDER BY c.fullname
         ";
         
-        $result = $this->executeQuery($sql);
-        return is_object($result) ? $result->fetchAll() : $result;
+        return DB::query($sql);
     }
 
     /**
@@ -82,7 +81,7 @@ class CustomerRepository extends BaseRepository
      */
     public function updateUserId(int $customerId, ?int $userId): bool
     {
-        return $this->update($customerId, ['user_id' => $userId]);
+        return $this->update($customerId, ['user_id' => $userId]) ? true : false;
     }
 
     /**
@@ -93,15 +92,14 @@ class CustomerRepository extends BaseRepository
         $sql = "
             SELECT 
                 COUNT(*) as total_customers,
-                COUNT(user_id) as registered_customers,
-                COUNT(*) - COUNT(user_id) as guest_customers,
+                SUM(CASE WHEN user_id IS NOT NULL THEN 1 ELSE 0 END) as registered_customers,
+                SUM(CASE WHEN user_id IS NULL THEN 1 ELSE 0 END) as guest_customers,
                 COUNT(DISTINCT country) as countries_count,
                 COUNT(DISTINCT city) as cities_count
             FROM `customer`
         ";
         
-        $result = $this->executeQuery($sql);
-        return is_object($result) ? $result->fetch() : $result;
+        return DB::queryFirstRow($sql);
     }
 
     /**
@@ -120,7 +118,6 @@ class CustomerRepository extends BaseRepository
             ORDER BY total_spent DESC, order_count DESC
         ";
         
-        $result = $this->executeQuery($sql);
-        return is_object($result) ? $result->fetchAll() : $result;
+        return DB::query($sql);
     }
 }
