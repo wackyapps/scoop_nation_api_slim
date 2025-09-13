@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 03, 2025 at 02:23 PM
+-- Generation Time: Sep 13, 2025 at 06:33 PM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -24,13 +24,200 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `addresses`
+--
+
+CREATE TABLE `addresses` (
+  `id` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
+  `address_type` enum('home','work','other') COLLATE utf8mb4_unicode_ci DEFAULT 'home',
+  `street_address` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `city` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `state` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `postal_code` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `country` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT 'Pakistan',
+  `is_default` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `banner_campaign`
+--
+
+CREATE TABLE `banner_campaign` (
+  `id` bigint(20) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_by` bigint(20) DEFAULT NULL,
+  `updated_by` bigint(20) DEFAULT NULL,
+  `branch_id` bigint(20) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT current_timestamp(3),
+  `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `banner_campaign`
+--
+
+INSERT INTO `banner_campaign` (`id`, `name`, `description`, `start_date`, `end_date`, `is_active`, `created_by`, `updated_by`, `branch_id`, `created_at`, `updated_at`) VALUES
+(1, 'Summer Ice Cream Festival 2025', 'Annual summer ice cream promotion with special discounts and new flavors', '2025-06-01 00:00:00', '2025-08-31 23:59:59', 1, 1, NULL, NULL, '2025-05-15 10:00:00.000', '2025-09-09 01:54:17.034'),
+(2, 'Summer Ice Cream Festival 2025', 'Annual summer ice cream promotion with special discounts and new flavors', '2025-06-01 00:00:00', '2025-08-31 23:59:59', 1, 1, NULL, NULL, '2025-05-15 10:00:00.000', '2025-09-09 01:36:58.760'),
+(3, 'Back to School Specials', 'School season promotions on family packs and lunchbox treats', '2025-08-15 00:00:00', '2025-09-15 23:59:59', 1, 1, NULL, NULL, '2025-07-20 14:30:00.000', '2025-09-09 01:36:58.760'),
+(4, 'Winter Warm-up Campaign', 'Hot chocolate and warm dessert promotions for winter season', '2025-12-01 00:00:00', '2025-02-28 23:59:59', 1, 1, NULL, NULL, '2025-11-10 09:15:00.000', '2025-09-09 01:36:58.760'),
+(5, 'Spring Refresh Launch', 'Introduction of new spring flavors and seasonal products', '2025-03-01 00:00:00', '2025-05-31 23:59:59', 1, 1, NULL, NULL, '2025-02-15 11:45:00.000', '2025-09-09 01:36:58.760');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `branch`
+--
+
+CREATE TABLE `branch` (
+  `id` bigint(20) NOT NULL,
+  `business_id` bigint(20) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'e.g., "Downtown Outlet" or "Online Delivery Hub"',
+  `city` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Branch city',
+  `address` varchar(512) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Branch street address',
+  `apartment` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Branch house / office number',
+  `area` varchar(1024) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Branch area name',
+  `country` varchar(512) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Branch country name',
+  `postal_code` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Branch postal code',
+  `latitude` decimal(10,8) DEFAULT NULL COMMENT 'For geolocation',
+  `longitude` decimal(11,8) DEFAULT NULL COMMENT 'For geolocation',
+  `is_physical` tinyint(1) NOT NULL DEFAULT 2 COMMENT '1 = Physical outlet, 0 = Online-only (virtual pickup for delivery)',
+  `pickup_instructions` text COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Special instructions for riders/customers',
+  `delivery_status` tinyint(1) NOT NULL DEFAULT 1,
+  `customer_support_email` varchar(512) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Customer support email address',
+  `contact_number` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Customer support contact phone number (whats app)',
+  `delivery_module` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'Rider delivery module enabled or disabled',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_by` bigint(20) DEFAULT NULL,
+  `updated_by` bigint(20) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT current_timestamp(3),
+  `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `branch`
+--
+
+INSERT INTO `branch` (`id`, `business_id`, `name`, `city`, `address`, `apartment`, `area`, `country`, `postal_code`, `latitude`, `longitude`, `is_physical`, `pickup_instructions`, `delivery_status`, `customer_support_email`, `contact_number`, `delivery_module`, `is_active`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
+(1, 1, 'The Downtown Outlet', 'Lahore', 'Main Street, Downtown', NULL, '', '', '55110', '31.20000000', '74.45000000', 1, 'Pickup from front counter', 1, '', '', 1, 1, 1, NULL, '2025-09-10 00:35:37.000', '2025-09-10 00:48:35.943'),
+(2, 1, 'Online Delivery Hub - Lahore', 'Lahore', 'Virtual Hub for Lahore Deliveries', NULL, '', '', '54000', '31.52000000', '74.35870000', 0, 'Riders coordinate via app for bulk pickup', 1, '', '', 1, 1, 1, NULL, '2025-09-10 00:35:37.000', '2025-09-10 00:35:37.000');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `branch_product`
+--
+
+CREATE TABLE `branch_product` (
+  `id` bigint(20) NOT NULL,
+  `branch_id` bigint(20) NOT NULL,
+  `product_id` bigint(20) NOT NULL,
+  `variant_id` bigint(20) DEFAULT NULL COMMENT 'Optional for specific variants',
+  `is_available` tinyint(1) NOT NULL DEFAULT 1,
+  `branch_price` int(11) DEFAULT NULL COMMENT 'Override global price if needed',
+  `min_order_quantity` int(11) DEFAULT 1,
+  `max_order_quantity` int(11) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT current_timestamp(3),
+  `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `branch_product`
+--
+
+INSERT INTO `branch_product` (`id`, `branch_id`, `product_id`, `variant_id`, `is_available`, `branch_price`, `min_order_quantity`, `max_order_quantity`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, NULL, 1, NULL, 1, NULL, '2025-09-10 00:35:37.000', '2025-09-10 00:35:37.000');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `branch_special_days`
+--
+
+CREATE TABLE `branch_special_days` (
+  `id` bigint(20) NOT NULL,
+  `branch_id` bigint(20) NOT NULL,
+  `date` date NOT NULL COMMENT 'Special date (holiday/exception)',
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Reason for special timing',
+  `open_time` time DEFAULT NULL COMMENT 'Special opening time',
+  `close_time` time DEFAULT NULL COMMENT 'Special closing time',
+  `is_closed` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1=Closed for this special day',
+  `created_at` datetime(3) DEFAULT current_timestamp(3),
+  `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `branch_special_days`
+--
+
+INSERT INTO `branch_special_days` (`id`, `branch_id`, `date`, `description`, `open_time`, `close_time`, `is_closed`, `created_at`, `updated_at`) VALUES
+(1, 1, '2025-12-25', 'Christmas Day - Closed', NULL, NULL, 1, '2025-09-11 18:40:30.967', '2025-09-11 18:40:30.967'),
+(2, 2, '2025-12-25', 'Christmas Day - Closed', NULL, NULL, 1, '2025-09-11 18:40:30.967', '2025-09-11 18:40:30.967'),
+(3, 1, '2025-12-31', 'New Year\'s Eve - Extended Hours', '10:00:00', '02:00:00', 0, '2025-09-11 18:40:30.967', '2025-09-11 18:40:30.967'),
+(4, 2, '2025-12-31', 'New Year\'s Eve - Extended Hours', '10:00:00', '02:00:00', 0, '2025-09-11 18:40:30.967', '2025-09-11 18:40:30.967'),
+(5, 1, '2025-09-15', 'Staff Training - Early Closing', '12:00:00', '18:00:00', 0, '2025-09-11 18:40:30.967', '2025-09-11 18:40:30.967');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `branch_timings`
+--
+
+CREATE TABLE `branch_timings` (
+  `id` bigint(20) NOT NULL,
+  `branch_id` bigint(20) NOT NULL,
+  `day_of_week` tinyint(1) NOT NULL COMMENT '1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday, 7=Sunday',
+  `open_time` time DEFAULT NULL COMMENT 'Opening time (NULL means closed)',
+  `close_time` time DEFAULT NULL COMMENT 'Closing time (NULL means closed)',
+  `is_closed` tinyint(1) NOT NULL DEFAULT 0 COMMENT '1=Closed for the entire day',
+  `created_at` datetime(3) DEFAULT current_timestamp(3),
+  `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `branch_timings`
+--
+
+INSERT INTO `branch_timings` (`id`, `branch_id`, `day_of_week`, `open_time`, `close_time`, `is_closed`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(2, 1, 2, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(3, 1, 3, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(4, 1, 4, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(5, 1, 5, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(6, 1, 6, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(7, 1, 7, NULL, NULL, 1, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(8, 2, 1, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(9, 2, 2, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(10, 2, 3, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(11, 2, 4, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(12, 2, 5, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(13, 2, 6, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
+(14, 2, 7, NULL, NULL, 1, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `bundle`
 --
 
 CREATE TABLE `bundle` (
-  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` bigint(20) NOT NULL,
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `discountedPrice` int(11) NOT NULL
+  `discountedPrice` int(11) NOT NULL,
+  `discountType` enum('PERCENTAGE','FIXED_AMOUNT') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `discountValue` int(11) DEFAULT NULL,
+  `originalPrice` int(11) DEFAULT NULL,
+  `discountStartDate` datetime(3) DEFAULT NULL,
+  `discountEndDate` datetime(3) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -40,10 +227,52 @@ CREATE TABLE `bundle` (
 --
 
 CREATE TABLE `bundle_product` (
-  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `bundleId` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `productId` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `variantId` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `id` bigint(20) NOT NULL,
+  `bundleId` bigint(20) NOT NULL,
+  `productId` bigint(20) DEFAULT NULL,
+  `variantId` bigint(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `business`
+--
+
+CREATE TABLE `business` (
+  `id` bigint(20) NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `logo` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `loyality_points` tinyint(1) NOT NULL DEFAULT 0,
+  `promo_codde` tinyint(1) NOT NULL DEFAULT 0,
+  `auto_order_accept` tinyint(1) NOT NULL DEFAULT 0,
+  `timezone` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `owner_user_id` bigint(20) NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` datetime(3) DEFAULT current_timestamp(3),
+  `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `business`
+--
+
+INSERT INTO `business` (`id`, `name`, `description`, `logo`, `loyality_points`, `promo_codde`, `auto_order_accept`, `timezone`, `owner_user_id`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'ScoopNation Ice Cream', 'Leading ice cream chain with multiple outlets and online delivery', 'logo.png', 0, 0, 0, '', 1, 1, '2025-09-10 00:35:37.000', '2025-09-10 00:35:37.000');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cart`
+--
+
+CREATE TABLE `cart` (
+  `id` bigint(20) NOT NULL,
+  `userId` bigint(20) DEFAULT NULL,
+  `sessionId` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) NOT NULL DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -53,13 +282,13 @@ CREATE TABLE `bundle_product` (
 --
 
 CREATE TABLE `cart_item` (
-  `id` int(11) NOT NULL,
-  `userId` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `productId` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `variantId` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `quantity` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` bigint(20) NOT NULL,
+  `cartId` bigint(20) NOT NULL,
+  `productId` bigint(20) NOT NULL,
+  `variantId` bigint(20) NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 1,
   `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
-  `updatedAt` datetime(3) NOT NULL
+  `updatedAt` datetime(3) NOT NULL DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -69,29 +298,923 @@ CREATE TABLE `cart_item` (
 --
 
 CREATE TABLE `category` (
-  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` bigint(20) NOT NULL,
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `mainImage` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL
+  `mainImage` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `branch_id` bigint(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `category`
 --
 
-INSERT INTO `category` (`id`, `name`, `mainImage`) VALUES
-('2a8f4082-e886-4577-af99-85002358b944', 'Con-Ice-Cream', 'Wafer-Ice-Cream-PNG-Picture.png');
+INSERT INTO `category` (`id`, `name`, `mainImage`, `branch_id`) VALUES
+(1, 'Con-Ice-Cream', 'Wafer-Ice-Cream-PNG-Picture.png', 1);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `image`
+-- Table structure for table `cities`
 --
 
-CREATE TABLE `image` (
-  `imageID` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `productID` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `image` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL
+CREATE TABLE `cities` (
+  `id` mediumint(8) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state_id` mediumint(8) UNSIGNED NOT NULL,
+  `state_code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `country_id` mediumint(8) UNSIGNED NOT NULL,
+  `country_code` char(2) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `latitude` decimal(10,8) NOT NULL,
+  `longitude` decimal(11,8) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT '2014-01-01 12:01:01',
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `flag` tinyint(1) NOT NULL DEFAULT 1,
+  `wikiDataId` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Rapid API GeoDB Cities'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT;
+
+--
+-- Dumping data for table `cities`
+--
+
+INSERT INTO `cities` (`id`, `name`, `state_id`, `state_code`, `country_id`, `country_code`, `latitude`, `longitude`, `created_at`, `updated_at`, `flag`, `wikiDataId`) VALUES
+(85329, 'Abbottabad', 3171, 'KP', 167, 'PK', '34.14630000', '73.21168000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q170315'),
+(85330, 'Adilpur', 3175, 'SD', 167, 'PK', '27.93677000', '69.31941000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q170315'),
+(85331, 'Ahmedpur East', 3176, 'PB', 167, 'PK', '29.14269000', '71.25771000', '2019-10-05 23:13:31', '2020-07-04 17:35:23', 1, 'Q1250201'),
+(85332, 'Ahmadpur Sial', 3176, 'PB', 167, 'PK', '30.67791000', '71.74344000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q1250201'),
+(85333, 'Akora', 3171, 'KP', 167, 'PK', '34.00337000', '72.12561000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2475251'),
+(85334, 'Alik Ghund', 3174, 'BA', 167, 'PK', '30.48976000', '67.52177000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2475251'),
+(85335, 'Alipur Chatha', 3176, 'PB', 167, 'PK', '29.38242000', '70.91106000', '2019-10-05 23:13:31', '2020-07-04 16:58:06', 1, 'Q2475251'),
+(85336, 'Alizai', 3173, 'TA', 167, 'PK', '33.53613000', '70.34607000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2475251'),
+(85337, 'Aman Garh', 3171, 'KP', 167, 'PK', '34.00584000', '71.92971000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2475251'),
+(85338, 'Amirabad', 3171, 'KP', 167, 'PK', '34.18729000', '73.09078000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2475251'),
+(85339, 'Arifwala', 3176, 'PB', 167, 'PK', '30.29058000', '73.06574000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2984767'),
+(85340, 'Ashanagro Koto', 3171, 'KP', 167, 'PK', '34.10773000', '72.24517000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2984767'),
+(85341, 'Attock Tehsil', 3176, 'PB', 167, 'PK', '33.76671000', '72.35977000', '2019-10-05 23:13:31', '2020-07-04 16:58:30', 1, 'Q2984767'),
+(85342, 'Awārān District', 3174, 'BA', 167, 'PK', '26.21157000', '65.42944000', '2019-10-05 23:13:31', '2020-05-01 17:23:04', 1, 'Q250800'),
+(85343, 'Baddomalhi', 3176, 'PB', 167, 'PK', '31.99042000', '74.66410000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q4840703'),
+(85344, 'Badin', 3175, 'SD', 167, 'PK', '24.65600000', '68.83700000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2625289'),
+(85345, 'Baffa', 3171, 'KP', 167, 'PK', '34.43770000', '73.22368000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2625289'),
+(85346, 'Bagarji', 3175, 'SD', 167, 'PK', '27.75431000', '68.75866000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2625289'),
+(85347, 'Bahawalnagar', 3176, 'PB', 167, 'PK', '29.99835000', '73.25272000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q1249932'),
+(85348, 'Bahawalpur', 3176, 'PB', 167, 'PK', '29.39779000', '71.67520000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q318156'),
+(85349, 'Bakhri Ahmad Khan', 3176, 'PB', 167, 'PK', '30.73586000', '70.83796000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q318156'),
+(85350, 'Bandhi', 3175, 'SD', 167, 'PK', '26.58761000', '68.30215000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q4854564'),
+(85351, 'Bannu', 3171, 'KP', 167, 'PK', '32.98527000', '70.60403000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q806916'),
+(85352, 'Barishal', 3170, 'GB', 167, 'PK', '36.32162000', '74.69502000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q806916'),
+(85353, 'Barkhan', 3174, 'BA', 167, 'PK', '29.89773000', '69.52558000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2640339'),
+(85354, 'Basirpur', 3176, 'PB', 167, 'PK', '30.57759000', '73.83912000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2640339'),
+(85355, 'Basti Dosa', 3176, 'PB', 167, 'PK', '30.78769000', '70.86853000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2640339'),
+(85356, 'Bat Khela', 3171, 'KP', 167, 'PK', '34.61780000', '71.97247000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2582559'),
+(85357, 'Battagram', 3171, 'KP', 167, 'PK', '34.67719000', '73.02329000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2582559'),
+(85358, 'Battagram District', 3171, 'KP', 167, 'PK', '34.68051000', '73.00535000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3240074'),
+(85359, 'Begowala', 3176, 'PB', 167, 'PK', '32.43816000', '74.26794000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3240074'),
+(85360, 'Bela', 3174, 'BA', 167, 'PK', '26.22718000', '66.31178000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q815082'),
+(85361, 'Berani', 3175, 'SD', 167, 'PK', '25.78497000', '68.80754000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q815082'),
+(85362, 'Bhag', 3174, 'BA', 167, 'PK', '29.04174000', '67.82394000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q815082'),
+(85363, 'Bhakkar', 3176, 'PB', 167, 'PK', '31.62685000', '71.06471000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2428259'),
+(85364, 'Bhalwal', 3176, 'PB', 167, 'PK', '32.26576000', '72.89809000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2791141'),
+(85365, 'Bhan', 3175, 'SD', 167, 'PK', '26.55831000', '67.72139000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2791141'),
+(85366, 'Bhawana', 3176, 'PB', 167, 'PK', '31.56884000', '72.64917000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q854934'),
+(85367, 'Bhera', 3176, 'PB', 167, 'PK', '32.48206000', '72.90865000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3777358'),
+(85368, 'Bhimbar', 3172, 'JK', 167, 'PK', '32.97465000', '74.07846000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3631249'),
+(85369, 'Bhiria', 3175, 'SD', 167, 'PK', '26.91041000', '68.19466000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3631249'),
+(85370, 'Bhit Shah', 3175, 'SD', 167, 'PK', '25.80565000', '68.49143000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3631249'),
+(85371, 'Bhopalwala', 3176, 'PB', 167, 'PK', '32.42968000', '74.36350000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3631249'),
+(85372, 'Bozdar Wada', 3175, 'SD', 167, 'PK', '27.18300000', '68.63580000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3631249'),
+(85373, 'Bulri', 3175, 'SD', 167, 'PK', '24.86667000', '68.33333000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q34784421'),
+(85374, 'Buner District', 3171, 'KP', 167, 'PK', '34.44301000', '72.49933000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q2039096'),
+(85375, 'Bārkhān District', 3174, 'BA', 167, 'PK', '29.98482000', '69.69944000', '2019-10-05 23:13:31', '2020-05-01 17:23:04', 1, 'Q250810'),
+(85376, 'Burewala', 3176, 'PB', 167, 'PK', '30.16667000', '72.65000000', '2019-10-05 23:13:31', '2020-07-04 11:20:19', 1, 'Q250810'),
+(85377, 'Chak', 3175, 'SD', 167, 'PK', '27.85838000', '68.83378000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q250810'),
+(85378, 'Chak Azam Saffo', 3176, 'PB', 167, 'PK', '30.75202000', '73.02834000', '2019-10-05 23:13:31', '2020-07-04 17:00:42', 1, 'Q250810'),
+(85380, 'Chak Jhumra', 3176, 'PB', 167, 'PK', '31.56808000', '73.18317000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q250810'),
+(85381, 'Chak One Hundred Twenty Nine Left', 3176, 'PB', 167, 'PK', '30.42919000', '73.04522000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q250810'),
+(85382, 'Chak Thirty-one -Eleven Left', 3176, 'PB', 167, 'PK', '30.42388000', '72.69737000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q250810'),
+(85383, 'Chak Two Hundred Forty-Nine TDA', 3176, 'PB', 167, 'PK', '31.17772000', '71.20480000', '2019-10-05 23:13:31', '2020-07-04 17:00:29', 1, 'Q250810'),
+(85384, 'Chakwal', 3176, 'PB', 167, 'PK', '32.93286000', '72.85394000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q1251473'),
+(85385, 'Chaman', 3174, 'BA', 167, 'PK', '30.91769000', '66.45259000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q1017644'),
+(85386, 'Chamber', 3175, 'SD', 167, 'PK', '25.29362000', '68.81176000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q1017644'),
+(85387, 'Charsadda', 3171, 'KP', 167, 'PK', '34.14822000', '71.74060000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q1642808'),
+(85388, 'Chawinda', 3176, 'PB', 167, 'PK', '32.34434000', '74.70507000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q5088564'),
+(85389, 'Rabwah', 3176, 'PB', 167, 'PK', '31.75511000', '72.91403000', '2019-10-05 23:13:31', '2020-07-04 17:02:55', 1, 'Q1069835'),
+(85390, 'Cherat Cantonement', 3171, 'KP', 167, 'PK', '33.82342000', '71.89292000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3695863'),
+(85391, 'Chhor', 3175, 'SD', 167, 'PK', '25.51260000', '69.78437000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q15209971'),
+(85392, 'Chichawatni', 3176, 'PB', 167, 'PK', '30.53010000', '72.69155000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3321325'),
+(85393, 'Chiniot', 3176, 'PB', 167, 'PK', '31.72091000', '72.97836000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q1017651'),
+(85394, 'Chishtian', 3176, 'PB', 167, 'PK', '29.79713000', '72.85772000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q1250229'),
+(85395, 'Chitral', 3171, 'KP', 167, 'PK', '35.85180000', '71.78636000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q12126543'),
+(85396, 'Choa Saidanshah', 3176, 'PB', 167, 'PK', '32.71962000', '72.98625000', '2019-10-05 23:13:31', '2020-07-04 17:01:33', 1, 'Q3311334'),
+(85397, 'Chowki Jamali', 3174, 'BA', 167, 'PK', '28.01944000', '67.92083000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3311334'),
+(85399, 'Chuhar Jamali', 3175, 'SD', 167, 'PK', '24.39440000', '67.99298000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3311334'),
+(85400, 'Chunian', 3176, 'PB', 167, 'PK', '30.96621000', '73.97908000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3695904'),
+(85401, 'Chāgai District', 3174, 'BA', 167, 'PK', '28.98765000', '63.59087000', '2019-10-05 23:13:31', '2020-05-01 17:23:04', 1, 'Q276717'),
+(85402, 'Dadhar', 3174, 'BA', 167, 'PK', '29.47489000', '67.65167000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q254504'),
+(85403, 'Dadu', 3175, 'SD', 167, 'PK', '26.73033000', '67.77690000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q1081635'),
+(85404, 'Daira Din Panah', 3176, 'PB', 167, 'PK', '30.57053000', '70.93722000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q1081635'),
+(85405, 'Dajal', 3176, 'PB', 167, 'PK', '29.55769000', '70.37614000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q1081635'),
+(85406, 'Dalbandin', 3174, 'BA', 167, 'PK', '28.88846000', '64.40616000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3235682'),
+(85407, 'Dandot RS', 3176, 'PB', 167, 'PK', '32.64167000', '72.97500000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3235682'),
+(85408, 'Daromehar', 3175, 'SD', 167, 'PK', '24.79382000', '68.17978000', '2019-10-05 23:13:31', '2019-10-05 23:13:31', 1, 'Q3235682'),
+(85409, 'Darya Khan', 3176, 'PB', 167, 'PK', '31.78447000', '71.10197000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3321393'),
+(85410, 'Darya Khan Marri', 3175, 'SD', 167, 'PK', '26.67765000', '68.28666000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3321393'),
+(85411, 'Daska', 3176, 'PB', 167, 'PK', '32.32422000', '74.35039000', '2019-10-05 23:13:32', '2020-07-04 17:04:55', 1, 'Q2374990'),
+(85413, 'Daulatpur', 3175, 'SD', 167, 'PK', '26.50158000', '67.97079000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2374990'),
+(85414, 'Daultala', 3176, 'PB', 167, 'PK', '33.19282000', '73.14099000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2374990'),
+(85415, 'Daur', 3175, 'SD', 167, 'PK', '26.45528000', '68.31835000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2374990'),
+(85416, 'Dera Bugti', 3174, 'BA', 167, 'PK', '29.03619000', '69.15849000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2989478'),
+(85417, 'Dera Bugti District', 3174, 'BA', 167, 'PK', '28.94250000', '69.06883000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2315565'),
+(85418, 'Dera Ghazi Khan', 3176, 'PB', 167, 'PK', '30.04587000', '70.64029000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q999076'),
+(85419, 'Dera Ismail Khan', 3171, 'KP', 167, 'PK', '31.83129000', '70.90170000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1249888'),
+(85420, 'Dera Ismāīl Khān District', 3171, 'KP', 167, 'PK', '31.85963000', '70.64879000', '2019-10-05 23:13:32', '2020-05-01 17:23:04', 1, 'Q284210'),
+(85421, 'Dhanot', 3176, 'PB', 167, 'PK', '29.57991000', '71.75213000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q284210'),
+(85422, 'Dhaunkal', 3176, 'PB', 167, 'PK', '32.40613000', '74.13706000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q284210'),
+(85423, 'Dhoro Naro', 3175, 'SD', 167, 'PK', '25.50484000', '69.57090000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q284210'),
+(85424, 'Digri', 3175, 'SD', 167, 'PK', '25.15657000', '69.11098000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q284210'),
+(85425, 'Dijkot', 3176, 'PB', 167, 'PK', '31.21735000', '72.99621000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q5276491'),
+(85426, 'Dinan Bashnoian Wala', 3176, 'PB', 167, 'PK', '29.76584000', '73.26557000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q5276491'),
+(85427, 'Dinga', 3176, 'PB', 167, 'PK', '32.64101000', '73.72039000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q5278157'),
+(85428, 'Dipalpur', 3176, 'PB', 167, 'PK', '30.66984000', '73.65306000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2985681'),
+(85429, 'Diplo', 3175, 'SD', 167, 'PK', '24.46688000', '69.58114000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2985681'),
+(85430, 'Doaba', 3171, 'KP', 167, 'PK', '33.42450000', '70.73676000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2985681'),
+(85431, 'Dokri', 3175, 'SD', 167, 'PK', '27.37421000', '68.09715000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3249928'),
+(85432, 'Duki', 3174, 'BA', 167, 'PK', '30.15307000', '68.57323000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3249928'),
+(85433, 'Dullewala', 3176, 'PB', 167, 'PK', '31.83439000', '71.43639000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3694406'),
+(85434, 'Dunga Bunga', 3176, 'PB', 167, 'PK', '29.74975000', '73.24294000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1985683'),
+(85435, 'Dunyapur', 3176, 'PB', 167, 'PK', '29.80275000', '71.74344000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1985683'),
+(85436, 'Eminabad', 3176, 'PB', 167, 'PK', '32.04237000', '74.25996000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q5372475'),
+(85437, 'Faisalabad', 3176, 'PB', 167, 'PK', '31.41554000', '73.08969000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q173985'),
+(85438, 'Faqirwali', 3176, 'PB', 167, 'PK', '29.46799000', '73.03489000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q5434470'),
+(85439, 'Faruka', 3176, 'PB', 167, 'PK', '31.88642000', '72.41362000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q5434470'),
+(85440, 'Fazilpur', 3176, 'PB', 167, 'PK', '32.17629000', '75.06583000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q5434470'),
+(85441, 'Fort Abbas', 3176, 'PB', 167, 'PK', '29.19344000', '72.85525000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3246255'),
+(85442, 'Gadani', 3174, 'BA', 167, 'PK', '25.11879000', '66.73219000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q984103'),
+(85443, 'Gambat', 3175, 'SD', 167, 'PK', '27.35170000', '68.52150000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q984103'),
+(85444, 'Garh Maharaja', 3176, 'PB', 167, 'PK', '30.83383000', '71.90491000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q984103'),
+(85445, 'Garhi Khairo', 3174, 'BA', 167, 'PK', '28.06029000', '67.98033000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q984103'),
+(85446, 'Garhiyasin', 3175, 'SD', 167, 'PK', '27.90631000', '68.51210000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q984103'),
+(85447, 'Gharo', 3175, 'SD', 167, 'PK', '24.74182000', '67.58534000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q984103'),
+(85448, 'Ghauspur', 3175, 'SD', 167, 'PK', '28.13882000', '69.08245000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q984103'),
+(85449, 'Ghotki', 3175, 'SD', 167, 'PK', '28.00437000', '69.31569000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2592625'),
+(85450, 'Gilgit', 3170, 'GB', 167, 'PK', '35.91869000', '74.31245000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q609024'),
+(85451, 'Gojra', 3176, 'PB', 167, 'PK', '31.14926000', '72.68323000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q609024'),
+(85452, 'Goth Garelo', 3175, 'SD', 167, 'PK', '27.43521000', '68.07572000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q609024'),
+(85453, 'Goth Phulji', 3175, 'SD', 167, 'PK', '26.88099000', '67.68239000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q609024'),
+(85454, 'Goth Radhan', 3175, 'SD', 167, 'PK', '27.19846000', '67.95348000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q609024'),
+(85455, 'Gujar Khan', 3176, 'PB', 167, 'PK', '33.25411000', '73.30433000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3049021'),
+(85456, 'Gujranwala', 3176, 'PB', 167, 'PK', '32.15567000', '74.18705000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q243322'),
+(85457, 'Gujrat', 3176, 'PB', 167, 'PK', '32.57420000', '74.07542000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q243322'),
+(85458, 'Gulishah Kach', 3173, 'TA', 167, 'PK', '32.67087000', '70.33917000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q243322'),
+(85459, 'Gwadar', 3174, 'BA', 167, 'PK', '25.12163000', '62.32541000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q580533'),
+(85460, 'Hadali', 3176, 'PB', 167, 'PK', '32.64043000', '74.56898000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q580533'),
+(85461, 'Hafizabad', 3176, 'PB', 167, 'PK', '32.07095000', '73.68802000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1253663'),
+(85462, 'Hala', 3175, 'SD', 167, 'PK', '25.81459000', '68.42198000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3250492'),
+(85463, 'Hangu', 3171, 'KP', 167, 'PK', '33.53198000', '71.05950000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1575544'),
+(85464, 'Haripur', 3171, 'KP', 167, 'PK', '33.99783000', '72.93493000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q520821'),
+(85465, 'Harnai', 3174, 'BA', 167, 'PK', '30.10077000', '67.93824000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2995546'),
+(85466, 'Harnoli', 3176, 'PB', 167, 'PK', '32.27871000', '71.55429000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2995546'),
+(85467, 'Harunabad', 3176, 'PB', 167, 'PK', '29.61206000', '73.13802000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2995546'),
+(85468, 'Hasilpur', 3176, 'PB', 167, 'PK', '29.69221000', '72.54566000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2603403'),
+(85469, 'Haveli Lakha', 3176, 'PB', 167, 'PK', '30.45097000', '73.69371000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2603403'),
+(85470, 'Havelian', 3171, 'KP', 167, 'PK', '34.05348000', '73.15993000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2659092'),
+(85471, 'Hazro', 3176, 'PB', 167, 'PK', '33.90990000', '72.49179000', '2019-10-05 23:13:32', '2020-07-04 17:09:06', 1, 'Q3695085'),
+(85472, 'Hingorja', 3175, 'SD', 167, 'PK', '27.21088000', '68.41598000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3695085'),
+(85473, 'Hujra Shah Muqeem', 3176, 'PB', 167, 'PK', '30.74168000', '73.82327000', '2019-10-05 23:13:32', '2020-07-04 17:40:43', 1, 'Q3776565'),
+(85474, 'Hyderabad', 3175, 'SD', 167, 'PK', '25.39242000', '68.37366000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1640079'),
+(85475, 'Islamabad', 3169, 'IS', 167, 'PK', '33.72148000', '73.04329000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1362'),
+(85476, 'Islamkot', 3175, 'SD', 167, 'PK', '24.69904000', '70.17982000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1362'),
+(85477, 'Jacobabad', 3175, 'SD', 167, 'PK', '28.28187000', '68.43761000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1017696'),
+(85478, 'Jahanian Shah', 3176, 'PB', 167, 'PK', '31.80541000', '72.27740000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1017696'),
+(85479, 'Jalalpur Jattan', 3176, 'PB', 167, 'PK', '32.64118000', '74.20561000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q954036'),
+(85480, 'Jalalpur Pirwala', 3176, 'PB', 167, 'PK', '29.50510000', '71.22202000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3695832'),
+(85481, 'Jampur', 3176, 'PB', 167, 'PK', '29.64235000', '70.59518000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3695832'),
+(85482, 'Jamshoro', 3175, 'SD', 167, 'PK', '25.43608000', '68.28017000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q112817'),
+(85483, 'Jand', 3176, 'PB', 167, 'PK', '33.43304000', '72.01877000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q112817'),
+(85484, 'Jandiala Sher Khan', 3176, 'PB', 167, 'PK', '31.82098000', '73.91815000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q6150959'),
+(85485, 'Jaranwala', 3176, 'PB', 167, 'PK', '31.33320000', '73.41868000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1251242'),
+(85486, 'Jati', 3175, 'SD', 167, 'PK', '24.35492000', '68.26732000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1251242'),
+(85487, 'Jatoi Shimali', 3176, 'PB', 167, 'PK', '29.51827000', '70.84474000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1251242'),
+(85488, 'Jauharabad', 3176, 'PB', 167, 'PK', '32.29016000', '72.28182000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3075413'),
+(85489, 'Jhal Magsi District', 3174, 'BA', 167, 'PK', '28.36881000', '67.54300000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2633556'),
+(85490, 'Jhang', 3176, 'PB', 167, 'PK', '31.30568000', '72.32594000', '2019-10-05 23:13:32', '2020-07-04 17:10:05', 1, 'Q1026616'),
+(85491, 'Jhang Sadar', 3176, 'PB', 167, 'PK', '31.26981000', '72.31687000', '2019-10-05 23:13:32', '2020-07-04 17:10:17', 1, 'Q6190853'),
+(85492, 'Jhawarian', 3176, 'PB', 167, 'PK', '32.36192000', '72.62275000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q6190853'),
+(85493, 'Jhelum', 3176, 'PB', 167, 'PK', '32.93448000', '73.73102000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q121551'),
+(85494, 'Jhol', 3175, 'SD', 167, 'PK', '25.95533000', '68.88871000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q121551'),
+(85495, 'Jiwani', 3174, 'BA', 167, 'PK', '25.04852000', '61.74573000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2621751'),
+(85496, 'Johi', 3175, 'SD', 167, 'PK', '26.69225000', '67.61431000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2621751'),
+(85497, 'Jāfarābād District', 3174, 'BA', 167, 'PK', '28.30104000', '68.19783000', '2019-10-05 23:13:32', '2020-05-01 17:23:04', 1, 'Q595921'),
+(85498, 'Jām Sāhib', 3175, 'SD', 167, 'PK', '26.29583000', '68.62917000', '2019-10-05 23:13:32', '2020-05-01 17:23:04', 1, 'Q595921'),
+(85499, 'Kabirwala', 3176, 'PB', 167, 'PK', '30.40472000', '71.86269000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q595921'),
+(85500, 'Kadhan', 3175, 'SD', 167, 'PK', '24.48041000', '68.98551000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q595921'),
+(85501, 'Kahna Nau', 3176, 'PB', 167, 'PK', '31.36709000', '74.36899000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q10313603'),
+(85503, 'Kahuta', 3176, 'PB', 167, 'PK', '33.59183000', '73.38736000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q988103'),
+(85504, 'Kakad Wari Dir Upper', 3171, 'KP', 167, 'PK', '34.99798000', '72.07295000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q988103'),
+(85505, 'Kalabagh', 3176, 'PB', 167, 'PK', '32.96164000', '71.54638000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1542553'),
+(85506, 'Kalaswala', 3176, 'PB', 167, 'PK', '32.20081000', '74.64858000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1542553'),
+(85507, 'Kalat', 3174, 'BA', 167, 'PK', '29.02663000', '66.59361000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1542553'),
+(85508, 'Kaleke Mandi', 3176, 'PB', 167, 'PK', '31.97597000', '73.59999000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1542553'),
+(85509, 'Kallar Kahar', 3176, 'PB', 167, 'PK', '32.77998000', '72.69793000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q797139'),
+(85510, 'Kalur Kot', 3176, 'PB', 167, 'PK', '32.15512000', '71.26631000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q797139'),
+(85511, 'Kalāt District', 3174, 'BA', 167, 'PK', '28.88242000', '66.53165000', '2019-10-05 23:13:32', '2020-05-01 17:23:04', 1, 'Q611142'),
+(85512, 'Kamalia', 3176, 'PB', 167, 'PK', '30.72708000', '72.64607000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q2573596'),
+(85513, 'Kamar Mushani', 3176, 'PB', 167, 'PK', '32.84318000', '71.36192000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q15233153'),
+(85514, 'Kambar', 3175, 'SD', 167, 'PK', '27.58753000', '68.00066000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q15233153'),
+(85515, 'Kamoke', 3176, 'PB', 167, 'PK', '31.97526000', '74.22304000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1260929'),
+(85516, 'Kamra', 3176, 'PB', 167, 'PK', '33.74698000', '73.51229000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q1260929'),
+(85517, 'Kandhkot', 3175, 'SD', 167, 'PK', '28.24574000', '69.17974000', '2019-10-05 23:13:32', '2019-10-05 23:13:32', 1, 'Q3695624'),
+(85518, 'Kandiari', 3175, 'SD', 167, 'PK', '26.91550000', '68.52193000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3695624'),
+(85519, 'Kandiaro', 3175, 'SD', 167, 'PK', '27.05918000', '68.21022000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3695624'),
+(85520, 'Kanganpur', 3176, 'PB', 167, 'PK', '30.76468000', '74.12286000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q6362466'),
+(85521, 'Karachi', 3175, 'SD', 167, 'PK', '24.86080000', '67.01040000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q8660'),
+(85522, 'Karak', 3171, 'KP', 167, 'PK', '33.11633000', '71.09354000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2579936'),
+(85523, 'Karaundi', 3175, 'SD', 167, 'PK', '26.89709000', '68.40643000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2579936'),
+(85524, 'Kario Ghanwar', 3175, 'SD', 167, 'PK', '24.80817000', '68.60483000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2579936'),
+(85525, 'Karor', 3176, 'PB', 167, 'PK', '31.22460000', '70.95153000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2579936'),
+(85526, 'Kashmor', 3175, 'SD', 167, 'PK', '28.43260000', '69.58364000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2625917'),
+(85527, 'Kasur', 3176, 'PB', 167, 'PK', '31.11866000', '74.45025000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2625917'),
+(85528, 'Keshupur', 3176, 'PB', 167, 'PK', '32.26000000', '72.50000000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2625917'),
+(85529, 'Keti Bandar', 3175, 'SD', 167, 'PK', '24.14422000', '67.45094000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2625917'),
+(85530, 'Khadan Khak', 3174, 'BA', 167, 'PK', '30.75236000', '67.71133000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2625917'),
+(85531, 'Khadro', 3175, 'SD', 167, 'PK', '26.14713000', '68.71777000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2625917'),
+(85532, 'Khairpur', 3175, 'SD', 167, 'PK', '28.06437000', '69.70363000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2625917'),
+(85533, 'Khairpur Mir’s', 3175, 'SD', 167, 'PK', '27.52948000', '68.75915000', '2019-10-05 23:13:33', '2020-05-01 17:23:04', 1, 'Q1179634'),
+(85534, 'Khairpur Nathan Shah', 3175, 'SD', 167, 'PK', '27.09064000', '67.73489000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1179634'),
+(85535, 'Khairpur Tamiwali', 3176, 'PB', 167, 'PK', '29.58139000', '72.23804000', '2019-10-05 23:13:33', '2020-07-04 17:13:25', 1, 'Q1179634'),
+(85536, 'Khalabat', 3171, 'KP', 167, 'PK', '34.05997000', '72.88963000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1179634'),
+(85537, 'Khandowa', 3176, 'PB', 167, 'PK', '32.74255000', '72.73478000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1179634'),
+(85538, 'Khanewal', 3176, 'PB', 167, 'PK', '30.30173000', '71.93212000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1253395'),
+(85539, 'Khanga Dogran', 3176, 'PB', 167, 'PK', '31.83294000', '73.62213000', '2019-10-05 23:13:33', '2020-07-04 17:13:43', 1, 'Q1253395'),
+(85540, 'Khangarh', 3176, 'PB', 167, 'PK', '29.91446000', '71.16067000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1253395'),
+(85541, 'Khanpur', 3176, 'PB', 167, 'PK', '28.64739000', '70.65694000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1250097'),
+(85542, 'Khanpur Mahar', 3175, 'SD', 167, 'PK', '27.84088000', '69.41302000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1250097'),
+(85543, 'Kharan', 3174, 'BA', 167, 'PK', '28.58459000', '65.41501000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1740586'),
+(85544, 'Kharian', 3176, 'PB', 167, 'PK', '32.81612000', '73.88697000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3696367'),
+(85545, 'Khewra', 3176, 'PB', 167, 'PK', '32.64910000', '73.01059000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3696036'),
+(85546, 'Khurrianwala', 3176, 'PB', 167, 'PK', '31.49936000', '73.26763000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q6403122'),
+(85547, 'Khushab', 3176, 'PB', 167, 'PK', '32.29667000', '72.35250000', '2019-10-05 23:13:33', '2020-07-04 11:37:55', 1, 'Q1249939'),
+(85548, 'Khuzdar', 3174, 'BA', 167, 'PK', '27.81193000', '66.61096000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1249939'),
+(85549, 'Khuzdār District', 3174, 'BA', 167, 'PK', '27.48680000', '66.58703000', '2019-10-05 23:13:33', '2020-05-01 17:23:04', 1, 'Q2642523'),
+(85550, 'Khārān District', 3174, 'BA', 167, 'PK', '27.96308000', '64.57113000', '2019-10-05 23:13:33', '2020-05-01 17:23:04', 1, 'Q537334'),
+(85551, 'Kohat', 3171, 'KP', 167, 'PK', '33.58196000', '71.44929000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1195983'),
+(85552, 'Kohlu', 3174, 'BA', 167, 'PK', '29.89651000', '69.25324000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2633568'),
+(85553, 'Kot Addu Tehsil', 3176, 'PB', 167, 'PK', '30.46907000', '70.96699000', '2019-10-05 23:13:33', '2020-07-04 17:15:35', 1, 'Q1260951'),
+(85554, 'Kot Diji', 3175, 'SD', 167, 'PK', '27.34156000', '68.70821000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1017084'),
+(85555, 'Kot Ghulam Muhammad', 3176, 'PB', 167, 'PK', '32.33311000', '74.54694000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1017084'),
+(85556, 'Kot Malik Barkhurdar', 3174, 'BA', 167, 'PK', '30.20379000', '66.98723000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1017084'),
+(85557, 'Kot Mumin', 3176, 'PB', 167, 'PK', '32.18843000', '73.02987000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1017084'),
+(85558, 'Kot Radha Kishan', 3176, 'PB', 167, 'PK', '31.17068000', '74.10126000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1017084'),
+(85559, 'Kot Rajkour', 3176, 'PB', 167, 'PK', '32.41208000', '74.62855000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1017084'),
+(85560, 'Kot Samaba', 3176, 'PB', 167, 'PK', '28.55207000', '70.46837000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1017084'),
+(85561, 'Kot Sultan', 3176, 'PB', 167, 'PK', '30.77370000', '70.93125000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1017084'),
+(85562, 'Kotli', 3172, 'JK', 167, 'PK', '33.51836000', '73.90220000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2586558'),
+(85563, 'Kotli District', 3172, 'JK', 167, 'PK', '33.44559000', '73.91557000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2571465'),
+(85564, 'Kotli Loharan', 3176, 'PB', 167, 'PK', '32.58893000', '74.49466000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2571465'),
+(85565, 'Kotri', 3175, 'SD', 167, 'PK', '25.36566000', '68.30831000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2571465'),
+(85566, 'Kulachi', 3171, 'KP', 167, 'PK', '31.93058000', '70.45959000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2571465'),
+(85567, 'Kundian', 3176, 'PB', 167, 'PK', '32.45775000', '71.47892000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q951628'),
+(85568, 'Kunjah', 3176, 'PB', 167, 'PK', '32.52982000', '73.97486000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q951628'),
+(85569, 'Kunri', 3175, 'SD', 167, 'PK', '25.17874000', '69.56572000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q951628'),
+(85570, 'Lachi', 3171, 'KP', 167, 'PK', '33.38291000', '71.33733000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q951628'),
+(85571, 'Ladhewala Waraich', 3176, 'PB', 167, 'PK', '32.15692000', '74.11564000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q951628'),
+(85572, 'Lahore', 3176, 'PB', 167, 'PK', '31.55800000', '74.35071000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q11739'),
+(85573, 'Lakhi', 3175, 'SD', 167, 'PK', '27.84884000', '68.69972000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q11739'),
+(85574, 'Lakki', 3171, 'KP', 167, 'PK', '32.60724000', '70.91234000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q11739'),
+(85575, 'Lala Musa', 3176, 'PB', 167, 'PK', '32.70138000', '73.95746000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3695697'),
+(85576, 'Lalian', 3176, 'PB', 167, 'PK', '31.82462000', '72.80116000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3298223'),
+(85577, 'Landi Kotal', 3173, 'TA', 167, 'PK', '34.09880000', '71.14108000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1803018'),
+(85578, 'Larkana', 3175, 'SD', 167, 'PK', '27.55898000', '68.21204000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q696605'),
+(85579, 'Lasbela District', 3174, 'BA', 167, 'PK', '25.78634000', '66.60330000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q44942'),
+(85580, 'Layyah', 3176, 'PB', 167, 'PK', '30.96128000', '70.93904000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q44942'),
+(85581, 'Layyah District', 3176, 'PB', 167, 'PK', '30.96800000', '70.94300000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2418995'),
+(85582, 'Liliani', 3176, 'PB', 167, 'PK', '32.20393000', '72.95120000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2418995'),
+(85583, 'Lodhran', 3176, 'PB', 167, 'PK', '29.53390000', '71.63244000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1249783'),
+(85584, 'Loralai', 3174, 'BA', 167, 'PK', '30.37051000', '68.59795000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2663236'),
+(85585, 'Loralai District', 3174, 'BA', 167, 'PK', '30.30253000', '68.84636000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2281268'),
+(85586, 'Mach', 3174, 'BA', 167, 'PK', '29.86371000', '67.33018000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q639806'),
+(85587, 'Madeji', 3175, 'SD', 167, 'PK', '27.75314000', '68.45166000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q639806'),
+(85588, 'Mailsi', 3176, 'PB', 167, 'PK', '29.80123000', '72.17398000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3695872'),
+(85589, 'Malakwal', 3176, 'PB', 167, 'PK', '32.55449000', '73.21274000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q446394'),
+(85590, 'Malakwal City', 3176, 'PB', 167, 'PK', '32.55492000', '73.21220000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q446394'),
+(85591, 'Malir Cantonment', 3175, 'SD', 167, 'PK', '24.94343000', '67.20591000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q446394'),
+(85592, 'Mamu Kanjan', 3176, 'PB', 167, 'PK', '30.83044000', '72.79943000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q6745993'),
+(85593, 'Mananwala', 3176, 'PB', 167, 'PK', '31.58803000', '73.68927000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q6745993'),
+(85594, 'Mandi Bahauddin', 3176, 'PB', 167, 'PK', '32.58704000', '73.49123000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q6745993'),
+(85595, 'Mangla', 3176, 'PB', 167, 'PK', '31.89306000', '72.38167000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q6745993'),
+(85596, 'Mankera', 3176, 'PB', 167, 'PK', '31.38771000', '71.44047000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3695856'),
+(85597, 'Mansehra', 3171, 'KP', 167, 'PK', '34.33023000', '73.19679000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2662991'),
+(85598, 'Mardan', 3171, 'KP', 167, 'PK', '34.19794000', '72.04965000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q993859'),
+(85599, 'Mastung', 3174, 'BA', 167, 'PK', '29.79966000', '66.84553000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2592655'),
+(85600, 'Mastung District', 3174, 'BA', 167, 'PK', '29.79455000', '66.72068000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1026625'),
+(85601, 'Matiari', 3175, 'SD', 167, 'PK', '25.59709000', '68.44670000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q112453'),
+(85602, 'Matli', 3175, 'SD', 167, 'PK', '25.04290000', '68.65591000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q112453'),
+(85603, 'Mehar', 3175, 'SD', 167, 'PK', '27.18027000', '67.82051000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q112453'),
+(85604, 'Mehmand Chak', 3176, 'PB', 167, 'PK', '32.78518000', '73.82306000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q112453'),
+(85605, 'Mehrabpur', 3174, 'BA', 167, 'PK', '28.10773000', '68.02554000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q112453'),
+(85606, 'Mian Channun', 3176, 'PB', 167, 'PK', '30.44067000', '72.35679000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q4311575'),
+(85607, 'Mianke Mor', 3176, 'PB', 167, 'PK', '31.20240000', '73.94857000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q4311575'),
+(85608, 'Mianwali', 3176, 'PB', 167, 'PK', '32.57756000', '71.52847000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3307925'),
+(85609, 'Minchinabad', 3176, 'PB', 167, 'PK', '30.16356000', '73.56858000', '2019-10-05 23:13:33', '2020-07-04 17:41:49', 1, 'Q3695838'),
+(85610, 'Mingora', 3171, 'KP', 167, 'PK', '34.77950000', '72.36265000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q31356'),
+(85611, 'Miran Shah', 3173, 'TA', 167, 'PK', '33.00059000', '70.07117000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q124385'),
+(85612, 'Miro Khan', 3175, 'SD', 167, 'PK', '27.75985000', '68.09195000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q124385'),
+(85613, 'Mirpur Bhtoro', 3175, 'SD', 167, 'PK', '24.72852000', '68.26010000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q6874468'),
+(85614, 'Mirpur District', 3172, 'JK', 167, 'PK', '33.21556000', '73.75144000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2571434'),
+(85615, 'Mirpur Khas', 3175, 'SD', 167, 'PK', '25.52760000', '69.01255000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1020490'),
+(85616, 'Mirpur Mathelo', 3175, 'SD', 167, 'PK', '28.02136000', '69.54914000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1020490'),
+(85617, 'Mirpur Sakro', 3175, 'SD', 167, 'PK', '24.54692000', '67.62797000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1020490'),
+(85618, 'Mirwah Gorchani', 3175, 'SD', 167, 'PK', '25.30981000', '69.05019000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1020490'),
+(85619, 'Mitha Tiwana', 3176, 'PB', 167, 'PK', '32.24540000', '72.10615000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1020490'),
+(85620, 'Mithi', 3175, 'SD', 167, 'PK', '24.73701000', '69.79707000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3246442'),
+(85621, 'Moro', 3175, 'SD', 167, 'PK', '26.66317000', '68.00016000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3246442'),
+(85622, 'Moza Shahwala', 3176, 'PB', 167, 'PK', '30.80563000', '70.84911000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q3246442'),
+(85623, 'Multan', 3176, 'PB', 167, 'PK', '30.19679000', '71.47824000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q185453'),
+(85624, 'Muridke', 3176, 'PB', 167, 'PK', '31.80258000', '74.25772000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2978509'),
+(85625, 'Murree', 3176, 'PB', 167, 'PK', '33.90836000', '73.39030000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q1020224'),
+(85626, 'Mustafabad', 3176, 'PB', 167, 'PK', '30.89222000', '73.49889000', '2019-10-05 23:13:33', '2020-07-04 11:38:11', 1, 'Q1020224'),
+(85627, 'Muzaffargarh', 3176, 'PB', 167, 'PK', '30.07258000', '71.19379000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q301627'),
+(85628, 'Muzaffarābād', 3172, 'JK', 167, 'PK', '34.37002000', '73.47082000', '2019-10-05 23:13:33', '2020-05-01 17:23:04', 1, 'Q461307'),
+(85629, 'Mūsa Khel District', 3174, 'BA', 167, 'PK', '30.84937000', '69.90069000', '2019-10-05 23:13:33', '2020-05-01 17:23:04', 1, 'Q461307'),
+(85630, 'Nabisar', 3175, 'SD', 167, 'PK', '25.06717000', '69.64340000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q461307'),
+(85631, 'Nankana Sahib', 3176, 'PB', 167, 'PK', '31.45010000', '73.70653000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2353077'),
+(85632, 'Narang Mandi', 3176, 'PB', 167, 'PK', '31.90376000', '74.51587000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q6965345'),
+(85633, 'Narowal', 3176, 'PB', 167, 'PK', '32.10197000', '74.87303000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2977081'),
+(85634, 'Nasirabad', 3175, 'SD', 167, 'PK', '27.38137000', '67.91644000', '2019-10-05 23:13:33', '2019-10-05 23:13:33', 1, 'Q2977081'),
+(85635, 'Nasīrābād District', 3174, 'BA', 167, 'PK', '28.62643000', '68.12925000', '2019-10-05 23:13:34', '2020-05-01 17:23:04', 1, 'Q2315447'),
+(85636, 'Naudero', 3175, 'SD', 167, 'PK', '27.66684000', '68.36090000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3695612'),
+(85637, 'Naukot', 3175, 'SD', 167, 'PK', '24.85822000', '69.40153000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3695612'),
+(85638, 'Naushahra Virkan', 3176, 'PB', 167, 'PK', '31.96258000', '73.97117000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3695612'),
+(85639, 'Naushahro Firoz', 3175, 'SD', 167, 'PK', '26.84010000', '68.12265000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3695612'),
+(85640, 'Nawabshah', 3175, 'SD', 167, 'PK', '26.23939000', '68.40369000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1017637'),
+(85641, 'Nazir Town', 3176, 'PB', 167, 'PK', '33.30614000', '73.48330000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1017637'),
+(85642, 'New Bādāh', 3175, 'SD', 167, 'PK', '27.34167000', '68.03194000', '2019-10-05 23:13:34', '2020-05-01 17:23:04', 1, 'Q1017637'),
+(85643, 'New Mirpur', 3172, 'JK', 167, 'PK', '33.14782000', '73.75187000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2579925'),
+(85644, 'Noorabad', 3171, 'KP', 167, 'PK', '34.25195000', '71.96656000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2579925'),
+(85645, 'North Wazīristān Agency', 3173, 'TA', 167, 'PK', '32.95087000', '69.95764000', '2019-10-05 23:13:34', '2020-05-01 17:23:04', 1, 'Q2579925'),
+(85646, 'Nowshera', 3171, 'KP', 167, 'PK', '34.01583000', '71.98123000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2003745'),
+(85647, 'Nowshera Cantonment', 3171, 'KP', 167, 'PK', '33.99829000', '71.99834000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2003745'),
+(85648, 'Nushki', 3174, 'BA', 167, 'PK', '29.55218000', '66.02288000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q34759319'),
+(85650, 'Okara', 3176, 'PB', 167, 'PK', '30.81029000', '73.45155000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q968211'),
+(85651, 'Ormara', 3174, 'BA', 167, 'PK', '25.21018000', '64.63626000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1188222'),
+(85652, 'Pabbi', 3171, 'KP', 167, 'PK', '34.00968000', '71.79445000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3045006'),
+(85653, 'Pad Idan', 3175, 'SD', 167, 'PK', '26.77455000', '68.30094000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3045006'),
+(85654, 'Paharpur', 3171, 'KP', 167, 'PK', '32.10502000', '70.97055000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3045006'),
+(85655, 'Pakpattan', 3176, 'PB', 167, 'PK', '30.34314000', '73.38944000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1249801'),
+(85656, 'Panjgūr District', 3174, 'BA', 167, 'PK', '26.73750000', '64.20380000', '2019-10-05 23:13:34', '2020-05-01 17:23:04', 1, 'Q2428944'),
+(85657, 'Pano Aqil', 3175, 'SD', 167, 'PK', '27.85619000', '69.11111000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7131436'),
+(85658, 'Pasni', 3174, 'BA', 167, 'PK', '25.26302000', '63.46921000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q715199'),
+(85659, 'Pasrur', 3176, 'PB', 167, 'PK', '32.26286000', '74.66327000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3246361'),
+(85660, 'Pattoki', 3176, 'PB', 167, 'PK', '31.02021000', '73.85333000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2592708'),
+(85661, 'Peshawar', 3171, 'KP', 167, 'PK', '34.00800000', '71.57849000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1113311'),
+(85662, 'Phalia', 3176, 'PB', 167, 'PK', '32.43104000', '73.57900000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3696336'),
+(85663, 'Pind Dadan Khan', 3176, 'PB', 167, 'PK', '32.58662000', '73.04456000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3696336'),
+(85664, 'Pindi Bhattian', 3176, 'PB', 167, 'PK', '31.89844000', '73.27339000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7195018'),
+(85665, 'Pindi Gheb', 3176, 'PB', 167, 'PK', '33.24095000', '72.26480000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7195018'),
+(85666, 'Pir Jo Goth', 3175, 'SD', 167, 'PK', '27.59178000', '68.61848000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7195018'),
+(85667, 'Pir Mahal', 3176, 'PB', 167, 'PK', '30.76663000', '72.43455000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7195018'),
+(85668, 'Pishin', 3174, 'BA', 167, 'PK', '30.58176000', '66.99406000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2449537'),
+(85669, 'Pithoro', 3175, 'SD', 167, 'PK', '25.51122000', '69.37803000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2449537'),
+(85670, 'Qadirpur Ran', 3176, 'PB', 167, 'PK', '30.29184000', '71.67164000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7265783'),
+(85671, 'Qila Saifullāh District', 3174, 'BA', 167, 'PK', '30.95392000', '68.33996000', '2019-10-05 23:13:34', '2020-05-01 17:23:04', 1, 'Q7265783'),
+(85672, 'Quetta', 3174, 'BA', 167, 'PK', '30.18414000', '67.00141000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q185458'),
+(85673, 'Quetta District', 3174, 'BA', 167, 'PK', '30.17458000', '66.76203000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2315549'),
+(85674, 'Rahim Yar Khan', 3176, 'PB', 167, 'PK', '28.41987000', '70.30345000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q989297'),
+(85675, 'Raiwind', 3176, 'PB', 167, 'PK', '31.24895000', '74.21534000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q4688896'),
+(85676, 'Raja Jang', 3176, 'PB', 167, 'PK', '31.22078000', '74.25483000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7285457'),
+(85677, 'Rajanpur', 3176, 'PB', 167, 'PK', '29.10408000', '70.32969000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2998238'),
+(85678, 'Rajo Khanani', 3175, 'SD', 167, 'PK', '24.98391000', '68.85370000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2998238'),
+(85679, 'Ranipur', 3175, 'SD', 167, 'PK', '27.28720000', '68.50623000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2998238'),
+(85680, 'Rasulnagar', 3176, 'PB', 167, 'PK', '32.32794000', '73.78040000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2998238'),
+(85681, 'Ratodero', 3175, 'SD', 167, 'PK', '27.80227000', '68.28902000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3246396'),
+(85682, 'Rawala Kot', 3172, 'JK', 167, 'PK', '33.85782000', '73.76043000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3246396'),
+(85683, 'Rawalpindi', 3176, 'PB', 167, 'PK', '33.59733000', '73.04790000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q93230'),
+(85684, 'Rawalpindi District', 3176, 'PB', 167, 'PK', '33.42987000', '73.23092000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q24440'),
+(85685, 'Renala Khurd', 3176, 'PB', 167, 'PK', '30.87878000', '73.59857000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3321405'),
+(85686, 'Risalpur Cantonment', 3171, 'KP', 167, 'PK', '34.06048000', '71.99276000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1740709'),
+(85687, 'Rohri', 3175, 'SD', 167, 'PK', '27.69203000', '68.89503000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q33687'),
+(85688, 'Rojhan', 3176, 'PB', 167, 'PK', '28.68735000', '69.95350000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q33687'),
+(85689, 'Rustam', 3175, 'SD', 167, 'PK', '27.96705000', '68.80386000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q33687'),
+(85690, 'Sadiqabad', 3176, 'PB', 167, 'PK', '28.30910000', '70.12652000', '2019-10-05 23:13:34', '2020-07-04 17:43:52', 1, 'Q1251234'),
+(85691, 'Sahiwal', 3176, 'PB', 167, 'PK', '30.66595000', '73.10186000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q523778'),
+(85692, 'Sakrand', 3175, 'SD', 167, 'PK', '26.13845000', '68.27444000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3696284'),
+(85693, 'Samaro', 3175, 'SD', 167, 'PK', '25.28143000', '69.39623000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7408863'),
+(85694, 'Sambrial', 3176, 'PB', 167, 'PK', '32.47835000', '74.35338000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3246527'),
+(85695, 'Sanghar', 3175, 'SD', 167, 'PK', '26.04694000', '68.94917000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3472203'),
+(85696, 'Sangla Hill', 3176, 'PB', 167, 'PK', '31.71667000', '73.38333000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3248290'),
+(85697, 'Sanjwal', 3176, 'PB', 167, 'PK', '33.76105000', '72.43315000', '2019-10-05 23:13:34', '2020-07-04 17:44:25', 1, 'Q33480741'),
+(85698, 'Sann', 3175, 'SD', 167, 'PK', '26.04030000', '68.13763000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3248290'),
+(85699, 'Sarai Alamgir', 3176, 'PB', 167, 'PK', '32.90495000', '73.75518000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3243456'),
+(85700, 'Sarai Naurang', 3171, 'KP', 167, 'PK', '32.82581000', '70.78107000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3243456'),
+(85701, 'Sarai Sidhu', 3176, 'PB', 167, 'PK', '30.59476000', '71.96990000', '2019-10-05 23:13:34', '2020-07-04 17:45:30', 1, 'Q33481932'),
+(85702, 'Sargodha', 3176, 'PB', 167, 'PK', '32.08586000', '72.67418000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q855997'),
+(85703, 'Sehwan', 3175, 'SD', 167, 'PK', '26.42495000', '67.86126000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3308397'),
+(85704, 'Setharja Old', 3175, 'SD', 167, 'PK', '27.21270000', '68.46883000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3308397');
+INSERT INTO `cities` (`id`, `name`, `state_id`, `state_code`, `country_id`, `country_code`, `latitude`, `longitude`, `created_at`, `updated_at`, `flag`, `wikiDataId`) VALUES
+(85705, 'Shabqadar', 3171, 'KP', 167, 'PK', '34.21599000', '71.55480000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q4519132'),
+(85706, 'Shahdad Kot', 3175, 'SD', 167, 'PK', '27.84726000', '67.90679000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q4519132'),
+(85707, 'Shahdadpur', 3175, 'SD', 167, 'PK', '25.92539000', '68.62280000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3248111'),
+(85708, 'Shorkot', 3176, 'PB', 167, 'PK', '30.50000000', '72.40000000', '2019-10-05 23:13:34', '2020-07-04 17:23:37', 1, 'Q7501510'),
+(85709, 'Shahpur', 3176, 'PB', 167, 'PK', '32.26820000', '72.46884000', '2019-10-05 23:13:34', '2020-07-04 17:47:08', 1, 'Q33484369'),
+(85710, 'Shahpur Chakar', 3175, 'SD', 167, 'PK', '26.15411000', '68.65013000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3243491'),
+(85711, 'Shahr Sultan', 3176, 'PB', 167, 'PK', '29.57517000', '71.02209000', '2019-10-05 23:13:34', '2020-07-04 17:46:38', 1, 'Q33483938'),
+(85712, 'Shakargarh', 3176, 'PB', 167, 'PK', '32.26361000', '75.16008000', '2019-10-05 23:13:34', '2020-07-04 17:46:47', 1, 'Q33483959'),
+(85713, 'Sharqpur', 3176, 'PB', 167, 'PK', '31.46116000', '74.10091000', '2019-10-05 23:13:34', '2020-07-04 17:46:53', 1, 'Q33484038'),
+(85714, 'Sheikhupura', 3176, 'PB', 167, 'PK', '31.71287000', '73.98556000', '2019-10-05 23:13:34', '2020-07-04 17:22:23', 1, 'Q972756'),
+(85715, 'Shikarpur', 3175, 'SD', 167, 'PK', '27.95558000', '68.63823000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1250069'),
+(85716, 'Shingli Bala', 3171, 'KP', 167, 'PK', '34.67872000', '72.98491000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1250069'),
+(85717, 'Shinpokh', 3173, 'TA', 167, 'PK', '34.32959000', '71.17852000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1250069'),
+(85718, 'Shorkot', 3171, 'KP', 167, 'PK', '31.91023000', '70.87757000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1250069'),
+(85719, 'Shujaabad', 3176, 'PB', 167, 'PK', '29.88092000', '71.29344000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1250069'),
+(85720, 'Sialkot', 3176, 'PB', 167, 'PK', '32.49268000', '74.53134000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q643883'),
+(85721, 'Sibi', 3174, 'BA', 167, 'PK', '29.54299000', '67.87726000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2364754'),
+(85722, 'Sillanwali', 3176, 'PB', 167, 'PK', '31.82539000', '72.54064000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3694879'),
+(85723, 'Sinjhoro', 3175, 'SD', 167, 'PK', '26.03008000', '68.80867000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3694879'),
+(85724, 'Skardu', 3170, 'GB', 167, 'PK', '35.29787000', '75.63372000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q976955'),
+(85725, 'Sobhodero', 3175, 'SD', 167, 'PK', '27.30475000', '68.39715000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q976955'),
+(85726, 'Sodhra', 3176, 'PB', 167, 'PK', '32.46211000', '74.18207000', '2019-10-05 23:13:34', '2020-07-04 17:47:41', 1, 'Q7553268'),
+(85727, 'Sohbatpur', 3174, 'BA', 167, 'PK', '28.52038000', '68.54298000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7635235'),
+(85728, 'South Wazīristān Agency', 3173, 'TA', 167, 'PK', '32.30397000', '69.68207000', '2019-10-05 23:13:34', '2020-05-01 17:23:04', 1, 'Q7635235'),
+(85729, 'Sukheke Mandi', 3176, 'PB', 167, 'PK', '31.86541000', '73.50875000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7635235'),
+(85730, 'Sukkur', 3175, 'SD', 167, 'PK', '27.70323000', '68.85889000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q868631'),
+(85731, 'Surab', 3174, 'BA', 167, 'PK', '28.49276000', '66.25999000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q868631'),
+(85732, 'Surkhpur', 3176, 'PB', 167, 'PK', '32.71816000', '74.44773000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q868631'),
+(85733, 'Swabi', 3171, 'KP', 167, 'PK', '34.12018000', '72.46982000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2665241'),
+(85734, 'Sīta Road', 3175, 'SD', 167, 'PK', '27.03333000', '67.85000000', '2019-10-05 23:13:34', '2020-05-01 17:23:04', 1, 'Q2665241'),
+(85735, 'Talagang', 3176, 'PB', 167, 'PK', '32.92766000', '72.41594000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2665241'),
+(85736, 'Talamba', 3176, 'PB', 167, 'PK', '30.52693000', '72.24079000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2665241'),
+(85737, 'Talhar', 3175, 'SD', 167, 'PK', '24.88454000', '68.81437000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7491871'),
+(85738, 'Tandlianwala', 3176, 'PB', 167, 'PK', '31.03359000', '73.13268000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3695292'),
+(85739, 'Tando Adam', 3175, 'SD', 167, 'PK', '25.76818000', '68.66196000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1249952'),
+(85740, 'Tando Allahyar', 3175, 'SD', 167, 'PK', '25.46050000', '68.71745000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1250417'),
+(85741, 'Tando Bago', 3175, 'SD', 167, 'PK', '24.78914000', '68.96535000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1250417'),
+(85742, 'Tando Jam', 3175, 'SD', 167, 'PK', '25.42813000', '68.52923000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7682470'),
+(85743, 'Tando Mitha Khan', 3175, 'SD', 167, 'PK', '25.99625000', '69.20251000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7682470'),
+(85744, 'Tando Muhammad Khan', 3175, 'SD', 167, 'PK', '25.12384000', '68.53677000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3695618'),
+(85745, 'Tangi', 3171, 'KP', 167, 'PK', '34.30090000', '71.65238000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3695618'),
+(85746, 'Tangwani', 3175, 'SD', 167, 'PK', '28.27886000', '68.99760000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3695618'),
+(85747, 'Tank', 3171, 'KP', 167, 'PK', '32.21707000', '70.38315000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3695618'),
+(85748, 'Taunsa', 3176, 'PB', 167, 'PK', '30.70358000', '70.65054000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3243471'),
+(85749, 'Thal', 3171, 'KP', 167, 'PK', '35.47836000', '72.24383000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3243471'),
+(85750, 'Tharu Shah', 3175, 'SD', 167, 'PK', '26.94230000', '68.11759000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q3243471'),
+(85751, 'Thatta', 3175, 'SD', 167, 'PK', '24.74745000', '67.92353000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q27212'),
+(85752, 'Thul', 3175, 'SD', 167, 'PK', '28.24030000', '68.77550000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7798734'),
+(85753, 'Toba Tek Singh', 3176, 'PB', 167, 'PK', '30.97127000', '72.48275000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2659599'),
+(85754, 'Topi', 3171, 'KP', 167, 'PK', '34.07034000', '72.62147000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q4460662'),
+(85755, 'Turbat', 3174, 'BA', 167, 'PK', '26.00122000', '63.04849000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2977093'),
+(85756, 'Ubauro', 3175, 'SD', 167, 'PK', '28.16429000', '69.73114000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7876431'),
+(85757, 'Umarkot', 3175, 'SD', 167, 'PK', '25.36329000', '69.74184000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q7876431'),
+(85758, 'Umerkot District', 3175, 'SD', 167, 'PK', '25.37000000', '69.73000000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2418946'),
+(85759, 'Upper Dir', 3171, 'KP', 167, 'PK', '35.20740000', '71.87680000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q654483'),
+(85760, 'Usta Muhammad', 3174, 'BA', 167, 'PK', '28.17723000', '68.04367000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q10388486'),
+(85761, 'Uthal', 3174, 'BA', 167, 'PK', '25.80722000', '66.62194000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2581505'),
+(85762, 'Utmanzai', 3171, 'KP', 167, 'PK', '34.18775000', '71.76274000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2581505'),
+(85763, 'Vihari', 3176, 'PB', 167, 'PK', '30.04450000', '72.35560000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q2581505'),
+(85764, 'Wana', 3173, 'TA', 167, 'PK', '32.29889000', '69.57250000', '2019-10-05 23:13:34', '2019-10-05 23:13:34', 1, 'Q1026635'),
+(85765, 'Warah', 3175, 'SD', 167, 'PK', '27.44805000', '67.79654000', '2019-10-05 23:13:35', '2019-10-05 23:13:35', 1, 'Q1026635'),
+(85766, 'Wazirabad', 3176, 'PB', 167, 'PK', '32.44324000', '74.12000000', '2019-10-05 23:13:35', '2019-10-05 23:13:35', 1, 'Q1026613'),
+(85767, 'Yazman', 3176, 'PB', 167, 'PK', '29.12122000', '71.74459000', '2019-10-05 23:13:35', '2019-10-05 23:13:35', 1, 'Q8050625'),
+(85768, 'Zafarwal', 3176, 'PB', 167, 'PK', '32.34464000', '74.89990000', '2019-10-05 23:13:35', '2019-10-05 23:13:35', 1, 'Q8050625'),
+(85769, 'Zahir Pir', 3176, 'PB', 167, 'PK', '28.81284000', '70.52341000', '2019-10-05 23:13:35', '2019-10-05 23:13:35', 1, 'Q8076090'),
+(85770, 'Zaida', 3171, 'KP', 167, 'PK', '34.05950000', '72.46690000', '2019-10-05 23:13:35', '2019-10-05 23:13:35', 1, 'Q4184172'),
+(85771, 'Zhob', 3174, 'BA', 167, 'PK', '31.34082000', '69.44930000', '2019-10-05 23:13:35', '2019-10-05 23:13:35', 1, 'Q2665223'),
+(85772, 'Zhob District', 3174, 'BA', 167, 'PK', '31.36444000', '69.20749000', '2019-10-05 23:13:35', '2019-10-05 23:13:35', 1, 'Q2281313'),
+(85773, 'Ziarat', 3174, 'BA', 167, 'PK', '30.38244000', '67.72562000', '2019-10-05 23:13:35', '2019-10-05 23:13:35', 1, 'Q1968523'),
+(85774, 'Ziārat District', 3174, 'BA', 167, 'PK', '30.43591000', '67.50962000', '2019-10-05 23:13:35', '2020-05-01 17:23:04', 1, 'Q2315423'),
+(143765, 'Chuhar Kana', 3176, 'PB', 167, 'PK', '31.75000000', '73.80000000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q34794713'),
+(143766, 'Dhok Awan', 3176, 'PB', 167, 'PK', '32.84452000', '72.52357000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q34801696'),
+(143767, 'Daud Khel', 3176, 'PB', 167, 'PK', '32.87498000', '71.57013000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q49349071'),
+(143768, 'Ferozewala', 3176, 'PB', 167, 'PK', '29.30000000', '70.43333333', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q5445217'),
+(143769, 'Gujranwala Division', 3176, 'PB', 167, 'PK', '32.45000000', '74.13333000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q12858404'),
+(143770, 'Hasan Abdal', 3176, 'PB', 167, 'PK', '33.81948611', '72.68902778', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q71037'),
+(143771, 'Kohror Pakka', 3176, 'PB', 167, 'PK', '29.62382000', '71.91673000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q35698055'),
+(143772, 'Mandi Bahauddin District', 3176, 'PB', 167, 'PK', '32.58333333', '73.50000000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q2419031'),
+(143773, 'Multan District', 3176, 'PB', 167, 'PK', '30.08333333', '71.66666667', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q2281168'),
+(143774, 'Pakki Shagwanwali', 3176, 'PB', 167, 'PK', '30.79033000', '70.87139000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q33471024'),
+(143775, 'Qila Didar Singh', 3176, 'PB', 167, 'PK', '32.80000000', '74.10000000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q7267726'),
+(143776, 'Rahimyar Khan District', 3176, 'PB', 167, 'PK', '28.46020000', '70.52837000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q2639823'),
+(143777, 'Shahkot Tehsil', 3176, 'PB', 167, 'PK', '31.56166667', '73.48750000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q3243491'),
+(143778, 'Umerkot', 3176, 'PB', 167, 'PK', '25.36138889', '69.73611111', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q2625910'),
+(143779, 'Wah', 3176, 'PB', 167, 'PK', '33.81000000', '72.70972222', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q2119444'),
+(143780, 'Warburton', 3176, 'PB', 167, 'PK', '31.55000000', '73.83330000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q7968864'),
+(143781, 'West Punjab', 3176, 'PB', 167, 'PK', '31.00000000', '72.00000000', '2020-07-04 17:49:35', '2020-07-04 17:49:35', 1, 'Q3246245');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `countries`
+--
+
+CREATE TABLE `countries` (
+  `id` mediumint(8) UNSIGNED NOT NULL,
+  `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `iso3` char(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `numeric_code` char(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `iso2` char(2) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phonecode` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `capital` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `currency` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `currency_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `currency_symbol` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tld` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `native` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `region` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `region_id` mediumint(8) UNSIGNED DEFAULT NULL,
+  `subregion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `subregion_id` mediumint(8) UNSIGNED DEFAULT NULL,
+  `nationality` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `timezones` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `translations` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `latitude` decimal(10,8) DEFAULT NULL,
+  `longitude` decimal(11,8) DEFAULT NULL,
+  `emoji` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `emojiU` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `flag` tinyint(1) NOT NULL DEFAULT 1,
+  `wikiDataId` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Rapid API GeoDB Cities'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `countries`
+--
+
+INSERT INTO `countries` (`id`, `name`, `iso3`, `numeric_code`, `iso2`, `phonecode`, `capital`, `currency`, `currency_name`, `currency_symbol`, `tld`, `native`, `region`, `region_id`, `subregion`, `subregion_id`, `nationality`, `timezones`, `translations`, `latitude`, `longitude`, `emoji`, `emojiU`, `created_at`, `updated_at`, `flag`, `wikiDataId`) VALUES
+(1, 'Afghanistan', 'AFG', '004', 'AF', '93', 'Kabul', 'AFN', 'Afghan afghani', '؋', '.af', 'افغانستان', 'Asia', 3, 'Southern Asia', 14, 'Afghan', '[{\"zoneName\":\"Asia/Kabul\",\"gmtOffset\":16200,\"gmtOffsetName\":\"UTC+04:30\",\"abbreviation\":\"AFT\",\"tzName\":\"Afghanistan Time\"}]', '{\"ko\":\"아프가니스탄\",\"pt-BR\":\"Afeganistão\",\"pt\":\"Afeganistão\",\"nl\":\"Afghanistan\",\"hr\":\"Afganistan\",\"fa\":\"افغانستان\",\"de\":\"Afghanistan\",\"es\":\"Afganistán\",\"fr\":\"Afghanistan\",\"ja\":\"アフガニスタン\",\"it\":\"Afghanistan\",\"zh-CN\":\"阿富汗\",\"tr\":\"Afganistan\",\"ru\":\"Афганистан\",\"uk\":\"Афганістан\",\"pl\":\"Afganistan\"}', '33.00000000', '65.00000000', '🇦🇫', 'U+1F1E6 U+1F1EB', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q889'),
+(2, 'Aland Islands', 'ALA', '248', 'AX', '358', 'Mariehamn', 'EUR', 'Euro', '€', '.ax', 'Åland', 'Europe', 4, 'Northern Europe', 18, 'Aland Island', '[{\"zoneName\":\"Europe/Mariehamn\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"올란드 제도\",\"pt-BR\":\"Ilhas de Aland\",\"pt\":\"Ilhas de Aland\",\"nl\":\"Ålandeilanden\",\"hr\":\"Ålandski otoci\",\"fa\":\"جزایر الند\",\"de\":\"Åland\",\"es\":\"Alandia\",\"fr\":\"Åland\",\"ja\":\"オーランド諸島\",\"it\":\"Isole Aland\",\"zh-CN\":\"奥兰群岛\",\"tr\":\"Åland Adalari\",\"ru\":\"Аландские острова\",\"uk\":\"Аландські острови\",\"pl\":\"Wyspy Alandzkie\"}', '60.11666700', '19.90000000', '🇦🇽', 'U+1F1E6 U+1F1FD', '2018-07-21 07:41:03', '2024-12-19 15:22:33', 1, 'Q5689'),
+(3, 'Albania', 'ALB', '008', 'AL', '355', 'Tirana', 'ALL', 'Albanian lek', 'Lek', '.al', 'Shqipëria', 'Europe', 4, 'Southern Europe', 16, 'Albanian ', '[{\"zoneName\":\"Europe/Tirane\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"알바니아\",\"pt-BR\":\"Albânia\",\"pt\":\"Albânia\",\"nl\":\"Albanië\",\"hr\":\"Albanija\",\"fa\":\"آلبانی\",\"de\":\"Albanien\",\"es\":\"Albania\",\"fr\":\"Albanie\",\"ja\":\"アルバニア\",\"it\":\"Albania\",\"zh-CN\":\"阿尔巴尼亚\",\"tr\":\"Arnavutluk\",\"ru\":\"Албания\",\"uk\":\"Албанія\",\"pl\":\"Albania\"}', '41.00000000', '20.00000000', '🇦🇱', 'U+1F1E6 U+1F1F1', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q222'),
+(4, 'Algeria', 'DZA', '012', 'DZ', '213', 'Algiers', 'DZD', 'Algerian dinar', 'دج', '.dz', 'الجزائر', 'Africa', 1, 'Northern Africa', 1, 'Algerian', '[{\"zoneName\":\"Africa/Algiers\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"알제리\",\"pt-BR\":\"Argélia\",\"pt\":\"Argélia\",\"nl\":\"Algerije\",\"hr\":\"Alžir\",\"fa\":\"الجزایر\",\"de\":\"Algerien\",\"es\":\"Argelia\",\"fr\":\"Algérie\",\"ja\":\"アルジェリア\",\"it\":\"Algeria\",\"zh-CN\":\"阿尔及利亚\",\"tr\":\"Cezayir\",\"ru\":\"Алжир\",\"uk\":\"Алжир\",\"pl\":\"Algieria\"}', '28.00000000', '3.00000000', '🇩🇿', 'U+1F1E9 U+1F1FF', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q262'),
+(5, 'American Samoa', 'ASM', '016', 'AS', '1', 'Pago Pago', 'USD', 'United States dollar', '$', '.as', 'American Samoa', 'Oceania', 5, 'Polynesia', 22, 'American Samoan', '[{\"zoneName\":\"Pacific/Pago_Pago\",\"gmtOffset\":-39600,\"gmtOffsetName\":\"UTC-11:00\",\"abbreviation\":\"SST\",\"tzName\":\"Samoa Standard Time\"}]', '{\"ko\":\"아메리칸사모아\",\"pt-BR\":\"Samoa Americana\",\"pt\":\"Samoa Americana\",\"nl\":\"Amerikaans Samoa\",\"hr\":\"Američka Samoa\",\"fa\":\"ساموآی آمریکا\",\"de\":\"Amerikanisch-Samoa\",\"es\":\"Samoa Americana\",\"fr\":\"Samoa américaines\",\"ja\":\"アメリカ領サモア\",\"it\":\"Samoa Americane\",\"zh-CN\":\"美属萨摩亚\",\"tr\":\"Amerikan Samoasi\",\"ru\":\"Американское Самоа\",\"uk\":\"Американське Самоа\",\"pl\":\"Samoa Amerykańskie\"}', '-14.33333333', '-170.00000000', '🇦🇸', 'U+1F1E6 U+1F1F8', '2018-07-21 07:41:03', '2024-12-23 10:33:12', 1, 'Q16641'),
+(6, 'Andorra', 'AND', '020', 'AD', '376', 'Andorra la Vella', 'EUR', 'Euro', '€', '.ad', 'Andorra', 'Europe', 4, 'Southern Europe', 16, 'Andorran', '[{\"zoneName\":\"Europe/Andorra\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"안도라\",\"pt-BR\":\"Andorra\",\"pt\":\"Andorra\",\"nl\":\"Andorra\",\"hr\":\"Andora\",\"fa\":\"آندورا\",\"de\":\"Andorra\",\"es\":\"Andorra\",\"fr\":\"Andorre\",\"ja\":\"アンドラ\",\"it\":\"Andorra\",\"zh-CN\":\"安道尔\",\"tr\":\"Andorra\",\"ru\":\"Андорра\",\"uk\":\"Андорра\",\"pl\":\"Andora\"}', '42.50000000', '1.50000000', '🇦🇩', 'U+1F1E6 U+1F1E9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q228'),
+(7, 'Angola', 'AGO', '024', 'AO', '244', 'Luanda', 'AOA', 'Angolan kwanza', 'Kz', '.ao', 'Angola', 'Africa', 1, 'Middle Africa', 2, 'Angolan', '[{\"zoneName\":\"Africa/Luanda\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WAT\",\"tzName\":\"West Africa Time\"}]', '{\"ko\":\"앙골라\",\"pt-BR\":\"Angola\",\"pt\":\"Angola\",\"nl\":\"Angola\",\"hr\":\"Angola\",\"fa\":\"آنگولا\",\"de\":\"Angola\",\"es\":\"Angola\",\"fr\":\"Angola\",\"ja\":\"アンゴラ\",\"it\":\"Angola\",\"zh-CN\":\"安哥拉\",\"tr\":\"Angola\",\"ru\":\"Ангола\",\"uk\":\"Ангола\",\"pl\":\"Angola\"}', '-12.50000000', '18.50000000', '🇦🇴', 'U+1F1E6 U+1F1F4', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q916'),
+(8, 'Anguilla', 'AIA', '660', 'AI', '1', 'The Valley', 'XCD', 'Eastern Caribbean dollar', '$', '.ai', 'Anguilla', 'Americas', 2, 'Caribbean', 7, 'Anguillan', '[{\"zoneName\":\"America/Anguilla\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"앵귈라\",\"pt-BR\":\"Anguila\",\"pt\":\"Anguila\",\"nl\":\"Anguilla\",\"hr\":\"Angvila\",\"fa\":\"آنگویلا\",\"de\":\"Anguilla\",\"es\":\"Anguilla\",\"fr\":\"Anguilla\",\"ja\":\"アンギラ\",\"it\":\"Anguilla\",\"zh-CN\":\"安圭拉\",\"tr\":\"Anguilla\",\"ru\":\"Ангилья\",\"uk\":\"Ангілья\",\"pl\":\"Anguilla\"}', '18.25000000', '-63.16666666', '🇦🇮', 'U+1F1E6 U+1F1EE', '2018-07-21 07:41:03', '2024-12-23 10:33:12', 1, 'Q25228'),
+(9, 'Antarctica', 'ATA', '010', 'AQ', '672', '', 'AAD', 'Antarctican dollar', '$', '.aq', 'Antarctica', 'Polar', 6, '', NULL, 'Antarctic', '[{\"zoneName\":\"Antarctica/Casey\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"AWST\",\"tzName\":\"Australian Western Standard Time\"},{\"zoneName\":\"Antarctica/Davis\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"DAVT\",\"tzName\":\"Davis Time\"},{\"zoneName\":\"Antarctica/DumontDUrville\",\"gmtOffset\":36000,\"gmtOffsetName\":\"UTC+10:00\",\"abbreviation\":\"DDUT\",\"tzName\":\"Dumont d\'Urville Time\"},{\"zoneName\":\"Antarctica/Mawson\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"MAWT\",\"tzName\":\"Mawson Station Time\"},{\"zoneName\":\"Antarctica/McMurdo\",\"gmtOffset\":46800,\"gmtOffsetName\":\"UTC+13:00\",\"abbreviation\":\"NZDT\",\"tzName\":\"New Zealand Daylight Time\"},{\"zoneName\":\"Antarctica/Palmer\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"CLST\",\"tzName\":\"Chile Summer Time\"},{\"zoneName\":\"Antarctica/Rothera\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ROTT\",\"tzName\":\"Rothera Research Station Time\"},{\"zoneName\":\"Antarctica/Syowa\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"SYOT\",\"tzName\":\"Showa Station Time\"},{\"zoneName\":\"Antarctica/Troll\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"},{\"zoneName\":\"Antarctica/Vostok\",\"gmtOffset\":21600,\"gmtOffsetName\":\"UTC+06:00\",\"abbreviation\":\"VOST\",\"tzName\":\"Vostok Station Time\"}]', '{\"ko\":\"남극\",\"pt-BR\":\"Antártida\",\"pt\":\"Antárctida\",\"nl\":\"Antarctica\",\"hr\":\"Antarktika\",\"fa\":\"جنوبگان\",\"de\":\"Antarktika\",\"es\":\"Antártida\",\"fr\":\"Antarctique\",\"ja\":\"南極大陸\",\"it\":\"Antartide\",\"zh-CN\":\"南极洲\",\"tr\":\"Antartika\",\"ru\":\"Антарктида\",\"uk\":\"Антарктида\",\"pl\":\"Antarktyda\"}', '-74.65000000', '4.48000000', '🇦🇶', 'U+1F1E6 U+1F1F6', '2018-07-21 07:41:03', '2024-12-19 15:27:53', 1, 'Q51'),
+(10, 'Antigua and Barbuda', 'ATG', '028', 'AG', '1', 'St. John\'s', 'XCD', 'Eastern Caribbean dollar', '$', '.ag', 'Antigua and Barbuda', 'Americas', 2, 'Caribbean', 7, 'Antiguan or Barbudan', '[{\"zoneName\":\"America/Antigua\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"앤티가 바부다\",\"pt-BR\":\"Antígua e Barbuda\",\"pt\":\"Antígua e Barbuda\",\"nl\":\"Antigua en Barbuda\",\"hr\":\"Antigva i Barbuda\",\"fa\":\"آنتیگوا و باربودا\",\"de\":\"Antigua und Barbuda\",\"es\":\"Antigua y Barbuda\",\"fr\":\"Antigua-et-Barbuda\",\"ja\":\"アンティグア・バーブーダ\",\"it\":\"Antigua e Barbuda\",\"zh-CN\":\"安提瓜和巴布达\",\"tr\":\"Antigua Ve Barbuda\",\"ru\":\"Антигуа и Барбуда\",\"uk\":\"Антигуа і Барбуда\",\"pl\":\"Antigua i Barbuda\"}', '17.05000000', '-61.80000000', '🇦🇬', 'U+1F1E6 U+1F1EC', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q781'),
+(11, 'Argentina', 'ARG', '032', 'AR', '54', 'Buenos Aires', 'ARS', 'Argentine peso', '$', '.ar', 'Argentina', 'Americas', 2, 'South America', 8, 'Argentine', '[{\"zoneName\":\"America/Argentina/Buenos_Aires\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"},{\"zoneName\":\"America/Argentina/Catamarca\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"},{\"zoneName\":\"America/Argentina/Cordoba\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"},{\"zoneName\":\"America/Argentina/Jujuy\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"},{\"zoneName\":\"America/Argentina/La_Rioja\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"},{\"zoneName\":\"America/Argentina/Mendoza\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"},{\"zoneName\":\"America/Argentina/Rio_Gallegos\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"},{\"zoneName\":\"America/Argentina/Salta\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"},{\"zoneName\":\"America/Argentina/San_Juan\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"},{\"zoneName\":\"America/Argentina/San_Luis\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"},{\"zoneName\":\"America/Argentina/Tucuman\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"},{\"zoneName\":\"America/Argentina/Ushuaia\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"ART\",\"tzName\":\"Argentina Time\"}]', '{\"ko\":\"아르헨티나\",\"pt-BR\":\"Argentina\",\"pt\":\"Argentina\",\"nl\":\"Argentinië\",\"hr\":\"Argentina\",\"fa\":\"آرژانتین\",\"de\":\"Argentinien\",\"es\":\"Argentina\",\"fr\":\"Argentine\",\"ja\":\"アルゼンチン\",\"it\":\"Argentina\",\"zh-CN\":\"阿根廷\",\"tr\":\"Arjantin\",\"ru\":\"Аргентина\",\"uk\":\"Аргентина\",\"pl\":\"Argentyna\"}', '-34.00000000', '-64.00000000', '🇦🇷', 'U+1F1E6 U+1F1F7', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q414'),
+(12, 'Armenia', 'ARM', '051', 'AM', '374', 'Yerevan', 'AMD', 'Armenian dram', '֏', '.am', 'Հայաստան', 'Asia', 3, 'Western Asia', 11, 'Armenian', '[{\"zoneName\":\"Asia/Yerevan\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"AMT\",\"tzName\":\"Armenia Time\"}]', '{\"ko\":\"아르메니아\",\"pt-BR\":\"Armênia\",\"pt\":\"Arménia\",\"nl\":\"Armenië\",\"hr\":\"Armenija\",\"fa\":\"ارمنستان\",\"de\":\"Armenien\",\"es\":\"Armenia\",\"fr\":\"Arménie\",\"ja\":\"アルメニア\",\"it\":\"Armenia\",\"zh-CN\":\"亚美尼亚\",\"tr\":\"Ermenistan\",\"ru\":\"Армения\",\"uk\":\"Вірменія\",\"pl\":\"Armenia\"}', '40.00000000', '45.00000000', '🇦🇲', 'U+1F1E6 U+1F1F2', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q399'),
+(13, 'Aruba', 'ABW', '533', 'AW', '297', 'Oranjestad', 'AWG', 'Aruban florin', 'ƒ', '.aw', 'Aruba', 'Americas', 2, 'Caribbean', 7, 'Aruban', '[{\"zoneName\":\"America/Aruba\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"아루바\",\"pt-BR\":\"Aruba\",\"pt\":\"Aruba\",\"nl\":\"Aruba\",\"hr\":\"Aruba\",\"fa\":\"آروبا\",\"de\":\"Aruba\",\"es\":\"Aruba\",\"fr\":\"Aruba\",\"ja\":\"アルバ\",\"it\":\"Aruba\",\"zh-CN\":\"阿鲁巴\",\"tr\":\"Aruba\",\"ru\":\"Аруба\",\"uk\":\"Аруба\",\"pl\":\"Aruba\"}', '12.50000000', '-69.96666666', '🇦🇼', 'U+1F1E6 U+1F1FC', '2018-07-21 07:41:03', '2024-12-19 16:03:41', 1, 'Q21203'),
+(14, 'Australia', 'AUS', '036', 'AU', '61', 'Canberra', 'AUD', 'Australian dollar', '$', '.au', 'Australia', 'Oceania', 5, 'Australia and New Zealand', 19, 'Australian', '[{\"zoneName\":\"Antarctica/Macquarie\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"MIST\",\"tzName\":\"Macquarie Island Station Time\"},{\"zoneName\":\"Australia/Adelaide\",\"gmtOffset\":37800,\"gmtOffsetName\":\"UTC+10:30\",\"abbreviation\":\"ACDT\",\"tzName\":\"Australian Central Daylight Saving Time\"},{\"zoneName\":\"Australia/Brisbane\",\"gmtOffset\":36000,\"gmtOffsetName\":\"UTC+10:00\",\"abbreviation\":\"AEST\",\"tzName\":\"Australian Eastern Standard Time\"},{\"zoneName\":\"Australia/Broken_Hill\",\"gmtOffset\":37800,\"gmtOffsetName\":\"UTC+10:30\",\"abbreviation\":\"ACDT\",\"tzName\":\"Australian Central Daylight Saving Time\"},{\"zoneName\":\"Australia/Currie\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"AEDT\",\"tzName\":\"Australian Eastern Daylight Saving Time\"},{\"zoneName\":\"Australia/Darwin\",\"gmtOffset\":34200,\"gmtOffsetName\":\"UTC+09:30\",\"abbreviation\":\"ACST\",\"tzName\":\"Australian Central Standard Time\"},{\"zoneName\":\"Australia/Eucla\",\"gmtOffset\":31500,\"gmtOffsetName\":\"UTC+08:45\",\"abbreviation\":\"ACWST\",\"tzName\":\"Australian Central Western Standard Time (Unofficial)\"},{\"zoneName\":\"Australia/Hobart\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"AEDT\",\"tzName\":\"Australian Eastern Daylight Saving Time\"},{\"zoneName\":\"Australia/Lindeman\",\"gmtOffset\":36000,\"gmtOffsetName\":\"UTC+10:00\",\"abbreviation\":\"AEST\",\"tzName\":\"Australian Eastern Standard Time\"},{\"zoneName\":\"Australia/Lord_Howe\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"LHST\",\"tzName\":\"Lord Howe Summer Time\"},{\"zoneName\":\"Australia/Melbourne\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"AEDT\",\"tzName\":\"Australian Eastern Daylight Saving Time\"},{\"zoneName\":\"Australia/Perth\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"AWST\",\"tzName\":\"Australian Western Standard Time\"},{\"zoneName\":\"Australia/Sydney\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"AEDT\",\"tzName\":\"Australian Eastern Daylight Saving Time\"}]', '{\"ko\":\"호주\",\"pt-BR\":\"Austrália\",\"pt\":\"Austrália\",\"nl\":\"Australië\",\"hr\":\"Australija\",\"fa\":\"استرالیا\",\"de\":\"Australien\",\"es\":\"Australia\",\"fr\":\"Australie\",\"ja\":\"オーストラリア\",\"it\":\"Australia\",\"zh-CN\":\"澳大利亚\",\"tr\":\"Avustralya\",\"ru\":\"Австралия\",\"uk\":\"Австралія\",\"pl\":\"Australia\"}', '-27.00000000', '133.00000000', '🇦🇺', 'U+1F1E6 U+1F1FA', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q408'),
+(15, 'Austria', 'AUT', '040', 'AT', '43', 'Vienna', 'EUR', 'Euro', '€', '.at', 'Österreich', 'Europe', 4, 'Western Europe', 17, 'Austrian', '[{\"zoneName\":\"Europe/Vienna\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"오스트리아\",\"pt-BR\":\"áustria\",\"pt\":\"áustria\",\"nl\":\"Oostenrijk\",\"hr\":\"Austrija\",\"fa\":\"اتریش\",\"de\":\"Österreich\",\"es\":\"Austria\",\"fr\":\"Autriche\",\"ja\":\"オーストリア\",\"it\":\"Austria\",\"zh-CN\":\"奥地利\",\"tr\":\"Avusturya\",\"ru\":\"Австрия\",\"uk\":\"Австрія\",\"pl\":\"Austria\"}', '47.33333333', '13.33333333', '🇦🇹', 'U+1F1E6 U+1F1F9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q40'),
+(16, 'Azerbaijan', 'AZE', '031', 'AZ', '994', 'Baku', 'AZN', 'Azerbaijani manat', 'm', '.az', 'Azərbaycan', 'Asia', 3, 'Western Asia', 11, 'Azerbaijani, Azeri', '[{\"zoneName\":\"Asia/Baku\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"AZT\",\"tzName\":\"Azerbaijan Time\"}]', '{\"ko\":\"아제르바이잔\",\"pt-BR\":\"Azerbaijão\",\"pt\":\"Azerbaijão\",\"nl\":\"Azerbeidzjan\",\"hr\":\"Azerbajdžan\",\"fa\":\"آذربایجان\",\"de\":\"Aserbaidschan\",\"es\":\"Azerbaiyán\",\"fr\":\"Azerbaïdjan\",\"ja\":\"アゼルバイジャン\",\"it\":\"Azerbaijan\",\"zh-CN\":\"阿塞拜疆\",\"tr\":\"Azerbaycan\",\"ru\":\"Азербайджан\",\"uk\":\"Азербайджан\",\"pl\":\"Azerbejdżan\"}', '40.50000000', '47.50000000', '🇦🇿', 'U+1F1E6 U+1F1FF', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q227'),
+(17, 'The Bahamas', 'BHS', '044', 'BS', '1', 'Nassau', 'BSD', 'Bahamian dollar', 'B$', '.bs', 'Bahamas', 'Americas', 2, 'Caribbean', 7, 'Bahamian', '[{\"zoneName\":\"America/Nassau\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America)\"}]', '{\"ko\":\"바하마\",\"pt-BR\":\"Bahamas\",\"pt\":\"Baamas\",\"nl\":\"Bahama’s\",\"hr\":\"Bahami\",\"fa\":\"باهاما\",\"de\":\"Bahamas\",\"es\":\"Bahamas\",\"fr\":\"Bahamas\",\"ja\":\"バハマ\",\"it\":\"Bahamas\",\"zh-CN\":\"巴哈马\",\"tr\":\"Bahamalar\",\"ru\":\"Багамы\",\"uk\":\"Багамські острови\",\"pl\":\"Bahamy\"}', '24.25000000', '-76.00000000', '🇧🇸', 'U+1F1E7 U+1F1F8', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q778'),
+(18, 'Bahrain', 'BHR', '048', 'BH', '973', 'Manama', 'BHD', 'Bahraini dinar', '.د.ب', '.bh', '‏البحرين', 'Asia', 3, 'Western Asia', 11, 'Bahraini', '[{\"zoneName\":\"Asia/Bahrain\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"AST\",\"tzName\":\"Arabia Standard Time\"}]', '{\"ko\":\"바레인\",\"pt-BR\":\"Bahrein\",\"pt\":\"Barém\",\"nl\":\"Bahrein\",\"hr\":\"Bahrein\",\"fa\":\"بحرین\",\"de\":\"Bahrain\",\"es\":\"Bahrein\",\"fr\":\"Bahreïn\",\"ja\":\"バーレーン\",\"it\":\"Bahrein\",\"zh-CN\":\"巴林\",\"tr\":\"Bahreyn\",\"ru\":\"Бахрейн\",\"uk\":\"Бахрейн\",\"pl\":\"Bahrajn\"}', '26.00000000', '50.55000000', '🇧🇭', 'U+1F1E7 U+1F1ED', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q398'),
+(19, 'Bangladesh', 'BGD', '050', 'BD', '880', 'Dhaka', 'BDT', 'Bangladeshi taka', '৳', '.bd', 'Bangladesh', 'Asia', 3, 'Southern Asia', 14, 'Bangladeshi', '[{\"zoneName\":\"Asia/Dhaka\",\"gmtOffset\":21600,\"gmtOffsetName\":\"UTC+06:00\",\"abbreviation\":\"BDT\",\"tzName\":\"Bangladesh Standard Time\"}]', '{\"ko\":\"방글라데시\",\"pt-BR\":\"Bangladesh\",\"pt\":\"Bangladeche\",\"nl\":\"Bangladesh\",\"hr\":\"Bangladeš\",\"fa\":\"بنگلادش\",\"de\":\"Bangladesch\",\"es\":\"Bangladesh\",\"fr\":\"Bangladesh\",\"ja\":\"バングラデシュ\",\"it\":\"Bangladesh\",\"zh-CN\":\"孟加拉\",\"tr\":\"Bangladeş\",\"ru\":\"Бангладеш\",\"uk\":\"Бангладеш\",\"pl\":\"Bangladesz\"}', '24.00000000', '90.00000000', '🇧🇩', 'U+1F1E7 U+1F1E9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q902'),
+(20, 'Barbados', 'BRB', '052', 'BB', '1', 'Bridgetown', 'BBD', 'Barbadian dollar', 'Bds$', '.bb', 'Barbados', 'Americas', 2, 'Caribbean', 7, 'Barbadian', '[{\"zoneName\":\"America/Barbados\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"바베이도스\",\"pt-BR\":\"Barbados\",\"pt\":\"Barbados\",\"nl\":\"Barbados\",\"hr\":\"Barbados\",\"fa\":\"باربادوس\",\"de\":\"Barbados\",\"es\":\"Barbados\",\"fr\":\"Barbade\",\"ja\":\"バルバドス\",\"it\":\"Barbados\",\"zh-CN\":\"巴巴多斯\",\"tr\":\"Barbados\",\"ru\":\"Барбадос\",\"uk\":\"Барбадос\",\"pl\":\"Barbados\"}', '13.16666666', '-59.53333333', '🇧🇧', 'U+1F1E7 U+1F1E7', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q244'),
+(21, 'Belarus', 'BLR', '112', 'BY', '375', 'Minsk', 'BYN', 'Belarusian ruble', 'Br', '.by', 'Белару́сь', 'Europe', 4, 'Eastern Europe', 15, 'Belarusian', '[{\"zoneName\":\"Europe/Minsk\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"MSK\",\"tzName\":\"Moscow Time\"}]', '{\"ko\":\"벨라루스\",\"pt-BR\":\"Bielorrússia\",\"pt\":\"Bielorrússia\",\"nl\":\"Wit-Rusland\",\"hr\":\"Bjelorusija\",\"fa\":\"بلاروس\",\"de\":\"Weißrussland\",\"es\":\"Bielorrusia\",\"fr\":\"Biélorussie\",\"ja\":\"ベラルーシ\",\"it\":\"Bielorussia\",\"zh-CN\":\"白俄罗斯\",\"tr\":\"Belarus\",\"ru\":\"Беларусь\",\"uk\":\"Білорусь\",\"pl\":\"Białoruś\"}', '53.00000000', '28.00000000', '🇧🇾', 'U+1F1E7 U+1F1FE', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q184'),
+(22, 'Belgium', 'BEL', '056', 'BE', '32', 'Brussels', 'EUR', 'Euro', '€', '.be', 'België', 'Europe', 4, 'Western Europe', 17, 'Belgian', '[{\"zoneName\":\"Europe/Brussels\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"벨기에\",\"pt-BR\":\"Bélgica\",\"pt\":\"Bélgica\",\"nl\":\"België\",\"hr\":\"Belgija\",\"fa\":\"بلژیک\",\"de\":\"Belgien\",\"es\":\"Bélgica\",\"fr\":\"Belgique\",\"ja\":\"ベルギー\",\"it\":\"Belgio\",\"zh-CN\":\"比利时\",\"tr\":\"Belçika\",\"ru\":\"Бельгия\",\"uk\":\"Бельгія\",\"pl\":\"Belgia\"}', '50.83333333', '4.00000000', '🇧🇪', 'U+1F1E7 U+1F1EA', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q31'),
+(23, 'Belize', 'BLZ', '084', 'BZ', '501', 'Belmopan', 'BZD', 'Belize dollar', '$', '.bz', 'Belize', 'Americas', 2, 'Central America', 9, 'Belizean', '[{\"zoneName\":\"America/Belize\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America)\"}]', '{\"ko\":\"벨리즈\",\"pt-BR\":\"Belize\",\"pt\":\"Belize\",\"nl\":\"Belize\",\"hr\":\"Belize\",\"fa\":\"بلیز\",\"de\":\"Belize\",\"es\":\"Belice\",\"fr\":\"Belize\",\"ja\":\"ベリーズ\",\"it\":\"Belize\",\"zh-CN\":\"伯利兹\",\"tr\":\"Belize\",\"ru\":\"Белиз\",\"uk\":\"Беліз\",\"pl\":\"Belize\"}', '17.25000000', '-88.75000000', '🇧🇿', 'U+1F1E7 U+1F1FF', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q242'),
+(24, 'Benin', 'BEN', '204', 'BJ', '229', 'Porto-Novo', 'XOF', 'West African CFA franc', 'CFA', '.bj', 'Bénin', 'Africa', 1, 'Western Africa', 3, 'Beninese, Beninois', '[{\"zoneName\":\"Africa/Porto-Novo\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WAT\",\"tzName\":\"West Africa Time\"}]', '{\"ko\":\"베냉\",\"pt-BR\":\"Benin\",\"pt\":\"Benim\",\"nl\":\"Benin\",\"hr\":\"Benin\",\"fa\":\"بنین\",\"de\":\"Benin\",\"es\":\"Benín\",\"fr\":\"Bénin\",\"ja\":\"ベナン\",\"it\":\"Benin\",\"zh-CN\":\"贝宁\",\"tr\":\"Benin\",\"ru\":\"Бенин\",\"uk\":\"Бенін\",\"pl\":\"Benin\"}', '9.50000000', '2.25000000', '🇧🇯', 'U+1F1E7 U+1F1EF', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q962'),
+(25, 'Bermuda', 'BMU', '060', 'BM', '1', 'Hamilton', 'BMD', 'Bermudian dollar', '$', '.bm', 'Bermuda', 'Americas', 2, 'Northern America', 6, 'Bermudian, Bermudan', '[{\"zoneName\":\"Atlantic/Bermuda\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"버뮤다\",\"pt-BR\":\"Bermudas\",\"pt\":\"Bermudas\",\"nl\":\"Bermuda\",\"hr\":\"Bermudi\",\"fa\":\"برمودا\",\"de\":\"Bermuda\",\"es\":\"Bermudas\",\"fr\":\"Bermudes\",\"ja\":\"バミューダ\",\"it\":\"Bermuda\",\"zh-CN\":\"百慕大\",\"tr\":\"Bermuda\",\"ru\":\"Бермуды\",\"uk\":\"Бермудські острови\",\"pl\":\"Bermudy\"}', '32.33333333', '-64.75000000', '🇧🇲', 'U+1F1E7 U+1F1F2', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q23635'),
+(26, 'Bhutan', 'BTN', '064', 'BT', '975', 'Thimphu', 'BTN', 'Bhutanese ngultrum', 'Nu.', '.bt', 'ʼbrug-yul', 'Asia', 3, 'Southern Asia', 14, 'Bhutanese', '[{\"zoneName\":\"Asia/Thimphu\",\"gmtOffset\":21600,\"gmtOffsetName\":\"UTC+06:00\",\"abbreviation\":\"BTT\",\"tzName\":\"Bhutan Time\"}]', '{\"ko\":\"부탄\",\"pt-BR\":\"Butão\",\"pt\":\"Butão\",\"nl\":\"Bhutan\",\"hr\":\"Butan\",\"fa\":\"بوتان\",\"de\":\"Bhutan\",\"es\":\"Bután\",\"fr\":\"Bhoutan\",\"ja\":\"ブータン\",\"it\":\"Bhutan\",\"zh-CN\":\"不丹\",\"tr\":\"Butan\",\"ru\":\"Бутан\",\"uk\":\"Бутан\",\"pl\":\"Bhutan\"}', '27.50000000', '90.50000000', '🇧🇹', 'U+1F1E7 U+1F1F9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q917'),
+(27, 'Bolivia', 'BOL', '068', 'BO', '591', 'Sucre', 'BOB', 'Bolivian boliviano', 'Bs.', '.bo', 'Bolivia', 'Americas', 2, 'South America', 8, 'Bolivian', '[{\"zoneName\":\"America/La_Paz\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"BOT\",\"tzName\":\"Bolivia Time\"}]', '{\"ko\":\"볼리비아\",\"pt-BR\":\"Bolívia\",\"pt\":\"Bolívia\",\"nl\":\"Bolivia\",\"hr\":\"Bolivija\",\"fa\":\"بولیوی\",\"de\":\"Bolivien\",\"es\":\"Bolivia\",\"fr\":\"Bolivie\",\"ja\":\"ボリビア多民族国\",\"it\":\"Bolivia\",\"zh-CN\":\"玻利维亚\",\"tr\":\"Bolivya\",\"ru\":\"Боливия\",\"uk\":\"Болівія\",\"pl\":\"Boliwia\"}', '-17.00000000', '-65.00000000', '🇧🇴', 'U+1F1E7 U+1F1F4', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q750'),
+(28, 'Bosnia and Herzegovina', 'BIH', '070', 'BA', '387', 'Sarajevo', 'BAM', 'Bosnia and Herzegovina convertible mark', 'KM', '.ba', 'Bosna i Hercegovina', 'Europe', 4, 'Southern Europe', 16, 'Bosnian or Herzegovinian', '[{\"zoneName\":\"Europe/Sarajevo\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"보스니아 헤르체고비나\",\"pt-BR\":\"Bósnia e Herzegovina\",\"pt\":\"Bósnia e Herzegovina\",\"nl\":\"Bosnië en Herzegovina\",\"hr\":\"Bosna i Hercegovina\",\"fa\":\"بوسنی و هرزگوین\",\"de\":\"Bosnien und Herzegowina\",\"es\":\"Bosnia y Herzegovina\",\"fr\":\"Bosnie-Herzégovine\",\"ja\":\"ボスニア・ヘルツェゴビナ\",\"it\":\"Bosnia ed Erzegovina\",\"zh-CN\":\"波斯尼亚和黑塞哥维那\",\"tr\":\"Bosna Hersek\",\"ru\":\"Босния и Герцеговина\",\"uk\":\"Боснія і Герцеговина\",\"pl\":\"Bośnia i Hercegowina\"}', '44.00000000', '18.00000000', '🇧🇦', 'U+1F1E7 U+1F1E6', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q225'),
+(29, 'Botswana', 'BWA', '072', 'BW', '267', 'Gaborone', 'BWP', 'Botswana pula', 'P', '.bw', 'Botswana', 'Africa', 1, 'Southern Africa', 5, 'Motswana, Botswanan', '[{\"zoneName\":\"Africa/Gaborone\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"CAT\",\"tzName\":\"Central Africa Time\"}]', '{\"ko\":\"보츠와나\",\"pt-BR\":\"Botsuana\",\"pt\":\"Botsuana\",\"nl\":\"Botswana\",\"hr\":\"Bocvana\",\"fa\":\"بوتسوانا\",\"de\":\"Botswana\",\"es\":\"Botswana\",\"fr\":\"Botswana\",\"ja\":\"ボツワナ\",\"it\":\"Botswana\",\"zh-CN\":\"博茨瓦纳\",\"tr\":\"Botsvana\",\"ru\":\"Ботсвана\",\"uk\":\"Ботсвана\",\"pl\":\"Botswana\"}', '-22.00000000', '24.00000000', '🇧🇼', 'U+1F1E7 U+1F1FC', '2018-07-21 07:41:03', '2023-08-11 16:01:40', 1, 'Q963'),
+(30, 'Bouvet Island', 'BVT', '074', 'BV', '0055', '', 'NOK', 'Norwegian krone', 'ko', '.bv', 'Bouvetøya', '', NULL, '', NULL, 'Bouvet Island', '[{\"zoneName\":\"Europe/Oslo\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"부벳 섬\",\"pt-BR\":\"Ilha Bouvet\",\"pt\":\"Ilha Bouvet\",\"nl\":\"Bouveteiland\",\"hr\":\"Otok Bouvet\",\"fa\":\"جزیره بووه\",\"de\":\"Bouvetinsel\",\"es\":\"Isla Bouvet\",\"fr\":\"Île Bouvet\",\"ja\":\"ブーベ島\",\"it\":\"Isola Bouvet\",\"zh-CN\":\"布维岛\",\"tr\":\"Bouvet Adasi\",\"ru\":\"Остров Буве\",\"uk\":\"Острів Буве\",\"pl\":\"Wyspa Bouveta\"}', '-54.43333333', '3.40000000', '🇧🇻', 'U+1F1E7 U+1F1FB', '2018-07-21 07:41:03', '2024-12-23 10:33:12', 1, 'Q23408'),
+(31, 'Brazil', 'BRA', '076', 'BR', '55', 'Brasilia', 'BRL', 'Brazilian real', 'R$', '.br', 'Brasil', 'Americas', 2, 'South America', 8, 'Brazilian', '[{\"zoneName\":\"America/Araguaina\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"BRT\",\"tzName\":\"Brasília Time\"},{\"zoneName\":\"America/Bahia\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"BRT\",\"tzName\":\"Brasília Time\"},{\"zoneName\":\"America/Belem\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"BRT\",\"tzName\":\"Brasília Time\"},{\"zoneName\":\"America/Boa_Vista\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AMT\",\"tzName\":\"Amazon Time (Brazil)[3\"},{\"zoneName\":\"America/Campo_Grande\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AMT\",\"tzName\":\"Amazon Time (Brazil)[3\"},{\"zoneName\":\"America/Cuiaba\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"BRT\",\"tzName\":\"Brasilia Time\"},{\"zoneName\":\"America/Eirunepe\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"ACT\",\"tzName\":\"Acre Time\"},{\"zoneName\":\"America/Fortaleza\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"BRT\",\"tzName\":\"Brasília Time\"},{\"zoneName\":\"America/Maceio\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"BRT\",\"tzName\":\"Brasília Time\"},{\"zoneName\":\"America/Manaus\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AMT\",\"tzName\":\"Amazon Time (Brazil)\"},{\"zoneName\":\"America/Noronha\",\"gmtOffset\":-7200,\"gmtOffsetName\":\"UTC-02:00\",\"abbreviation\":\"FNT\",\"tzName\":\"Fernando de Noronha Time\"},{\"zoneName\":\"America/Porto_Velho\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AMT\",\"tzName\":\"Amazon Time (Brazil)[3\"},{\"zoneName\":\"America/Recife\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"BRT\",\"tzName\":\"Brasília Time\"},{\"zoneName\":\"America/Rio_Branco\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"ACT\",\"tzName\":\"Acre Time\"},{\"zoneName\":\"America/Santarem\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"BRT\",\"tzName\":\"Brasília Time\"},{\"zoneName\":\"America/Sao_Paulo\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"BRT\",\"tzName\":\"Brasília Time\"}]', '{\"ko\":\"브라질\",\"pt-BR\":\"Brasil\",\"pt\":\"Brasil\",\"nl\":\"Brazilië\",\"hr\":\"Brazil\",\"fa\":\"برزیل\",\"de\":\"Brasilien\",\"es\":\"Brasil\",\"fr\":\"Brésil\",\"ja\":\"ブラジル\",\"it\":\"Brasile\",\"zh-CN\":\"巴西\",\"tr\":\"Brezilya\",\"ru\":\"Бразилия\",\"uk\":\"Бразилія\",\"pl\":\"Brazylia\"}', '-10.00000000', '-55.00000000', '🇧🇷', 'U+1F1E7 U+1F1F7', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q155'),
+(32, 'British Indian Ocean Territory', 'IOT', '086', 'IO', '246', 'Diego Garcia', 'USD', 'United States dollar', '$', '.io', 'British Indian Ocean Territory', 'Africa', 1, 'Eastern Africa', 4, 'BIOT', '[{\"zoneName\":\"Indian/Chagos\",\"gmtOffset\":21600,\"gmtOffsetName\":\"UTC+06:00\",\"abbreviation\":\"IOT\",\"tzName\":\"Indian Ocean Time\"}]', '{\"ko\":\"영국령 인도양 지역\",\"pt-BR\":\"Território Britânico do Oceano íÍdico\",\"pt\":\"Território Britânico do Oceano Índico\",\"nl\":\"Britse Gebieden in de Indische Oceaan\",\"hr\":\"Britanski Indijskooceanski teritorij\",\"fa\":\"قلمرو بریتانیا در اقیانوس هند\",\"de\":\"Britisches Territorium im Indischen Ozean\",\"es\":\"Territorio Británico del Océano Índico\",\"fr\":\"Territoire britannique de l\'océan Indien\",\"ja\":\"イギリス領インド洋地域\",\"it\":\"Territorio britannico dell\'oceano indiano\",\"zh-CN\":\"英属印度洋领地\",\"tr\":\"Britanya Hint Okyanusu Topraklari\",\"ru\":\"Британская территория в Индийском океане\",\"uk\":\"Британська територія в Індійському океані\",\"pl\":\"Brytyjskie Terytorium Oceanu Indyjskiego\"}', '-6.00000000', '71.50000000', '🇮🇴', 'U+1F1EE U+1F1F4', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q43448'),
+(33, 'Brunei', 'BRN', '096', 'BN', '673', 'Bandar Seri Begawan', 'BND', 'Brunei dollar', 'B$', '.bn', 'Negara Brunei Darussalam', 'Asia', 3, 'South-Eastern Asia', 13, 'Bruneian', '[{\"zoneName\":\"Asia/Brunei\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"BNT\",\"tzName\":\"Brunei Darussalam Time\"}]', '{\"ko\":\"브루나이\",\"pt-BR\":\"Brunei\",\"pt\":\"Brunei\",\"nl\":\"Brunei\",\"hr\":\"Brunej\",\"fa\":\"برونئی\",\"de\":\"Brunei\",\"es\":\"Brunei\",\"fr\":\"Brunei\",\"ja\":\"ブルネイ・ダルサラーム\",\"it\":\"Brunei\",\"zh-CN\":\"文莱\",\"tr\":\"Brunei\",\"ru\":\"Бруней\",\"uk\":\"Бруней\",\"pl\":\"Brunei\"}', '4.50000000', '114.66666666', '🇧🇳', 'U+1F1E7 U+1F1F3', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q921'),
+(34, 'Bulgaria', 'BGR', '100', 'BG', '359', 'Sofia', 'BGN', 'Bulgarian lev', 'Лв.', '.bg', 'България', 'Europe', 4, 'Eastern Europe', 15, 'Bulgarian', '[{\"zoneName\":\"Europe/Sofia\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"불가리아\",\"pt-BR\":\"Bulgária\",\"pt\":\"Bulgária\",\"nl\":\"Bulgarije\",\"hr\":\"Bugarska\",\"fa\":\"بلغارستان\",\"de\":\"Bulgarien\",\"es\":\"Bulgaria\",\"fr\":\"Bulgarie\",\"ja\":\"ブルガリア\",\"it\":\"Bulgaria\",\"zh-CN\":\"保加利亚\",\"tr\":\"Bulgaristan\",\"ru\":\"Болгария\",\"uk\":\"Болгарія\",\"pl\":\"Bułgaria\"}', '43.00000000', '25.00000000', '🇧🇬', 'U+1F1E7 U+1F1EC', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q219'),
+(35, 'Burkina Faso', 'BFA', '854', 'BF', '226', 'Ouagadougou', 'XOF', 'West African CFA franc', 'CFA', '.bf', 'Burkina Faso', 'Africa', 1, 'Western Africa', 3, 'Burkinabe', '[{\"zoneName\":\"Africa/Ouagadougou\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"부르키나 파소\",\"pt-BR\":\"Burkina Faso\",\"pt\":\"Burquina Faso\",\"nl\":\"Burkina Faso\",\"hr\":\"Burkina Faso\",\"fa\":\"بورکینافاسو\",\"de\":\"Burkina Faso\",\"es\":\"Burkina Faso\",\"fr\":\"Burkina Faso\",\"ja\":\"ブルキナファソ\",\"it\":\"Burkina Faso\",\"zh-CN\":\"布基纳法索\",\"tr\":\"Burkina Faso\",\"ru\":\"Буркина-Фасо\",\"uk\":\"Буркіна-Фасо\",\"pl\":\"Burkina Faso\"}', '13.00000000', '-2.00000000', '🇧🇫', 'U+1F1E7 U+1F1EB', '2018-07-21 07:41:03', '2023-08-11 16:15:55', 1, 'Q965'),
+(36, 'Burundi', 'BDI', '108', 'BI', '257', 'Bujumbura', 'BIF', 'Burundian franc', 'FBu', '.bi', 'Burundi', 'Africa', 1, 'Eastern Africa', 4, 'Burundian', '[{\"zoneName\":\"Africa/Bujumbura\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"CAT\",\"tzName\":\"Central Africa Time\"}]', '{\"ko\":\"부룬디\",\"pt-BR\":\"Burundi\",\"pt\":\"Burúndi\",\"nl\":\"Burundi\",\"hr\":\"Burundi\",\"fa\":\"بوروندی\",\"de\":\"Burundi\",\"es\":\"Burundi\",\"fr\":\"Burundi\",\"ja\":\"ブルンジ\",\"it\":\"Burundi\",\"zh-CN\":\"布隆迪\",\"tr\":\"Burundi\",\"ru\":\"Бурунди\",\"uk\":\"Бурунді\",\"pl\":\"Burundi\"}', '-3.50000000', '30.00000000', '🇧🇮', 'U+1F1E7 U+1F1EE', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q967'),
+(37, 'Cambodia', 'KHM', '116', 'KH', '855', 'Phnom Penh', 'KHR', 'Cambodian riel', 'KHR', '.kh', 'Kâmpŭchéa', 'Asia', 3, 'South-Eastern Asia', 13, 'Cambodian', '[{\"zoneName\":\"Asia/Phnom_Penh\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"ICT\",\"tzName\":\"Indochina Time\"}]', '{\"ko\":\"캄보디아\",\"pt-BR\":\"Camboja\",\"pt\":\"Camboja\",\"nl\":\"Cambodja\",\"hr\":\"Kambodža\",\"fa\":\"کامبوج\",\"de\":\"Kambodscha\",\"es\":\"Camboya\",\"fr\":\"Cambodge\",\"ja\":\"カンボジア\",\"it\":\"Cambogia\",\"zh-CN\":\"柬埔寨\",\"tr\":\"Kamboçya\",\"ru\":\"Камбоджа\",\"uk\":\"Камбоджа\",\"pl\":\"Kambodża\"}', '13.00000000', '105.00000000', '🇰🇭', 'U+1F1F0 U+1F1ED', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q424'),
+(38, 'Cameroon', 'CMR', '120', 'CM', '237', 'Yaounde', 'XAF', 'Central African CFA franc', 'FCFA', '.cm', 'Cameroon', 'Africa', 1, 'Middle Africa', 2, 'Cameroonian', '[{\"zoneName\":\"Africa/Douala\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WAT\",\"tzName\":\"West Africa Time\"}]', '{\"ko\":\"카메룬\",\"pt-BR\":\"Camarões\",\"pt\":\"Camarões\",\"nl\":\"Kameroen\",\"hr\":\"Kamerun\",\"fa\":\"کامرون\",\"de\":\"Kamerun\",\"es\":\"Camerún\",\"fr\":\"Cameroun\",\"ja\":\"カメルーン\",\"it\":\"Camerun\",\"zh-CN\":\"喀麦隆\",\"tr\":\"Kamerun\",\"ru\":\"Камерун\",\"uk\":\"Камерун\",\"pl\":\"Kamerun\"}', '6.00000000', '12.00000000', '🇨🇲', 'U+1F1E8 U+1F1F2', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q1009'),
+(39, 'Canada', 'CAN', '124', 'CA', '1', 'Ottawa', 'CAD', 'Canadian dollar', '$', '.ca', 'Canada', 'Americas', 2, 'Northern America', 6, 'Canadian', '[{\"zoneName\":\"America/Atikokan\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America)\"},{\"zoneName\":\"America/Blanc-Sablon\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"},{\"zoneName\":\"America/Cambridge_Bay\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America)\"},{\"zoneName\":\"America/Creston\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America)\"},{\"zoneName\":\"America/Dawson\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America)\"},{\"zoneName\":\"America/Dawson_Creek\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America)\"},{\"zoneName\":\"America/Edmonton\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America)\"},{\"zoneName\":\"America/Fort_Nelson\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America)\"},{\"zoneName\":\"America/Glace_Bay\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"},{\"zoneName\":\"America/Goose_Bay\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"},{\"zoneName\":\"America/Halifax\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"},{\"zoneName\":\"America/Inuvik\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America\"},{\"zoneName\":\"America/Iqaluit\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Moncton\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"},{\"zoneName\":\"America/Nipigon\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Pangnirtung\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Rainy_River\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Rankin_Inlet\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Regina\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Resolute\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/St_Johns\",\"gmtOffset\":-12600,\"gmtOffsetName\":\"UTC-03:30\",\"abbreviation\":\"NST\",\"tzName\":\"Newfoundland Standard Time\"},{\"zoneName\":\"America/Swift_Current\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Thunder_Bay\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Toronto\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Vancouver\",\"gmtOffset\":-28800,\"gmtOffsetName\":\"UTC-08:00\",\"abbreviation\":\"PST\",\"tzName\":\"Pacific Standard Time (North America\"},{\"zoneName\":\"America/Whitehorse\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America\"},{\"zoneName\":\"America/Winnipeg\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Yellowknife\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America\"}]', '{\"ko\":\"캐나다\",\"pt-BR\":\"Canadá\",\"pt\":\"Canadá\",\"nl\":\"Canada\",\"hr\":\"Kanada\",\"fa\":\"کانادا\",\"de\":\"Kanada\",\"es\":\"Canadá\",\"fr\":\"Canada\",\"ja\":\"カナダ\",\"it\":\"Canada\",\"zh-CN\":\"加拿大\",\"tr\":\"Kanada\",\"ru\":\"Канада\",\"uk\":\"Канада\",\"pl\":\"Kanada\"}', '60.00000000', '-95.00000000', '🇨🇦', 'U+1F1E8 U+1F1E6', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q16'),
+(40, 'Cape Verde', 'CPV', '132', 'CV', '238', 'Praia', 'CVE', 'Cape Verdean escudo', '$', '.cv', 'Cabo Verde', 'Africa', 1, 'Western Africa', 3, 'Verdean', '[{\"zoneName\":\"Atlantic/Cape_Verde\",\"gmtOffset\":-3600,\"gmtOffsetName\":\"UTC-01:00\",\"abbreviation\":\"CVT\",\"tzName\":\"Cape Verde Time\"}]', '{\"ko\":\"카보베르데\",\"pt-BR\":\"Cabo Verde\",\"pt\":\"Cabo Verde\",\"nl\":\"Kaapverdië\",\"hr\":\"Zelenortska Republika\",\"fa\":\"کیپ ورد\",\"de\":\"Kap Verde\",\"es\":\"Cabo Verde\",\"fr\":\"Cap Vert\",\"ja\":\"カーボベルデ\",\"it\":\"Capo Verde\",\"zh-CN\":\"佛得角\",\"tr\":\"Cabo Verde\",\"ru\":\"Кабо-Верде\",\"uk\":\"Кабо-Верде\",\"pl\":\"Republika Zielonego Przylądka\"}', '16.00000000', '-24.00000000', '🇨🇻', 'U+1F1E8 U+1F1FB', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q1011'),
+(41, 'Cayman Islands', 'CYM', '136', 'KY', '1', 'George Town', 'KYD', 'Cayman Islands dollar', '$', '.ky', 'Cayman Islands', 'Americas', 2, 'Caribbean', 7, 'Caymanian', '[{\"zoneName\":\"America/Cayman\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"}]', '{\"ko\":\"케이먼 제도\",\"pt-BR\":\"Ilhas Cayman\",\"pt\":\"Ilhas Caimão\",\"nl\":\"Caymaneilanden\",\"hr\":\"Kajmanski otoci\",\"fa\":\"جزایر کیمن\",\"de\":\"Kaimaninseln\",\"es\":\"Islas Caimán\",\"fr\":\"Îles Caïmans\",\"ja\":\"ケイマン諸島\",\"it\":\"Isole Cayman\",\"zh-CN\":\"开曼群岛\",\"tr\":\"Cayman Adalari\",\"ru\":\"Каймановы острова\",\"uk\":\"Кайманові острови\",\"pl\":\"Kajmany\"}', '19.50000000', '-80.50000000', '🇰🇾', 'U+1F1F0 U+1F1FE', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q5785'),
+(42, 'Central African Republic', 'CAF', '140', 'CF', '236', 'Bangui', 'XAF', 'Central African CFA franc', 'FCFA', '.cf', 'Ködörösêse tî Bêafrîka', 'Africa', 1, 'Middle Africa', 2, 'Central African', '[{\"zoneName\":\"Africa/Bangui\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WAT\",\"tzName\":\"West Africa Time\"}]', '{\"ko\":\"중앙아프리카 공화국\",\"pt-BR\":\"República Centro-Africana\",\"pt\":\"República Centro-Africana\",\"nl\":\"Centraal-Afrikaanse Republiek\",\"hr\":\"Srednjoafrička Republika\",\"fa\":\"جمهوری آفریقای مرکزی\",\"de\":\"Zentralafrikanische Republik\",\"es\":\"República Centroafricana\",\"fr\":\"République centrafricaine\",\"ja\":\"中央アフリカ共和国\",\"it\":\"Repubblica Centrafricana\",\"zh-CN\":\"中非\",\"tr\":\"Orta Afrika Cumhuriyeti\",\"ru\":\"Центральноафриканская Республика\",\"uk\":\"Центральноафриканська Республіка\",\"pl\":\"Republika Środkowoafrykańska\"}', '7.00000000', '21.00000000', '🇨🇫', 'U+1F1E8 U+1F1EB', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q929'),
+(43, 'Chad', 'TCD', '148', 'TD', '235', 'N\'Djamena', 'XAF', 'Central African CFA franc', 'FCFA', '.td', 'Tchad', 'Africa', 1, 'Middle Africa', 2, 'Chadian', '[{\"zoneName\":\"Africa/Ndjamena\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WAT\",\"tzName\":\"West Africa Time\"}]', '{\"ko\":\"차드\",\"pt-BR\":\"Chade\",\"pt\":\"Chade\",\"nl\":\"Tsjaad\",\"hr\":\"Čad\",\"fa\":\"چاد\",\"de\":\"Tschad\",\"es\":\"Chad\",\"fr\":\"Tchad\",\"ja\":\"チャド\",\"it\":\"Ciad\",\"zh-CN\":\"乍得\",\"tr\":\"Çad\",\"ru\":\"Чад\",\"uk\":\"Чад.\",\"pl\":\"Czad\"}', '15.00000000', '19.00000000', '🇹🇩', 'U+1F1F9 U+1F1E9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q657'),
+(44, 'Chile', 'CHL', '152', 'CL', '56', 'Santiago', 'CLP', 'Chilean peso', '$', '.cl', 'Chile', 'Americas', 2, 'South America', 8, 'Chilean', '[{\"zoneName\":\"America/Punta_Arenas\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"CLST\",\"tzName\":\"Chile Summer Time\"},{\"zoneName\":\"America/Santiago\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"CLST\",\"tzName\":\"Chile Summer Time\"},{\"zoneName\":\"Pacific/Easter\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EASST\",\"tzName\":\"Easter Island Summer Time\"}]', '{\"ko\":\"칠리\",\"pt-BR\":\"Chile\",\"pt\":\"Chile\",\"nl\":\"Chili\",\"hr\":\"Čile\",\"fa\":\"شیلی\",\"de\":\"Chile\",\"es\":\"Chile\",\"fr\":\"Chili\",\"ja\":\"チリ\",\"it\":\"Cile\",\"zh-CN\":\"智利\",\"tr\":\"Şili\",\"ru\":\"Чили\",\"uk\":\"Чилі\",\"pl\":\"Chile\"}', '-30.00000000', '-71.00000000', '🇨🇱', 'U+1F1E8 U+1F1F1', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q298'),
+(45, 'China', 'CHN', '156', 'CN', '86', 'Beijing', 'CNY', 'Chinese yuan', '¥', '.cn', '中国', 'Asia', 3, 'Eastern Asia', 12, 'Chinese', '[{\"zoneName\":\"Asia/Shanghai\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"CST\",\"tzName\":\"China Standard Time\"},{\"zoneName\":\"Asia/Urumqi\",\"gmtOffset\":21600,\"gmtOffsetName\":\"UTC+06:00\",\"abbreviation\":\"XJT\",\"tzName\":\"China Standard Time\"}]', '{\"ko\":\"중국\",\"pt-BR\":\"China\",\"pt\":\"China\",\"nl\":\"China\",\"hr\":\"Kina\",\"fa\":\"چین\",\"de\":\"China\",\"es\":\"China\",\"fr\":\"Chine\",\"ja\":\"中国\",\"it\":\"Cina\",\"zh-CN\":\"中国\",\"tr\":\"Çin\",\"ru\":\"Китай\",\"uk\":\"Китай\",\"pl\":\"Chiny\"}', '35.00000000', '105.00000000', '🇨🇳', 'U+1F1E8 U+1F1F3', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q148'),
+(46, 'Christmas Island', 'CXR', '162', 'CX', '61', 'Flying Fish Cove', 'AUD', 'Australian dollar', '$', '.cx', 'Christmas Island', 'Oceania', 5, 'Australia and New Zealand', 19, 'Christmas Island', '[{\"zoneName\":\"Indian/Christmas\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"CXT\",\"tzName\":\"Christmas Island Time\"}]', '{\"ko\":\"크리스마스 섬\",\"pt-BR\":\"Ilha Christmas\",\"pt\":\"Ilha do Natal\",\"nl\":\"Christmaseiland\",\"hr\":\"Božićni otok\",\"fa\":\"جزیره کریسمس\",\"de\":\"Weihnachtsinsel\",\"es\":\"Isla de Navidad\",\"fr\":\"Île Christmas\",\"ja\":\"クリスマス島\",\"it\":\"Isola di Natale\",\"zh-CN\":\"圣诞岛\",\"tr\":\"Christmas Adasi\",\"ru\":\"Остров Рождества\",\"uk\":\"Острів Різдва\",\"pl\":\"Wyspa Bożego Narodzenia\"}', '-10.50000000', '105.66666666', '🇨🇽', 'U+1F1E8 U+1F1FD', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q31063'),
+(47, 'Cocos (Keeling) Islands', 'CCK', '166', 'CC', '61', 'West Island', 'AUD', 'Australian dollar', '$', '.cc', 'Cocos (Keeling) Islands', 'Oceania', 5, 'Australia and New Zealand', 19, 'Cocos Island', '[{\"zoneName\":\"Indian/Cocos\",\"gmtOffset\":23400,\"gmtOffsetName\":\"UTC+06:30\",\"abbreviation\":\"CCT\",\"tzName\":\"Cocos Islands Time\"}]', '{\"ko\":\"코코스 제도\",\"pt-BR\":\"Ilhas Cocos\",\"pt\":\"Ilhas dos Cocos\",\"nl\":\"Cocoseilanden\",\"hr\":\"Kokosovi Otoci\",\"fa\":\"جزایر کوکوس\",\"de\":\"Kokosinseln\",\"es\":\"Islas Cocos o Islas Keeling\",\"fr\":\"Îles Cocos\",\"ja\":\"ココス（キーリング）諸島\",\"it\":\"Isole Cocos e Keeling\",\"zh-CN\":\"科科斯（基林）群岛\",\"tr\":\"Cocos Adalari\",\"ru\":\"Кокосовые (Килинг) острова\",\"uk\":\"Кокосові (Кілінг) острови\",\"pl\":\"Wyspy Kokosowe (Keelinga)\"}', '-12.50000000', '96.83333333', '🇨🇨', 'U+1F1E8 U+1F1E8', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q36004'),
+(48, 'Colombia', 'COL', '170', 'CO', '57', 'Bogotá', 'COP', 'Colombian peso', '$', '.co', 'Colombia', 'Americas', 2, 'South America', 8, 'Colombian', '[{\"zoneName\":\"America/Bogota\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"COT\",\"tzName\":\"Colombia Time\"}]', '{\"ko\":\"콜롬비아\",\"pt-BR\":\"Colômbia\",\"pt\":\"Colômbia\",\"nl\":\"Colombia\",\"hr\":\"Kolumbija\",\"fa\":\"کلمبیا\",\"de\":\"Kolumbien\",\"es\":\"Colombia\",\"fr\":\"Colombie\",\"ja\":\"コロンビア\",\"it\":\"Colombia\",\"zh-CN\":\"哥伦比亚\",\"tr\":\"Kolombiya\",\"ru\":\"Колумбия\",\"uk\":\"Колумбія\",\"pl\":\"Kolumbia\"}', '4.00000000', '-72.00000000', '🇨🇴', 'U+1F1E8 U+1F1F4', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q739');
+INSERT INTO `countries` (`id`, `name`, `iso3`, `numeric_code`, `iso2`, `phonecode`, `capital`, `currency`, `currency_name`, `currency_symbol`, `tld`, `native`, `region`, `region_id`, `subregion`, `subregion_id`, `nationality`, `timezones`, `translations`, `latitude`, `longitude`, `emoji`, `emojiU`, `created_at`, `updated_at`, `flag`, `wikiDataId`) VALUES
+(49, 'Comoros', 'COM', '174', 'KM', '269', 'Moroni', 'KMF', 'Comorian franc', 'CF', '.km', 'Komori', 'Africa', 1, 'Eastern Africa', 4, 'Comoran, Comorian', '[{\"zoneName\":\"Indian/Comoro\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EAT\",\"tzName\":\"East Africa Time\"}]', '{\"ko\":\"코모로\",\"pt-BR\":\"Comores\",\"pt\":\"Comores\",\"nl\":\"Comoren\",\"hr\":\"Komori\",\"fa\":\"کومور\",\"de\":\"Union der Komoren\",\"es\":\"Comoras\",\"fr\":\"Comores\",\"ja\":\"コモロ\",\"it\":\"Comore\",\"zh-CN\":\"科摩罗\",\"tr\":\"Komorlar\",\"ru\":\"Коморские острова\",\"uk\":\"Коморські острови\",\"pl\":\"Komory\"}', '-12.16666666', '44.25000000', '🇰🇲', 'U+1F1F0 U+1F1F2', '2018-07-21 07:41:03', '2023-08-11 16:15:55', 1, 'Q970'),
+(50, 'Congo', 'COG', '178', 'CG', '242', 'Brazzaville', 'XAF', 'Congolese Franc', 'CDF', '.cg', 'République du Congo', 'Africa', 1, 'Middle Africa', 2, 'Congolese', '[{\"zoneName\":\"Africa/Brazzaville\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WAT\",\"tzName\":\"West Africa Time\"}]', '{\"ko\":\"콩고\",\"pt-BR\":\"Congo\",\"pt\":\"Congo\",\"nl\":\"Congo [Republiek]\",\"hr\":\"Kongo\",\"fa\":\"کنگو\",\"de\":\"Kongo\",\"es\":\"Congo\",\"fr\":\"Congo\",\"ja\":\"コンゴ共和国\",\"it\":\"Congo\",\"zh-CN\":\"刚果\",\"tr\":\"Kongo\",\"ru\":\"Конго\",\"uk\":\"Конго\",\"pl\":\"Kongo\"}', '-1.00000000', '15.00000000', '🇨🇬', 'U+1F1E8 U+1F1EC', '2018-07-21 07:41:03', '2024-12-23 10:55:22', 1, 'Q971'),
+(51, 'Democratic Republic of the Congo', 'COD', '180', 'CD', '243', 'Kinshasa', 'CDF', 'Congolese Franc', 'FC', '.cd', 'République démocratique du Congo', 'Africa', 1, 'Middle Africa', 2, 'Congolese', '[{\"zoneName\":\"Africa/Kinshasa\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WAT\",\"tzName\":\"West Africa Time\"},{\"zoneName\":\"Africa/Lubumbashi\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"CAT\",\"tzName\":\"Central Africa Time\"}]', '{\"ko\":\"콩고 민주 공화국\",\"pt-BR\":\"RD Congo\",\"pt\":\"RD Congo\",\"nl\":\"Congo [DRC]\",\"hr\":\"Kongo, Demokratska Republika\",\"fa\":\"جمهوری کنگو\",\"de\":\"Kongo (Dem. Rep.)\",\"es\":\"Congo (Rep. Dem.)\",\"fr\":\"Congo (Rép. dém.)\",\"ja\":\"コンゴ民主共和国\",\"it\":\"Congo (Rep. Dem.)\",\"zh-CN\":\"刚果（金）\",\"tr\":\"Kongo Demokratik Cumhuriyeti\",\"ru\":\"Демократическая Республика Конго\",\"uk\":\"Демократична Республіка Конго\",\"pl\":\"Demokratyczna Republika Konga\"}', '0.00000000', '25.00000000', '🇨🇩', 'U+1F1E8 U+1F1E9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q974'),
+(52, 'Cook Islands', 'COK', '184', 'CK', '682', 'Avarua', 'NZD', 'New Zealand dollar', '$', '.ck', 'Cook Islands', 'Oceania', 5, 'Polynesia', 22, 'Cook Island', '[{\"zoneName\":\"Pacific/Rarotonga\",\"gmtOffset\":-36000,\"gmtOffsetName\":\"UTC-10:00\",\"abbreviation\":\"CKT\",\"tzName\":\"Cook Island Time\"}]', '{\"ko\":\"쿡 제도\",\"pt-BR\":\"Ilhas Cook\",\"pt\":\"Ilhas Cook\",\"nl\":\"Cookeilanden\",\"hr\":\"Cookovo Otočje\",\"fa\":\"جزایر کوک\",\"de\":\"Cookinseln\",\"es\":\"Islas Cook\",\"fr\":\"Îles Cook\",\"ja\":\"クック諸島\",\"it\":\"Isole Cook\",\"zh-CN\":\"库克群岛\",\"tr\":\"Cook Adalari\",\"ru\":\"Острова Кука\",\"uk\":\"Острови Кука\",\"pl\":\"Wyspy Cooka\"}', '-21.23333333', '-159.76666666', '🇨🇰', 'U+1F1E8 U+1F1F0', '2018-07-21 07:41:03', '2024-12-23 10:33:12', 1, 'Q26988'),
+(53, 'Costa Rica', 'CRI', '188', 'CR', '506', 'San Jose', 'CRC', 'Costa Rican colón', '₡', '.cr', 'Costa Rica', 'Americas', 2, 'Central America', 9, 'Costa Rican', '[{\"zoneName\":\"America/Costa_Rica\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"}]', '{\"ko\":\"코스타리카\",\"pt-BR\":\"Costa Rica\",\"pt\":\"Costa Rica\",\"nl\":\"Costa Rica\",\"hr\":\"Kostarika\",\"fa\":\"کاستاریکا\",\"de\":\"Costa Rica\",\"es\":\"Costa Rica\",\"fr\":\"Costa Rica\",\"ja\":\"コスタリカ\",\"it\":\"Costa Rica\",\"zh-CN\":\"哥斯达黎加\",\"tr\":\"Kosta Rika\",\"ru\":\"Коста-Рика\",\"uk\":\"Коста-Ріка\",\"pl\":\"Kostaryka\"}', '10.00000000', '-84.00000000', '🇨🇷', 'U+1F1E8 U+1F1F7', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q800'),
+(54, 'Cote D\'Ivoire (Ivory Coast)', 'CIV', '384', 'CI', '225', 'Yamoussoukro', 'XOF', 'West African CFA franc', 'CFA', '.ci', NULL, 'Africa', 1, 'Western Africa', 3, 'Ivorian', '[{\"zoneName\":\"Africa/Abidjan\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"코트디부아르\",\"pt-BR\":\"Costa do Marfim\",\"pt\":\"Costa do Marfim\",\"nl\":\"Ivoorkust\",\"hr\":\"Obala Bjelokosti\",\"fa\":\"ساحل عاج\",\"de\":\"Elfenbeinküste\",\"es\":\"Costa de Marfil\",\"fr\":\"Côte d\'Ivoire\",\"ja\":\"コートジボワール\",\"it\":\"Costa D\'Avorio\",\"zh-CN\":\"科特迪瓦\",\"tr\":\"Kotdivuar\",\"ru\":\"Кот-д\'Ивуар (Берег Слоновой Кости)\",\"uk\":\"Кот-д\'Івуар (Берег Слонової Кістки)\",\"pl\":\"Cote D\'Ivoire (Wybrzeże Kości Słoniowej)\"}', '8.00000000', '-5.00000000', '🇨🇮', 'U+1F1E8 U+1F1EE', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q1008'),
+(55, 'Croatia', 'HRV', '191', 'HR', '385', 'Zagreb', 'EUR', 'Euro', '€', '.hr', 'Hrvatska', 'Europe', 4, 'Southern Europe', 16, 'Croatian', '[{\"zoneName\":\"Europe/Zagreb\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"크로아티아\",\"pt-BR\":\"Croácia\",\"pt\":\"Croácia\",\"nl\":\"Kroatië\",\"hr\":\"Hrvatska\",\"fa\":\"کرواسی\",\"de\":\"Kroatien\",\"es\":\"Croacia\",\"fr\":\"Croatie\",\"ja\":\"クロアチア\",\"it\":\"Croazia\",\"zh-CN\":\"克罗地亚\",\"tr\":\"Hirvatistan\",\"ru\":\"Хорватия\",\"uk\":\"Хорватія\",\"pl\":\"Chorwacja\"}', '45.16666666', '15.50000000', '🇭🇷', 'U+1F1ED U+1F1F7', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q224'),
+(56, 'Cuba', 'CUB', '192', 'CU', '53', 'Havana', 'CUP', 'Cuban peso', '$', '.cu', 'Cuba', 'Americas', 2, 'Caribbean', 7, 'Cuban', '[{\"zoneName\":\"America/Havana\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"CST\",\"tzName\":\"Cuba Standard Time\"}]', '{\"ko\":\"쿠바\",\"pt-BR\":\"Cuba\",\"pt\":\"Cuba\",\"nl\":\"Cuba\",\"hr\":\"Kuba\",\"fa\":\"کوبا\",\"de\":\"Kuba\",\"es\":\"Cuba\",\"fr\":\"Cuba\",\"ja\":\"キューバ\",\"it\":\"Cuba\",\"zh-CN\":\"古巴\",\"tr\":\"Küba\",\"ru\":\"Куба\",\"uk\":\"Куба\",\"pl\":\"Kuba\"}', '21.50000000', '-80.00000000', '🇨🇺', 'U+1F1E8 U+1F1FA', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q241'),
+(57, 'Cyprus', 'CYP', '196', 'CY', '357', 'Nicosia', 'EUR', 'Euro', '€', '.cy', 'Κύπρος', 'Europe', 4, 'Southern Europe', 16, 'Cypriot', '[{\"zoneName\":\"Asia/Famagusta\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"},{\"zoneName\":\"Asia/Nicosia\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"키프로스\",\"pt-BR\":\"Chipre\",\"pt\":\"Chipre\",\"nl\":\"Cyprus\",\"hr\":\"Cipar\",\"fa\":\"قبرس\",\"de\":\"Zypern\",\"es\":\"Chipre\",\"fr\":\"Chypre\",\"ja\":\"キプロス\",\"it\":\"Cipro\",\"zh-CN\":\"塞浦路斯\",\"tr\":\"Kuzey Kıbrıs Türk Cumhuriyeti\",\"ru\":\"Кипр\",\"uk\":\"Кіпр\",\"pl\":\"Cypr\"}', '35.00000000', '33.00000000', '🇨🇾', 'U+1F1E8 U+1F1FE', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q229'),
+(58, 'Czech Republic', 'CZE', '203', 'CZ', '420', 'Prague', 'CZK', 'Czech koruna', 'Kč', '.cz', 'Česká republika', 'Europe', 4, 'Eastern Europe', 15, 'Czech', '[{\"zoneName\":\"Europe/Prague\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"체코\",\"pt-BR\":\"República Tcheca\",\"pt\":\"República Checa\",\"nl\":\"Tsjechië\",\"hr\":\"Češka\",\"fa\":\"جمهوری چک\",\"de\":\"Tschechische Republik\",\"es\":\"República Checa\",\"fr\":\"République tchèque\",\"ja\":\"チェコ\",\"it\":\"Repubblica Ceca\",\"zh-CN\":\"捷克\",\"tr\":\"Çekya\",\"ru\":\"Чешская Республика\",\"uk\":\"Чеська Республіка\",\"pl\":\"Republika Czeska\"}', '49.75000000', '15.50000000', '🇨🇿', 'U+1F1E8 U+1F1FF', '2018-07-21 07:41:03', '2024-09-05 12:11:18', 1, 'Q213'),
+(59, 'Denmark', 'DNK', '208', 'DK', '45', 'Copenhagen', 'DKK', 'Danish krone', 'Kr.', '.dk', 'Danmark', 'Europe', 4, 'Northern Europe', 18, 'Danish', '[{\"zoneName\":\"Europe/Copenhagen\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"덴마크\",\"pt-BR\":\"Dinamarca\",\"pt\":\"Dinamarca\",\"nl\":\"Denemarken\",\"hr\":\"Danska\",\"fa\":\"دانمارک\",\"de\":\"Dänemark\",\"es\":\"Dinamarca\",\"fr\":\"Danemark\",\"ja\":\"デンマーク\",\"it\":\"Danimarca\",\"zh-CN\":\"丹麦\",\"tr\":\"Danimarka\",\"ru\":\"Дания\",\"uk\":\"Данія\",\"pl\":\"Dania\"}', '56.00000000', '10.00000000', '🇩🇰', 'U+1F1E9 U+1F1F0', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q35'),
+(60, 'Djibouti', 'DJI', '262', 'DJ', '253', 'Djibouti', 'DJF', 'Djiboutian franc', 'Fdj', '.dj', 'Djibouti', 'Africa', 1, 'Eastern Africa', 4, 'Djiboutian', '[{\"zoneName\":\"Africa/Djibouti\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EAT\",\"tzName\":\"East Africa Time\"}]', '{\"ko\":\"지부티\",\"pt-BR\":\"Djibuti\",\"pt\":\"Djibuti\",\"nl\":\"Djibouti\",\"hr\":\"Džibuti\",\"fa\":\"جیبوتی\",\"de\":\"Dschibuti\",\"es\":\"Yibuti\",\"fr\":\"Djibouti\",\"ja\":\"ジブチ\",\"it\":\"Gibuti\",\"zh-CN\":\"吉布提\",\"tr\":\"Cibuti\",\"ru\":\"Джибути\",\"uk\":\"Джибуті\",\"pl\":\"Dżibuti\"}', '11.50000000', '43.00000000', '🇩🇯', 'U+1F1E9 U+1F1EF', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q977'),
+(61, 'Dominica', 'DMA', '212', 'DM', '1', 'Roseau', 'XCD', 'Eastern Caribbean dollar', '$', '.dm', 'Dominica', 'Americas', 2, 'Caribbean', 7, 'Dominican', '[{\"zoneName\":\"America/Dominica\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"도미니카 연방\",\"pt-BR\":\"Dominica\",\"pt\":\"Dominica\",\"nl\":\"Dominica\",\"hr\":\"Dominika\",\"fa\":\"دومینیکا\",\"de\":\"Dominica\",\"es\":\"Dominica\",\"fr\":\"Dominique\",\"ja\":\"ドミニカ国\",\"it\":\"Dominica\",\"zh-CN\":\"多米尼加\",\"tr\":\"Dominika\",\"ru\":\"Доминика\",\"uk\":\"Домініка\",\"pl\":\"Dominika\"}', '15.41666666', '-61.33333333', '🇩🇲', 'U+1F1E9 U+1F1F2', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q784'),
+(62, 'Dominican Republic', 'DOM', '214', 'DO', '1', 'Santo Domingo', 'DOP', 'Dominican peso', '$', '.do', 'República Dominicana', 'Americas', 2, 'Caribbean', 7, 'Dominican', '[{\"zoneName\":\"America/Santo_Domingo\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"도미니카 공화국\",\"pt-BR\":\"República Dominicana\",\"pt\":\"República Dominicana\",\"nl\":\"Dominicaanse Republiek\",\"hr\":\"Dominikanska Republika\",\"fa\":\"جمهوری دومینیکن\",\"de\":\"Dominikanische Republik\",\"es\":\"República Dominicana\",\"fr\":\"République dominicaine\",\"ja\":\"ドミニカ共和国\",\"it\":\"Repubblica Dominicana\",\"zh-CN\":\"多明尼加共和国\",\"tr\":\"Dominik Cumhuriyeti\",\"ru\":\"Доминиканская Республика\",\"uk\":\"Домініканська Республіка\",\"pl\":\"Republika Dominikańska\"}', '19.00000000', '-70.66666666', '🇩🇴', 'U+1F1E9 U+1F1F4', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q786'),
+(63, 'Timor-Leste', 'TLS', '626', 'TL', '670', 'Dili', 'USD', 'United States dollar', '$', '.tl', 'Timor-Leste', 'Asia', 3, 'South-Eastern Asia', 13, 'Timorese', '[{\"zoneName\":\"Asia/Dili\",\"gmtOffset\":32400,\"gmtOffsetName\":\"UTC+09:00\",\"abbreviation\":\"TLT\",\"tzName\":\"Timor Leste Time\"}]', '{\"ko\":\"동티모르\",\"pt-BR\":\"Timor Leste\",\"pt\":\"Timor Leste\",\"nl\":\"Oost-Timor\",\"hr\":\"Istočni Timor\",\"fa\":\"تیمور شرقی\",\"de\":\"Timor-Leste\",\"es\":\"Timor Oriental\",\"fr\":\"Timor oriental\",\"ja\":\"東ティモール\",\"it\":\"Timor Est\",\"zh-CN\":\"东帝汶\",\"tr\":\"Doğu Timor\",\"ru\":\"Тимор-Лешти\",\"uk\":\"Тимор-Лешті\",\"pl\":\"Timor Wschodni\"}', '-8.83333333', '125.91666666', '🇹🇱', 'U+1F1F9 U+1F1F1', '2018-07-21 07:41:03', '2023-08-11 16:15:55', 1, 'Q574'),
+(64, 'Ecuador', 'ECU', '218', 'EC', '593', 'Quito', 'USD', 'United States dollar', '$', '.ec', 'Ecuador', 'Americas', 2, 'South America', 8, 'Ecuadorian', '[{\"zoneName\":\"America/Guayaquil\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"ECT\",\"tzName\":\"Ecuador Time\"},{\"zoneName\":\"Pacific/Galapagos\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"GALT\",\"tzName\":\"Galápagos Time\"}]', '{\"ko\":\"에콰도르\",\"pt-BR\":\"Equador\",\"pt\":\"Equador\",\"nl\":\"Ecuador\",\"hr\":\"Ekvador\",\"fa\":\"اکوادور\",\"de\":\"Ecuador\",\"es\":\"Ecuador\",\"fr\":\"Équateur\",\"ja\":\"エクアドル\",\"it\":\"Ecuador\",\"zh-CN\":\"厄瓜多尔\",\"tr\":\"Ekvator\",\"ru\":\"Эквадор\",\"uk\":\"Еквадор\",\"pl\":\"Ekwador\"}', '-2.00000000', '-77.50000000', '🇪🇨', 'U+1F1EA U+1F1E8', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q736'),
+(65, 'Egypt', 'EGY', '818', 'EG', '20', 'Cairo', 'EGP', 'Egyptian pound', 'ج.م', '.eg', 'مصر‎', 'Africa', 1, 'Northern Africa', 1, 'Egyptian', '[{\"zoneName\":\"Africa/Cairo\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"이집트\",\"pt-BR\":\"Egito\",\"pt\":\"Egipto\",\"nl\":\"Egypte\",\"hr\":\"Egipat\",\"fa\":\"مصر\",\"de\":\"Ägypten\",\"es\":\"Egipto\",\"fr\":\"Égypte\",\"ja\":\"エジプト\",\"it\":\"Egitto\",\"zh-CN\":\"埃及\",\"tr\":\"Mısır\",\"ru\":\"Египет\",\"uk\":\"Єгипет\",\"pl\":\"Egipt\"}', '27.00000000', '30.00000000', '🇪🇬', 'U+1F1EA U+1F1EC', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q79'),
+(66, 'El Salvador', 'SLV', '222', 'SV', '503', 'San Salvador', 'USD', 'United States dollar', '$', '.sv', 'El Salvador', 'Americas', 2, 'Central America', 9, 'Salvadoran', '[{\"zoneName\":\"America/El_Salvador\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"}]', '{\"ko\":\"엘살바도르\",\"pt-BR\":\"El Salvador\",\"pt\":\"El Salvador\",\"nl\":\"El Salvador\",\"hr\":\"Salvador\",\"fa\":\"السالوادور\",\"de\":\"El Salvador\",\"es\":\"El Salvador\",\"fr\":\"Salvador\",\"ja\":\"エルサルバドル\",\"it\":\"El Salvador\",\"zh-CN\":\"萨尔瓦多\",\"tr\":\"El Salvador\",\"ru\":\"Сальвадор\",\"uk\":\"Сальвадор\",\"pl\":\"Salwador\"}', '13.83333333', '-88.91666666', '🇸🇻', 'U+1F1F8 U+1F1FB', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q792'),
+(67, 'Equatorial Guinea', 'GNQ', '226', 'GQ', '240', 'Malabo', 'XAF', 'Central African CFA franc', 'FCFA', '.gq', 'Guinea Ecuatorial', 'Africa', 1, 'Middle Africa', 2, 'Equatorial Guinean, Equatoguinean', '[{\"zoneName\":\"Africa/Malabo\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WAT\",\"tzName\":\"West Africa Time\"}]', '{\"ko\":\"적도 기니\",\"pt-BR\":\"Guiné Equatorial\",\"pt\":\"Guiné Equatorial\",\"nl\":\"Equatoriaal-Guinea\",\"hr\":\"Ekvatorijalna Gvineja\",\"fa\":\"گینه استوایی\",\"de\":\"Äquatorial-Guinea\",\"es\":\"Guinea Ecuatorial\",\"fr\":\"Guinée-Équatoriale\",\"ja\":\"赤道ギニア\",\"it\":\"Guinea Equatoriale\",\"zh-CN\":\"赤道几内亚\",\"tr\":\"Ekvator Ginesi\",\"ru\":\"Экваториальная Гвинея\",\"uk\":\"Екваторіальна Гвінея\",\"pl\":\"Gwinea Równikowa\"}', '2.00000000', '10.00000000', '🇬🇶', 'U+1F1EC U+1F1F6', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q983'),
+(68, 'Eritrea', 'ERI', '232', 'ER', '291', 'Asmara', 'ERN', 'Eritrean nakfa', 'Nfk', '.er', 'ኤርትራ', 'Africa', 1, 'Eastern Africa', 4, 'Eritrean', '[{\"zoneName\":\"Africa/Asmara\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EAT\",\"tzName\":\"East Africa Time\"}]', '{\"ko\":\"에리트레아\",\"pt-BR\":\"Eritreia\",\"pt\":\"Eritreia\",\"nl\":\"Eritrea\",\"hr\":\"Eritreja\",\"fa\":\"اریتره\",\"de\":\"Eritrea\",\"es\":\"Eritrea\",\"fr\":\"Érythrée\",\"ja\":\"エリトリア\",\"it\":\"Eritrea\",\"zh-CN\":\"厄立特里亚\",\"tr\":\"Eritre\",\"ru\":\"Эритрея\",\"uk\":\"Еритрея\",\"pl\":\"Erytrea\"}', '15.00000000', '39.00000000', '🇪🇷', 'U+1F1EA U+1F1F7', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q986'),
+(69, 'Estonia', 'EST', '233', 'EE', '372', 'Tallinn', 'EUR', 'Euro', '€', '.ee', 'Eesti', 'Europe', 4, 'Northern Europe', 18, 'Estonian', '[{\"zoneName\":\"Europe/Tallinn\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"에스토니아\",\"pt-BR\":\"Estônia\",\"pt\":\"Estónia\",\"nl\":\"Estland\",\"hr\":\"Estonija\",\"fa\":\"استونی\",\"de\":\"Estland\",\"es\":\"Estonia\",\"fr\":\"Estonie\",\"ja\":\"エストニア\",\"it\":\"Estonia\",\"zh-CN\":\"爱沙尼亚\",\"tr\":\"Estonya\",\"ru\":\"Эстония\",\"uk\":\"Естонія\",\"pl\":\"Estonia\"}', '59.00000000', '26.00000000', '🇪🇪', 'U+1F1EA U+1F1EA', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q191'),
+(70, 'Ethiopia', 'ETH', '231', 'ET', '251', 'Addis Ababa', 'ETB', 'Ethiopian birr', 'Nkf', '.et', 'ኢትዮጵያ', 'Africa', 1, 'Eastern Africa', 4, 'Ethiopian', '[{\"zoneName\":\"Africa/Addis_Ababa\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EAT\",\"tzName\":\"East Africa Time\"}]', '{\"ko\":\"에티오피아\",\"pt-BR\":\"Etiópia\",\"pt\":\"Etiópia\",\"nl\":\"Ethiopië\",\"hr\":\"Etiopija\",\"fa\":\"اتیوپی\",\"de\":\"Äthiopien\",\"es\":\"Etiopía\",\"fr\":\"Éthiopie\",\"ja\":\"エチオピア\",\"it\":\"Etiopia\",\"zh-CN\":\"埃塞俄比亚\",\"tr\":\"Etiyopya\",\"ru\":\"Эфиопия\",\"uk\":\"Ефіопія\",\"pl\":\"Etiopia\"}', '8.00000000', '38.00000000', '🇪🇹', 'U+1F1EA U+1F1F9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q115'),
+(71, 'Falkland Islands', 'FLK', '238', 'FK', '500', 'Stanley', 'FKP', 'Falkland Islands pound', '£', '.fk', 'Falkland Islands', 'Americas', 2, 'South America', 8, 'Falkland Island', '[{\"zoneName\":\"Atlantic/Stanley\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"FKST\",\"tzName\":\"Falkland Islands Summer Time\"}]', '{\"ko\":\"포클랜드 제도\",\"pt-BR\":\"Ilhas Malvinas\",\"pt\":\"Ilhas Falkland\",\"nl\":\"Falklandeilanden [Islas Malvinas]\",\"hr\":\"Falklandski Otoci\",\"fa\":\"جزایر فالکلند\",\"de\":\"Falklandinseln\",\"es\":\"Islas Malvinas\",\"fr\":\"Îles Malouines\",\"ja\":\"フォークランド（マルビナス）諸島\",\"it\":\"Isole Falkland o Isole Malvine\",\"zh-CN\":\"福克兰群岛\",\"tr\":\"Falkland Adalari\",\"ru\":\"Фолклендские острова\",\"uk\":\"Фолклендські острови\",\"pl\":\"Falklandy\"}', '-51.75000000', '-59.00000000', '🇫🇰', 'U+1F1EB U+1F1F0', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q9648'),
+(72, 'Faroe Islands', 'FRO', '234', 'FO', '298', 'Torshavn', 'DKK', 'Danish krone', 'Kr.', '.fo', 'Føroyar', 'Europe', 4, 'Northern Europe', 18, 'Faroese', '[{\"zoneName\":\"Atlantic/Faroe\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"WET\",\"tzName\":\"Western European Time\"}]', '{\"ko\":\"페로 제도\",\"pt-BR\":\"Ilhas Faroé\",\"pt\":\"Ilhas Faroé\",\"nl\":\"Faeröer\",\"hr\":\"Farski Otoci\",\"fa\":\"جزایر فارو\",\"de\":\"Färöer-Inseln\",\"es\":\"Islas Faroe\",\"fr\":\"Îles Féroé\",\"ja\":\"フェロー諸島\",\"it\":\"Isole Far Oer\",\"zh-CN\":\"法罗群岛\",\"tr\":\"Faroe Adalari\",\"ru\":\"Фарерские острова\",\"uk\":\"Фарерські острови\",\"pl\":\"Wyspy Owcze\"}', '62.00000000', '-7.00000000', '🇫🇴', 'U+1F1EB U+1F1F4', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q4628'),
+(73, 'Fiji Islands', 'FJI', '242', 'FJ', '679', 'Suva', 'FJD', 'Fijian dollar', 'FJ$', '.fj', 'Fiji', 'Oceania', 5, 'Melanesia', 20, 'Fijian', '[{\"zoneName\":\"Pacific/Fiji\",\"gmtOffset\":43200,\"gmtOffsetName\":\"UTC+12:00\",\"abbreviation\":\"FJT\",\"tzName\":\"Fiji Time\"}]', '{\"ko\":\"피지\",\"pt-BR\":\"Fiji\",\"pt\":\"Fiji\",\"nl\":\"Fiji\",\"hr\":\"Fiđi\",\"fa\":\"فیجی\",\"de\":\"Fidschi\",\"es\":\"Fiyi\",\"fr\":\"Fidji\",\"ja\":\"フィジー\",\"it\":\"Figi\",\"zh-CN\":\"斐济\",\"tr\":\"Fiji\",\"ru\":\"Острова Фиджи\",\"uk\":\"Острови Фіджі\",\"pl\":\"Wyspy Fidżi\"}', '-18.00000000', '175.00000000', '🇫🇯', 'U+1F1EB U+1F1EF', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q712'),
+(74, 'Finland', 'FIN', '246', 'FI', '358', 'Helsinki', 'EUR', 'Euro', '€', '.fi', 'Suomi', 'Europe', 4, 'Northern Europe', 18, 'Finnish', '[{\"zoneName\":\"Europe/Helsinki\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"핀란드\",\"pt-BR\":\"Finlândia\",\"pt\":\"Finlândia\",\"nl\":\"Finland\",\"hr\":\"Finska\",\"fa\":\"فنلاند\",\"de\":\"Finnland\",\"es\":\"Finlandia\",\"fr\":\"Finlande\",\"ja\":\"フィンランド\",\"it\":\"Finlandia\",\"zh-CN\":\"芬兰\",\"tr\":\"Finlandiya\",\"ru\":\"Финляндия\",\"uk\":\"Фінляндія\",\"pl\":\"Finlandia\"}', '64.00000000', '26.00000000', '🇫🇮', 'U+1F1EB U+1F1EE', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q33'),
+(75, 'France', 'FRA', '250', 'FR', '33', 'Paris', 'EUR', 'Euro', '€', '.fr', 'France', 'Europe', 4, 'Western Europe', 17, 'French', '[{\"zoneName\":\"Europe/Paris\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"프랑스\",\"pt-BR\":\"França\",\"pt\":\"França\",\"nl\":\"Frankrijk\",\"hr\":\"Francuska\",\"fa\":\"فرانسه\",\"de\":\"Frankreich\",\"es\":\"Francia\",\"fr\":\"France\",\"ja\":\"フランス\",\"it\":\"Francia\",\"zh-CN\":\"法国\",\"tr\":\"Fransa\",\"ru\":\"Франция\",\"uk\":\"Франція\",\"pl\":\"Francja\"}', '46.00000000', '2.00000000', '🇫🇷', 'U+1F1EB U+1F1F7', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q142'),
+(76, 'French Guiana', 'GUF', '254', 'GF', '594', 'Cayenne', 'EUR', 'Euro', '€', '.gf', 'Guyane française', 'Americas', 2, 'South America', 8, 'French Guianese', '[{\"zoneName\":\"America/Cayenne\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"GFT\",\"tzName\":\"French Guiana Time\"}]', '{\"ko\":\"프랑스령 기아나\",\"pt-BR\":\"Guiana Francesa\",\"pt\":\"Guiana Francesa\",\"nl\":\"Frans-Guyana\",\"hr\":\"Francuska Gvajana\",\"fa\":\"گویان فرانسه\",\"de\":\"Französisch Guyana\",\"es\":\"Guayana Francesa\",\"fr\":\"Guayane\",\"ja\":\"フランス領ギアナ\",\"it\":\"Guyana francese\",\"zh-CN\":\"法属圭亚那\",\"tr\":\"Fransiz Guyanasi\",\"ru\":\"Французская Гвиана\",\"uk\":\"Французька Гвіана\",\"pl\":\"Gujana Francuska\"}', '4.00000000', '-53.00000000', '🇬🇫', 'U+1F1EC U+1F1EB', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q3769'),
+(77, 'French Polynesia', 'PYF', '258', 'PF', '689', 'Papeete', 'XPF', 'CFP franc', '₣', '.pf', 'Polynésie française', 'Oceania', 5, 'Polynesia', 22, 'French Polynesia', '[{\"zoneName\":\"Pacific/Gambier\",\"gmtOffset\":-32400,\"gmtOffsetName\":\"UTC-09:00\",\"abbreviation\":\"GAMT\",\"tzName\":\"Gambier Islands Time\"},{\"zoneName\":\"Pacific/Marquesas\",\"gmtOffset\":-34200,\"gmtOffsetName\":\"UTC-09:30\",\"abbreviation\":\"MART\",\"tzName\":\"Marquesas Islands Time\"},{\"zoneName\":\"Pacific/Tahiti\",\"gmtOffset\":-36000,\"gmtOffsetName\":\"UTC-10:00\",\"abbreviation\":\"TAHT\",\"tzName\":\"Tahiti Time\"}]', '{\"ko\":\"프랑스령 폴리네시아\",\"pt-BR\":\"Polinésia Francesa\",\"pt\":\"Polinésia Francesa\",\"nl\":\"Frans-Polynesië\",\"hr\":\"Francuska Polinezija\",\"fa\":\"پلی‌نزی فرانسه\",\"de\":\"Französisch-Polynesien\",\"es\":\"Polinesia Francesa\",\"fr\":\"Polynésie française\",\"ja\":\"フランス領ポリネシア\",\"it\":\"Polinesia Francese\",\"zh-CN\":\"法属波利尼西亚\",\"tr\":\"Fransiz Polinezyasi\",\"ru\":\"Французская Полинезия\",\"uk\":\"Французька Полінезія\",\"pl\":\"Polinezja Francuska\"}', '-15.00000000', '-140.00000000', '🇵🇫', 'U+1F1F5 U+1F1EB', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q30971'),
+(78, 'French Southern Territories', 'ATF', '260', 'TF', '262', 'Port-aux-Francais', 'EUR', 'Euro', '€', '.tf', 'Territoire des Terres australes et antarctiques fr', 'Africa', 1, 'Southern Africa', 5, 'French Southern Territories', '[{\"zoneName\":\"Indian/Kerguelen\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"TFT\",\"tzName\":\"French Southern and Antarctic Time\"}]', '{\"ko\":\"프랑스령 남방 및 남극\",\"pt-BR\":\"Terras Austrais e Antárticas Francesas\",\"pt\":\"Terras Austrais e Antárticas Francesas\",\"nl\":\"Franse Gebieden in de zuidelijke Indische Oceaan\",\"hr\":\"Francuski južni i antarktički teritoriji\",\"fa\":\"سرزمین‌های جنوبی و جنوبگانی فرانسه\",\"de\":\"Französische Süd- und Antarktisgebiete\",\"es\":\"Tierras Australes y Antárticas Francesas\",\"fr\":\"Terres australes et antarctiques françaises\",\"ja\":\"フランス領南方・南極地域\",\"it\":\"Territori Francesi del Sud\",\"zh-CN\":\"法属南部领地\",\"tr\":\"Fransiz Güney Topraklari\",\"ru\":\"Французские южные территории\",\"uk\":\"Французькі південні території\",\"pl\":\"Francuskie terytoria południowe\"}', '-49.25000000', '69.16700000', '🇹🇫', 'U+1F1F9 U+1F1EB', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q129003'),
+(79, 'Gabon', 'GAB', '266', 'GA', '241', 'Libreville', 'XAF', 'Central African CFA franc', 'FCFA', '.ga', 'Gabon', 'Africa', 1, 'Middle Africa', 2, 'Gabonese', '[{\"zoneName\":\"Africa/Libreville\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WAT\",\"tzName\":\"West Africa Time\"}]', '{\"ko\":\"가봉\",\"pt-BR\":\"Gabão\",\"pt\":\"Gabão\",\"nl\":\"Gabon\",\"hr\":\"Gabon\",\"fa\":\"گابن\",\"de\":\"Gabun\",\"es\":\"Gabón\",\"fr\":\"Gabon\",\"ja\":\"ガボン\",\"it\":\"Gabon\",\"zh-CN\":\"加蓬\",\"tr\":\"Gabon\",\"ru\":\"Габон\",\"uk\":\"Габон\",\"pl\":\"Gabon\"}', '-1.00000000', '11.75000000', '🇬🇦', 'U+1F1EC U+1F1E6', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q1000'),
+(80, 'The Gambia ', 'GMB', '270', 'GM', '220', 'Banjul', 'GMD', 'Gambian dalasi', 'D', '.gm', 'Gambia', 'Africa', 1, 'Western Africa', 3, 'Gambian', '[{\"zoneName\":\"Africa/Banjul\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"감비아\",\"pt-BR\":\"Gâmbia\",\"pt\":\"Gâmbia\",\"nl\":\"Gambia\",\"hr\":\"Gambija\",\"fa\":\"گامبیا\",\"de\":\"Gambia\",\"es\":\"Gambia\",\"fr\":\"Gambie\",\"ja\":\"ガンビア\",\"it\":\"Gambia\",\"zh-CN\":\"冈比亚\",\"tr\":\"Gambiya\",\"ru\":\"Гамбия\",\"uk\":\"Гамбія The\",\"pl\":\"Gambia The\"}', '13.46666666', '-16.56666666', '🇬🇲', 'U+1F1EC U+1F1F2', '2018-07-21 07:41:03', '2024-09-03 11:53:28', 1, 'Q1005'),
+(81, 'Georgia', 'GEO', '268', 'GE', '995', 'Tbilisi', 'GEL', 'Georgian lari', 'ლ', '.ge', 'საქართველო', 'Asia', 3, 'Western Asia', 11, 'Georgian', '[{\"zoneName\":\"Asia/Tbilisi\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"GET\",\"tzName\":\"Georgia Standard Time\"}]', '{\"ko\":\"조지아\",\"pt-BR\":\"Geórgia\",\"pt\":\"Geórgia\",\"nl\":\"Georgië\",\"hr\":\"Gruzija\",\"fa\":\"گرجستان\",\"de\":\"Georgien\",\"es\":\"Georgia\",\"fr\":\"Géorgie\",\"ja\":\"グルジア\",\"it\":\"Georgia\",\"zh-CN\":\"格鲁吉亚\",\"tr\":\"Gürcistan\",\"ru\":\"Джорджия\",\"uk\":\"Грузія\",\"pl\":\"Gruzja\"}', '42.00000000', '43.50000000', '🇬🇪', 'U+1F1EC U+1F1EA', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q230'),
+(82, 'Germany', 'DEU', '276', 'DE', '49', 'Berlin', 'EUR', 'Euro', '€', '.de', 'Deutschland', 'Europe', 4, 'Western Europe', 17, 'German', '[{\"zoneName\":\"Europe/Berlin\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"},{\"zoneName\":\"Europe/Busingen\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"독일\",\"pt-BR\":\"Alemanha\",\"pt\":\"Alemanha\",\"nl\":\"Duitsland\",\"hr\":\"Njemačka\",\"fa\":\"آلمان\",\"de\":\"Deutschland\",\"es\":\"Alemania\",\"fr\":\"Allemagne\",\"ja\":\"ドイツ\",\"it\":\"Germania\",\"zh-CN\":\"德国\",\"tr\":\"Almanya\",\"ru\":\"Германия\",\"uk\":\"Німеччина\",\"pl\":\"Niemcy\"}', '51.00000000', '9.00000000', '🇩🇪', 'U+1F1E9 U+1F1EA', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q183'),
+(83, 'Ghana', 'GHA', '288', 'GH', '233', 'Accra', 'GHS', 'Ghanaian cedi', 'GH₵', '.gh', 'Ghana', 'Africa', 1, 'Western Africa', 3, 'Ghanaian', '[{\"zoneName\":\"Africa/Accra\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"가나\",\"pt-BR\":\"Gana\",\"pt\":\"Gana\",\"nl\":\"Ghana\",\"hr\":\"Gana\",\"fa\":\"غنا\",\"de\":\"Ghana\",\"es\":\"Ghana\",\"fr\":\"Ghana\",\"ja\":\"ガーナ\",\"it\":\"Ghana\",\"zh-CN\":\"加纳\",\"tr\":\"Gana\",\"ru\":\"Гана\",\"uk\":\"Гана\",\"pl\":\"Ghana\"}', '8.00000000', '-2.00000000', '🇬🇭', 'U+1F1EC U+1F1ED', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q117'),
+(84, 'Gibraltar', 'GIB', '292', 'GI', '350', 'Gibraltar', 'GIP', 'Gibraltar pound', '£', '.gi', 'Gibraltar', 'Europe', 4, 'Southern Europe', 16, 'Gibraltar', '[{\"zoneName\":\"Europe/Gibraltar\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"지브롤터\",\"pt-BR\":\"Gibraltar\",\"pt\":\"Gibraltar\",\"nl\":\"Gibraltar\",\"hr\":\"Gibraltar\",\"fa\":\"جبل‌طارق\",\"de\":\"Gibraltar\",\"es\":\"Gibraltar\",\"fr\":\"Gibraltar\",\"ja\":\"ジブラルタル\",\"it\":\"Gibilterra\",\"zh-CN\":\"直布罗陀\",\"tr\":\"Cebelitarik\",\"ru\":\"Гибралтар\",\"uk\":\"Гібралтар\",\"pl\":\"Gibraltar\"}', '36.13333333', '-5.35000000', '🇬🇮', 'U+1F1EC U+1F1EE', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q1410'),
+(85, 'Greece', 'GRC', '300', 'GR', '30', 'Athens', 'EUR', 'Euro', '€', '.gr', 'Ελλάδα', 'Europe', 4, 'Southern Europe', 16, 'Greek, Hellenic', '[{\"zoneName\":\"Europe/Athens\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"그리스\",\"pt-BR\":\"Grécia\",\"pt\":\"Grécia\",\"nl\":\"Griekenland\",\"hr\":\"Grčka\",\"fa\":\"یونان\",\"de\":\"Griechenland\",\"es\":\"Grecia\",\"fr\":\"Grèce\",\"ja\":\"ギリシャ\",\"it\":\"Grecia\",\"zh-CN\":\"希腊\",\"tr\":\"Yunanistan\",\"ru\":\"Греция\",\"uk\":\"Греція\",\"pl\":\"Grecja\"}', '39.00000000', '22.00000000', '🇬🇷', 'U+1F1EC U+1F1F7', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q41'),
+(86, 'Greenland', 'GRL', '304', 'GL', '299', 'Nuuk', 'DKK', 'Danish krone', 'Kr.', '.gl', 'Kalaallit Nunaat', 'Americas', 2, 'Northern America', 6, 'Greenlandic', '[{\"zoneName\":\"America/Danmarkshavn\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"},{\"zoneName\":\"America/Nuuk\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"WGT\",\"tzName\":\"West Greenland Time\"},{\"zoneName\":\"America/Scoresbysund\",\"gmtOffset\":-3600,\"gmtOffsetName\":\"UTC-01:00\",\"abbreviation\":\"EGT\",\"tzName\":\"Eastern Greenland Time\"},{\"zoneName\":\"America/Thule\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"그린란드\",\"pt-BR\":\"Groelândia\",\"pt\":\"Gronelândia\",\"nl\":\"Groenland\",\"hr\":\"Grenland\",\"fa\":\"گرینلند\",\"de\":\"Grönland\",\"es\":\"Groenlandia\",\"fr\":\"Groenland\",\"ja\":\"グリーンランド\",\"it\":\"Groenlandia\",\"zh-CN\":\"格陵兰岛\",\"tr\":\"Grönland\",\"ru\":\"Гренландия\",\"uk\":\"Гренландія\",\"pl\":\"Grenlandia\"}', '72.00000000', '-40.00000000', '🇬🇱', 'U+1F1EC U+1F1F1', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q223'),
+(87, 'Grenada', 'GRD', '308', 'GD', '1', 'St. George\'s', 'XCD', 'Eastern Caribbean dollar', '$', '.gd', 'Grenada', 'Americas', 2, 'Caribbean', 7, 'Grenadian', '[{\"zoneName\":\"America/Grenada\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"그레나다\",\"pt-BR\":\"Granada\",\"pt\":\"Granada\",\"nl\":\"Grenada\",\"hr\":\"Grenada\",\"fa\":\"گرنادا\",\"de\":\"Grenada\",\"es\":\"Grenada\",\"fr\":\"Grenade\",\"ja\":\"グレナダ\",\"it\":\"Grenada\",\"zh-CN\":\"格林纳达\",\"tr\":\"Grenada\",\"ru\":\"Гренада\",\"uk\":\"Гренада\",\"pl\":\"Grenada\"}', '12.11666666', '-61.66666666', '🇬🇩', 'U+1F1EC U+1F1E9', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q769'),
+(88, 'Guadeloupe', 'GLP', '312', 'GP', '590', 'Basse-Terre', 'EUR', 'Euro', '€', '.gp', 'Guadeloupe', 'Americas', 2, 'Caribbean', 7, 'Guadeloupe', '[{\"zoneName\":\"America/Guadeloupe\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"과들루프\",\"pt-BR\":\"Guadalupe\",\"pt\":\"Guadalupe\",\"nl\":\"Guadeloupe\",\"hr\":\"Gvadalupa\",\"fa\":\"جزیره گوادلوپ\",\"de\":\"Guadeloupe\",\"es\":\"Guadalupe\",\"fr\":\"Guadeloupe\",\"ja\":\"グアドループ\",\"it\":\"Guadeloupa\",\"zh-CN\":\"瓜德罗普岛\",\"tr\":\"Guadeloupe\",\"ru\":\"Гваделупа\",\"uk\":\"Гваделупа\",\"pl\":\"Gwadelupa\"}', '16.25000000', '-61.58333300', '🇬🇵', 'U+1F1EC U+1F1F5', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q17012'),
+(89, 'Guam', 'GUM', '316', 'GU', '1', 'Hagatna', 'USD', 'United States dollar', '$', '.gu', 'Guam', 'Oceania', 5, 'Micronesia', 21, 'Guamanian, Guambat', '[{\"zoneName\":\"Pacific/Guam\",\"gmtOffset\":36000,\"gmtOffsetName\":\"UTC+10:00\",\"abbreviation\":\"CHST\",\"tzName\":\"Chamorro Standard Time\"}]', '{\"ko\":\"괌\",\"pt-BR\":\"Guam\",\"pt\":\"Guame\",\"nl\":\"Guam\",\"hr\":\"Guam\",\"fa\":\"گوام\",\"de\":\"Guam\",\"es\":\"Guam\",\"fr\":\"Guam\",\"ja\":\"グアム\",\"it\":\"Guam\",\"zh-CN\":\"关岛\",\"tr\":\"Guam\",\"ru\":\"Гуам\",\"uk\":\"Гуам\",\"pl\":\"Guam\"}', '13.46666666', '144.78333333', '🇬🇺', 'U+1F1EC U+1F1FA', '2018-07-21 07:41:03', '2024-12-23 10:33:12', 1, 'Q16635'),
+(90, 'Guatemala', 'GTM', '320', 'GT', '502', 'Guatemala City', 'GTQ', 'Guatemalan quetzal', 'Q', '.gt', 'Guatemala', 'Americas', 2, 'Central America', 9, 'Guatemalan', '[{\"zoneName\":\"America/Guatemala\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"}]', '{\"ko\":\"과테말라\",\"pt-BR\":\"Guatemala\",\"pt\":\"Guatemala\",\"nl\":\"Guatemala\",\"hr\":\"Gvatemala\",\"fa\":\"گواتمالا\",\"de\":\"Guatemala\",\"es\":\"Guatemala\",\"fr\":\"Guatemala\",\"ja\":\"グアテマラ\",\"it\":\"Guatemala\",\"zh-CN\":\"危地马拉\",\"tr\":\"Guatemala\",\"ru\":\"Гватемала\",\"uk\":\"Гватемала\",\"pl\":\"Gwatemala\"}', '15.50000000', '-90.25000000', '🇬🇹', 'U+1F1EC U+1F1F9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q774'),
+(91, 'Guernsey and Alderney', 'GGY', '831', 'GG', '44', 'St Peter Port', 'GBP', 'British pound', '£', '.gg', 'Guernsey', 'Europe', 4, 'Northern Europe', 18, 'Channel Island', '[{\"zoneName\":\"Europe/Guernsey\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"건지, 올더니\",\"pt-BR\":\"Guernsey\",\"pt\":\"Guernsey\",\"nl\":\"Guernsey\",\"hr\":\"Guernsey\",\"fa\":\"گرنزی\",\"de\":\"Guernsey\",\"es\":\"Guernsey\",\"fr\":\"Guernesey\",\"ja\":\"ガーンジー\",\"it\":\"Guernsey\",\"zh-CN\":\"根西岛\",\"tr\":\"Alderney\",\"ru\":\"Гернси и Олдерни\",\"uk\":\"Гернсі та Олдерні\",\"pl\":\"Guernsey i Alderney\"}', '49.46666666', '-2.58333333', '🇬🇬', 'U+1F1EC U+1F1EC', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, NULL),
+(92, 'Guinea', 'GIN', '324', 'GN', '224', 'Conakry', 'GNF', 'Guinean franc', 'FG', '.gn', 'Guinée', 'Africa', 1, 'Western Africa', 3, 'Guinean', '[{\"zoneName\":\"Africa/Conakry\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"기니\",\"pt-BR\":\"Guiné\",\"pt\":\"Guiné\",\"nl\":\"Guinee\",\"hr\":\"Gvineja\",\"fa\":\"گینه\",\"de\":\"Guinea\",\"es\":\"Guinea\",\"fr\":\"Guinée\",\"ja\":\"ギニア\",\"it\":\"Guinea\",\"zh-CN\":\"几内亚\",\"tr\":\"Gine\",\"ru\":\"Гвинея\",\"uk\":\"Гвінея\",\"pl\":\"Gwinea\"}', '11.00000000', '-10.00000000', '🇬🇳', 'U+1F1EC U+1F1F3', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q1006'),
+(93, 'Guinea-Bissau', 'GNB', '624', 'GW', '245', 'Bissau', 'XOF', 'West African CFA franc', 'CFA', '.gw', 'Guiné-Bissau', 'Africa', 1, 'Western Africa', 3, 'Bissau-Guinean', '[{\"zoneName\":\"Africa/Bissau\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"기니비사우\",\"pt-BR\":\"Guiné-Bissau\",\"pt\":\"Guiné-Bissau\",\"nl\":\"Guinee-Bissau\",\"hr\":\"Gvineja Bisau\",\"fa\":\"گینه بیسائو\",\"de\":\"Guinea-Bissau\",\"es\":\"Guinea-Bisáu\",\"fr\":\"Guinée-Bissau\",\"ja\":\"ギニアビサウ\",\"it\":\"Guinea-Bissau\",\"zh-CN\":\"几内亚比绍\",\"tr\":\"Gine-bissau\",\"ru\":\"Гвинея-Бисау\",\"uk\":\"Гвінея-Бісау\",\"pl\":\"Gwinea Bissau\"}', '12.00000000', '-15.00000000', '🇬🇼', 'U+1F1EC U+1F1FC', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q1007'),
+(94, 'Guyana', 'GUY', '328', 'GY', '592', 'Georgetown', 'GYD', 'Guyanese dollar', '$', '.gy', 'Guyana', 'Americas', 2, 'South America', 8, 'Guyanese', '[{\"zoneName\":\"America/Guyana\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"GYT\",\"tzName\":\"Guyana Time\"}]', '{\"ko\":\"가이아나\",\"pt-BR\":\"Guiana\",\"pt\":\"Guiana\",\"nl\":\"Guyana\",\"hr\":\"Gvajana\",\"fa\":\"گویان\",\"de\":\"Guyana\",\"es\":\"Guyana\",\"fr\":\"Guyane\",\"ja\":\"ガイアナ\",\"it\":\"Guyana\",\"zh-CN\":\"圭亚那\",\"tr\":\"Guyana\",\"ru\":\"Гайана\",\"uk\":\"Гайана\",\"pl\":\"Gujana\"}', '5.00000000', '-59.00000000', '🇬🇾', 'U+1F1EC U+1F1FE', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q734'),
+(95, 'Haiti', 'HTI', '332', 'HT', '509', 'Port-au-Prince', 'HTG', 'Haitian gourde', 'G', '.ht', 'Haïti', 'Americas', 2, 'Caribbean', 7, 'Haitian', '[{\"zoneName\":\"America/Port-au-Prince\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"}]', '{\"ko\":\"아이티\",\"pt-BR\":\"Haiti\",\"pt\":\"Haiti\",\"nl\":\"Haïti\",\"hr\":\"Haiti\",\"fa\":\"هائیتی\",\"de\":\"Haiti\",\"es\":\"Haiti\",\"fr\":\"Haïti\",\"ja\":\"ハイチ\",\"it\":\"Haiti\",\"zh-CN\":\"海地\",\"tr\":\"Haiti\",\"ru\":\"Гаити\",\"uk\":\"Гаїті\",\"pl\":\"Haiti\"}', '19.00000000', '-72.41666666', '🇭🇹', 'U+1F1ED U+1F1F9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q790'),
+(96, 'Heard Island and McDonald Islands', 'HMD', '334', 'HM', '672', '', 'AUD', 'Australian dollar', '$', '.hm', 'Heard Island and McDonald Islands', '', NULL, '', NULL, 'Heard Island or McDonald Islands', '[{\"zoneName\":\"Indian/Kerguelen\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"TFT\",\"tzName\":\"French Southern and Antarctic Time\"}]', '{\"ko\":\"허드 맥도날드 제도\",\"pt-BR\":\"Ilha Heard e Ilhas McDonald\",\"pt\":\"Ilha Heard e Ilhas McDonald\",\"nl\":\"Heard- en McDonaldeilanden\",\"hr\":\"Otok Heard i otočje McDonald\",\"fa\":\"جزیره هرد و جزایر مک‌دونالد\",\"de\":\"Heard und die McDonaldinseln\",\"es\":\"Islas Heard y McDonald\",\"fr\":\"Îles Heard-et-MacDonald\",\"ja\":\"ハード島とマクドナルド諸島\",\"it\":\"Isole Heard e McDonald\",\"zh-CN\":\"赫德·唐纳岛及麦唐纳岛\",\"tr\":\"Heard Adasi Ve Mcdonald Adalari\",\"ru\":\"Остров Херд и острова Макдональд\",\"uk\":\"Острів Херд та острови Макдональд\",\"pl\":\"Wyspa Heard i Wyspy McDonalda\"}', '-53.10000000', '72.51666666', '🇭🇲', 'U+1F1ED U+1F1F2', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q131198'),
+(97, 'Honduras', 'HND', '340', 'HN', '504', 'Tegucigalpa', 'HNL', 'Honduran lempira', 'L', '.hn', 'Honduras', 'Americas', 2, 'Central America', 9, 'Honduran', '[{\"zoneName\":\"America/Tegucigalpa\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"}]', '{\"ko\":\"온두라스\",\"pt-BR\":\"Honduras\",\"pt\":\"Honduras\",\"nl\":\"Honduras\",\"hr\":\"Honduras\",\"fa\":\"هندوراس\",\"de\":\"Honduras\",\"es\":\"Honduras\",\"fr\":\"Honduras\",\"ja\":\"ホンジュラス\",\"it\":\"Honduras\",\"zh-CN\":\"洪都拉斯\",\"tr\":\"Honduras\",\"ru\":\"Гондурас\",\"uk\":\"Гондурас\",\"pl\":\"Honduras\"}', '15.00000000', '-86.50000000', '🇭🇳', 'U+1F1ED U+1F1F3', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q783'),
+(98, 'Hong Kong S.A.R.', 'HKG', '344', 'HK', '852', 'Hong Kong', 'HKD', 'Hong Kong dollar', '$', '.hk', '香港', 'Asia', 3, 'Eastern Asia', 12, 'Hong Kong, Hong Kongese', '[{\"zoneName\":\"Asia/Hong_Kong\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"HKT\",\"tzName\":\"Hong Kong Time\"}]', '{\"ko\":\"홍콩\",\"pt-BR\":\"Hong Kong\",\"pt\":\"Hong Kong\",\"nl\":\"Hongkong\",\"hr\":\"Hong Kong\",\"fa\":\"هنگ‌کنگ\",\"de\":\"Hong Kong\",\"es\":\"Hong Kong\",\"fr\":\"Hong Kong\",\"ja\":\"香港\",\"it\":\"Hong Kong\",\"zh-CN\":\"中国香港\",\"tr\":\"Hong Kong\",\"ru\":\"Гонконг С.А.Р.\",\"uk\":\"Гонконг САР.\",\"pl\":\"Hongkong S.A.R.\"}', '22.25000000', '114.16666666', '🇭🇰', 'U+1F1ED U+1F1F0', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q8646'),
+(99, 'Hungary', 'HUN', '348', 'HU', '36', 'Budapest', 'HUF', 'Hungarian forint', 'Ft', '.hu', 'Magyarország', 'Europe', 4, 'Eastern Europe', 15, 'Hungarian, Magyar', '[{\"zoneName\":\"Europe/Budapest\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"헝가리\",\"pt-BR\":\"Hungria\",\"pt\":\"Hungria\",\"nl\":\"Hongarije\",\"hr\":\"Mađarska\",\"fa\":\"مجارستان\",\"de\":\"Ungarn\",\"es\":\"Hungría\",\"fr\":\"Hongrie\",\"ja\":\"ハンガリー\",\"it\":\"Ungheria\",\"zh-CN\":\"匈牙利\",\"tr\":\"Macaristan\",\"ru\":\"Венгрия\",\"uk\":\"Угорщина\",\"pl\":\"Węgry\"}', '47.00000000', '20.00000000', '🇭🇺', 'U+1F1ED U+1F1FA', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q28'),
+(100, 'Iceland', 'ISL', '352', 'IS', '354', 'Reykjavik', 'ISK', 'Icelandic króna', 'ko', '.is', 'Ísland', 'Europe', 4, 'Northern Europe', 18, 'Icelandic', '[{\"zoneName\":\"Atlantic/Reykjavik\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"아이슬란드\",\"pt-BR\":\"Islândia\",\"pt\":\"Islândia\",\"nl\":\"IJsland\",\"hr\":\"Island\",\"fa\":\"ایسلند\",\"de\":\"Island\",\"es\":\"Islandia\",\"fr\":\"Islande\",\"ja\":\"アイスランド\",\"it\":\"Islanda\",\"zh-CN\":\"冰岛\",\"tr\":\"İzlanda\",\"ru\":\"Исландия\",\"uk\":\"Ісландія\",\"pl\":\"Islandia\"}', '65.00000000', '-18.00000000', '🇮🇸', 'U+1F1EE U+1F1F8', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q189'),
+(101, 'India', 'IND', '356', 'IN', '91', 'New Delhi', 'INR', 'Indian rupee', '₹', '.in', 'भारत', 'Asia', 3, 'Southern Asia', 14, 'Indian', '[{\"zoneName\":\"Asia/Kolkata\",\"gmtOffset\":19800,\"gmtOffsetName\":\"UTC+05:30\",\"abbreviation\":\"IST\",\"tzName\":\"Indian Standard Time\"}]', '{\"ko\":\"인도\",\"pt-BR\":\"Índia\",\"pt\":\"Índia\",\"nl\":\"India\",\"hr\":\"Indija\",\"fa\":\"هند\",\"de\":\"Indien\",\"es\":\"India\",\"fr\":\"Inde\",\"ja\":\"インド\",\"it\":\"India\",\"zh-CN\":\"印度\",\"tr\":\"Hindistan\",\"ru\":\"Индия\",\"uk\":\"Індія\",\"pl\":\"Indie\"}', '20.00000000', '77.00000000', '🇮🇳', 'U+1F1EE U+1F1F3', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q668'),
+(102, 'Indonesia', 'IDN', '360', 'ID', '62', 'Jakarta', 'IDR', 'Indonesian rupiah', 'Rp', '.id', 'Indonesia', 'Asia', 3, 'South-Eastern Asia', 13, 'Indonesian', '[{\"zoneName\":\"Asia/Jakarta\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"WIB\",\"tzName\":\"Western Indonesian Time\"},{\"zoneName\":\"Asia/Jayapura\",\"gmtOffset\":32400,\"gmtOffsetName\":\"UTC+09:00\",\"abbreviation\":\"WIT\",\"tzName\":\"Eastern Indonesian Time\"},{\"zoneName\":\"Asia/Makassar\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"WITA\",\"tzName\":\"Central Indonesia Time\"},{\"zoneName\":\"Asia/Pontianak\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"WIB\",\"tzName\":\"Western Indonesian Time\"}]', '{\"ko\":\"인도네시아\",\"pt-BR\":\"Indonésia\",\"pt\":\"Indonésia\",\"nl\":\"Indonesië\",\"hr\":\"Indonezija\",\"fa\":\"اندونزی\",\"de\":\"Indonesien\",\"es\":\"Indonesia\",\"fr\":\"Indonésie\",\"ja\":\"インドネシア\",\"it\":\"Indonesia\",\"zh-CN\":\"印度尼西亚\",\"tr\":\"Endonezya\",\"ru\":\"Индонезия\",\"uk\":\"Індонезія\",\"pl\":\"Indonezja\"}', '-5.00000000', '120.00000000', '🇮🇩', 'U+1F1EE U+1F1E9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q252'),
+(103, 'Iran', 'IRN', '364', 'IR', '98', 'Tehran', 'IRR', 'Iranian rial', '﷼', '.ir', 'ایران', 'Asia', 3, 'Southern Asia', 14, 'Iranian, Persian', '[{\"zoneName\":\"Asia/Tehran\",\"gmtOffset\":12600,\"gmtOffsetName\":\"UTC+03:30\",\"abbreviation\":\"IRDT\",\"tzName\":\"Iran Daylight Time\"}]', '{\"ko\":\"이란\",\"pt-BR\":\"Irã\",\"pt\":\"Irão\",\"nl\":\"Iran\",\"hr\":\"Iran\",\"fa\":\"ایران\",\"de\":\"Iran\",\"es\":\"Iran\",\"fr\":\"Iran\",\"ja\":\"イラン・イスラム共和国\",\"zh-CN\":\"伊朗\",\"tr\":\"İran\",\"ru\":\"Иран\",\"uk\":\"Іран\",\"pl\":\"Iran\"}', '32.00000000', '53.00000000', '🇮🇷', 'U+1F1EE U+1F1F7', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q794'),
+(104, 'Iraq', 'IRQ', '368', 'IQ', '964', 'Baghdad', 'IQD', 'Iraqi dinar', 'د.ع', '.iq', 'العراق', 'Asia', 3, 'Western Asia', 11, 'Iraqi', '[{\"zoneName\":\"Asia/Baghdad\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"AST\",\"tzName\":\"Arabia Standard Time\"}]', '{\"ko\":\"이라크\",\"pt-BR\":\"Iraque\",\"pt\":\"Iraque\",\"nl\":\"Irak\",\"hr\":\"Irak\",\"fa\":\"عراق\",\"de\":\"Irak\",\"es\":\"Irak\",\"fr\":\"Irak\",\"ja\":\"イラク\",\"it\":\"Iraq\",\"zh-CN\":\"伊拉克\",\"tr\":\"Irak\",\"ru\":\"Ирак\",\"uk\":\"Ірак\",\"pl\":\"Irak\"}', '33.00000000', '44.00000000', '🇮🇶', 'U+1F1EE U+1F1F6', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q796'),
+(105, 'Ireland', 'IRL', '372', 'IE', '353', 'Dublin', 'EUR', 'Euro', '€', '.ie', 'Éire', 'Europe', 4, 'Northern Europe', 18, 'Irish', '[{\"zoneName\":\"Europe/Dublin\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"아일랜드\",\"pt-BR\":\"Irlanda\",\"pt\":\"Irlanda\",\"nl\":\"Ierland\",\"hr\":\"Irska\",\"fa\":\"ایرلند\",\"de\":\"Irland\",\"es\":\"Irlanda\",\"fr\":\"Irlande\",\"ja\":\"アイルランド\",\"it\":\"Irlanda\",\"zh-CN\":\"爱尔兰\",\"tr\":\"İrlanda\",\"ru\":\"Ирландия\",\"uk\":\"Ірландія\",\"pl\":\"Irlandia\"}', '53.00000000', '-8.00000000', '🇮🇪', 'U+1F1EE U+1F1EA', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q27'),
+(106, 'Israel', 'ISR', '376', 'IL', '972', 'Jerusalem', 'ILS', 'Israeli new shekel', '₪', '.il', 'יִשְׂרָאֵל', 'Asia', 3, 'Western Asia', 11, 'Israeli', '[{\"zoneName\":\"Asia/Jerusalem\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"IST\",\"tzName\":\"Israel Standard Time\"}]', '{\"ko\":\"이스라엘\",\"pt-BR\":\"Israel\",\"pt\":\"Israel\",\"nl\":\"Israël\",\"hr\":\"Izrael\",\"fa\":\"اسرائیل\",\"de\":\"Israel\",\"es\":\"Israel\",\"fr\":\"Israël\",\"ja\":\"イスラエル\",\"it\":\"Israele\",\"zh-CN\":\"以色列\",\"tr\":\"İsrail\",\"ru\":\"Израиль\",\"uk\":\"Ізраїль\",\"pl\":\"Izrael\"}', '31.50000000', '34.75000000', '🇮🇱', 'U+1F1EE U+1F1F1', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q801'),
+(107, 'Italy', 'ITA', '380', 'IT', '39', 'Rome', 'EUR', 'Euro', '€', '.it', 'Italia', 'Europe', 4, 'Southern Europe', 16, 'Italian', '[{\"zoneName\":\"Europe/Rome\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"이탈리아\",\"pt-BR\":\"Itália\",\"pt\":\"Itália\",\"nl\":\"Italië\",\"hr\":\"Italija\",\"fa\":\"ایتالیا\",\"de\":\"Italien\",\"es\":\"Italia\",\"fr\":\"Italie\",\"ja\":\"イタリア\",\"it\":\"Italia\",\"zh-CN\":\"意大利\",\"tr\":\"İtalya\",\"ru\":\"Италия\",\"uk\":\"Італія\",\"pl\":\"Włochy\"}', '42.83333333', '12.83333333', '🇮🇹', 'U+1F1EE U+1F1F9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q38'),
+(108, 'Jamaica', 'JAM', '388', 'JM', '1', 'Kingston', 'JMD', 'Jamaican dollar', 'J$', '.jm', 'Jamaica', 'Americas', 2, 'Caribbean', 7, 'Jamaican', '[{\"zoneName\":\"America/Jamaica\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"}]', '{\"ko\":\"자메이카\",\"pt-BR\":\"Jamaica\",\"pt\":\"Jamaica\",\"nl\":\"Jamaica\",\"hr\":\"Jamajka\",\"fa\":\"جامائیکا\",\"de\":\"Jamaika\",\"es\":\"Jamaica\",\"fr\":\"Jamaïque\",\"ja\":\"ジャマイカ\",\"it\":\"Giamaica\",\"zh-CN\":\"牙买加\",\"tr\":\"Jamaika\",\"ru\":\"Ямайка\",\"uk\":\"Ямайка\",\"pl\":\"Jamajka\"}', '18.25000000', '-77.50000000', '🇯🇲', 'U+1F1EF U+1F1F2', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q766'),
+(109, 'Japan', 'JPN', '392', 'JP', '81', 'Tokyo', 'JPY', 'Japanese yen', '¥', '.jp', '日本', 'Asia', 3, 'Eastern Asia', 12, 'Japanese', '[{\"zoneName\":\"Asia/Tokyo\",\"gmtOffset\":32400,\"gmtOffsetName\":\"UTC+09:00\",\"abbreviation\":\"JST\",\"tzName\":\"Japan Standard Time\"}]', '{\"ko\":\"일본\",\"pt-BR\":\"Japão\",\"pt\":\"Japão\",\"nl\":\"Japan\",\"hr\":\"Japan\",\"fa\":\"ژاپن\",\"de\":\"Japan\",\"es\":\"Japón\",\"fr\":\"Japon\",\"ja\":\"日本\",\"it\":\"Giappone\",\"zh-CN\":\"日本\",\"tr\":\"Japonya\",\"ru\":\"Япония\",\"uk\":\"Японія\",\"pl\":\"Japonia\"}', '36.00000000', '138.00000000', '🇯🇵', 'U+1F1EF U+1F1F5', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q17'),
+(110, 'Jersey', 'JEY', '832', 'JE', '44', 'Saint Helier', 'GBP', 'British pound', '£', '.je', 'Jersey', 'Europe', 4, 'Northern Europe', 18, 'Channel Island', '[{\"zoneName\":\"Europe/Jersey\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"저지 섬\",\"pt-BR\":\"Jersey\",\"pt\":\"Jersey\",\"nl\":\"Jersey\",\"hr\":\"Jersey\",\"fa\":\"جرزی\",\"de\":\"Jersey\",\"es\":\"Jersey\",\"fr\":\"Jersey\",\"ja\":\"ジャージー\",\"it\":\"Isola di Jersey\",\"zh-CN\":\"泽西岛\",\"tr\":\"Jersey\",\"ru\":\"Джерси\",\"uk\":\"Джерсі\",\"pl\":\"Jersey\"}', '49.25000000', '-2.16666666', '🇯🇪', 'U+1F1EF U+1F1EA', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q785');
+INSERT INTO `countries` (`id`, `name`, `iso3`, `numeric_code`, `iso2`, `phonecode`, `capital`, `currency`, `currency_name`, `currency_symbol`, `tld`, `native`, `region`, `region_id`, `subregion`, `subregion_id`, `nationality`, `timezones`, `translations`, `latitude`, `longitude`, `emoji`, `emojiU`, `created_at`, `updated_at`, `flag`, `wikiDataId`) VALUES
+(111, 'Jordan', 'JOR', '400', 'JO', '962', 'Amman', 'JOD', 'Jordanian dinar', 'ا.د', '.jo', 'الأردن', 'Asia', 3, 'Western Asia', 11, 'Jordanian', '[{\"zoneName\":\"Asia/Amman\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"요르단\",\"pt-BR\":\"Jordânia\",\"pt\":\"Jordânia\",\"nl\":\"Jordanië\",\"hr\":\"Jordan\",\"fa\":\"اردن\",\"de\":\"Jordanien\",\"es\":\"Jordania\",\"fr\":\"Jordanie\",\"ja\":\"ヨルダン\",\"it\":\"Giordania\",\"zh-CN\":\"约旦\",\"tr\":\"Ürdün\",\"ru\":\"Джордан\",\"uk\":\"Йорданія\",\"pl\":\"Jordan\"}', '31.00000000', '36.00000000', '🇯🇴', 'U+1F1EF U+1F1F4', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q810'),
+(112, 'Kazakhstan', 'KAZ', '398', 'KZ', '7', 'Astana', 'KZT', 'Kazakhstani tenge', 'лв', '.kz', 'Қазақстан', 'Asia', 3, 'Central Asia', 10, 'Kazakhstani, Kazakh', '[{\"zoneName\":\"Asia/Almaty\",\"gmtOffset\":21600,\"gmtOffsetName\":\"UTC+06:00\",\"abbreviation\":\"ALMT\",\"tzName\":\"Alma-Ata Time[1\"},{\"zoneName\":\"Asia/Aqtau\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"AQTT\",\"tzName\":\"Aqtobe Time\"},{\"zoneName\":\"Asia/Aqtobe\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"AQTT\",\"tzName\":\"Aqtobe Time\"},{\"zoneName\":\"Asia/Atyrau\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"MSD+1\",\"tzName\":\"Moscow Daylight Time+1\"},{\"zoneName\":\"Asia/Oral\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"ORAT\",\"tzName\":\"Oral Time\"},{\"zoneName\":\"Asia/Qostanay\",\"gmtOffset\":21600,\"gmtOffsetName\":\"UTC+06:00\",\"abbreviation\":\"QYZST\",\"tzName\":\"Qyzylorda Summer Time\"},{\"zoneName\":\"Asia/Qyzylorda\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"QYZT\",\"tzName\":\"Qyzylorda Summer Time\"}]', '{\"ko\":\"카자흐스탄\",\"pt-BR\":\"Cazaquistão\",\"pt\":\"Cazaquistão\",\"nl\":\"Kazachstan\",\"hr\":\"Kazahstan\",\"fa\":\"قزاقستان\",\"de\":\"Kasachstan\",\"es\":\"Kazajistán\",\"fr\":\"Kazakhstan\",\"ja\":\"カザフスタン\",\"it\":\"Kazakistan\",\"zh-CN\":\"哈萨克斯坦\",\"tr\":\"Kazakistan\",\"ru\":\"Казахстан\",\"uk\":\"Казахстан\",\"pl\":\"Kazachstan\"}', '48.00000000', '68.00000000', '🇰🇿', 'U+1F1F0 U+1F1FF', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q232'),
+(113, 'Kenya', 'KEN', '404', 'KE', '254', 'Nairobi', 'KES', 'Kenyan shilling', 'KSh', '.ke', 'Kenya', 'Africa', 1, 'Eastern Africa', 4, 'Kenyan', '[{\"zoneName\":\"Africa/Nairobi\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EAT\",\"tzName\":\"East Africa Time\"}]', '{\"ko\":\"케냐\",\"pt-BR\":\"Quênia\",\"pt\":\"Quénia\",\"nl\":\"Kenia\",\"hr\":\"Kenija\",\"fa\":\"کنیا\",\"de\":\"Kenia\",\"es\":\"Kenia\",\"fr\":\"Kenya\",\"ja\":\"ケニア\",\"it\":\"Kenya\",\"zh-CN\":\"肯尼亚\",\"tr\":\"Kenya\",\"ru\":\"Кения\",\"uk\":\"Кенія\",\"pl\":\"Kenia\"}', '1.00000000', '38.00000000', '🇰🇪', 'U+1F1F0 U+1F1EA', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q114'),
+(114, 'Kiribati', 'KIR', '296', 'KI', '686', 'Tarawa', 'AUD', 'Australian dollar', '$', '.ki', 'Kiribati', 'Oceania', 5, 'Micronesia', 21, 'I-Kiribati', '[{\"zoneName\":\"Pacific/Enderbury\",\"gmtOffset\":46800,\"gmtOffsetName\":\"UTC+13:00\",\"abbreviation\":\"PHOT\",\"tzName\":\"Phoenix Island Time\"},{\"zoneName\":\"Pacific/Kiritimati\",\"gmtOffset\":50400,\"gmtOffsetName\":\"UTC+14:00\",\"abbreviation\":\"LINT\",\"tzName\":\"Line Islands Time\"},{\"zoneName\":\"Pacific/Tarawa\",\"gmtOffset\":43200,\"gmtOffsetName\":\"UTC+12:00\",\"abbreviation\":\"GILT\",\"tzName\":\"Gilbert Island Time\"}]', '{\"ko\":\"키리바시\",\"pt-BR\":\"Kiribati\",\"pt\":\"Quiribáti\",\"nl\":\"Kiribati\",\"hr\":\"Kiribati\",\"fa\":\"کیریباتی\",\"de\":\"Kiribati\",\"es\":\"Kiribati\",\"fr\":\"Kiribati\",\"ja\":\"キリバス\",\"it\":\"Kiribati\",\"zh-CN\":\"基里巴斯\",\"tr\":\"Kiribati\",\"ru\":\"Кирибати\",\"uk\":\"Кірібаті\",\"pl\":\"Kiribati\"}', '1.41666666', '173.00000000', '🇰🇮', 'U+1F1F0 U+1F1EE', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q710'),
+(115, 'North Korea', 'PRK', '408', 'KP', '850', 'Pyongyang', 'KPW', 'North Korean Won', '₩', '.kp', '북한', 'Asia', 3, 'Eastern Asia', 12, 'North Korean', '[{\"zoneName\":\"Asia/Pyongyang\",\"gmtOffset\":32400,\"gmtOffsetName\":\"UTC+09:00\",\"abbreviation\":\"KST\",\"tzName\":\"Korea Standard Time\"}]', '{\"ko\":\"조선민주주의인민공화국\",\"pt-BR\":\"Coreia do Norte\",\"pt\":\"Coreia do Norte\",\"nl\":\"Noord-Korea\",\"hr\":\"Sjeverna Koreja\",\"fa\":\"کره جنوبی\",\"de\":\"Nordkorea\",\"es\":\"Corea del Norte\",\"fr\":\"Corée du Nord\",\"ja\":\"朝鮮民主主義人民共和国\",\"it\":\"Corea del Nord\",\"zh-CN\":\"朝鲜\",\"tr\":\"Kuzey Kore\",\"ru\":\"Северная Корея\",\"uk\":\"Північна Корея\",\"pl\":\"Korea Północna\"}', '40.00000000', '127.00000000', '🇰🇵', 'U+1F1F0 U+1F1F5', '2018-07-21 07:41:03', '2023-08-11 16:15:55', 1, 'Q423'),
+(116, 'South Korea', 'KOR', '410', 'KR', '82', 'Seoul', 'KRW', 'Won', '₩', '.kr', '대한민국', 'Asia', 3, 'Eastern Asia', 12, 'South Korean', '[{\"zoneName\":\"Asia/Seoul\",\"gmtOffset\":32400,\"gmtOffsetName\":\"UTC+09:00\",\"abbreviation\":\"KST\",\"tzName\":\"Korea Standard Time\"}]', '{\"ko\":\"대한민국\",\"pt-BR\":\"Coreia do Sul\",\"pt\":\"Coreia do Sul\",\"nl\":\"Zuid-Korea\",\"hr\":\"Južna Koreja\",\"fa\":\"کره شمالی\",\"de\":\"Südkorea\",\"es\":\"Corea del Sur\",\"fr\":\"Corée du Sud\",\"ja\":\"大韓民国\",\"it\":\"Corea del Sud\",\"zh-CN\":\"韩国\",\"tr\":\"Güney Kore\",\"ru\":\"Южная Корея\",\"uk\":\"Південна Корея\",\"pl\":\"Korea Południowa\"}', '37.00000000', '127.50000000', '🇰🇷', 'U+1F1F0 U+1F1F7', '2018-07-21 07:41:03', '2023-08-11 16:15:55', 1, 'Q884'),
+(117, 'Kuwait', 'KWT', '414', 'KW', '965', 'Kuwait City', 'KWD', 'Kuwaiti dinar', 'ك.د', '.kw', 'الكويت', 'Asia', 3, 'Western Asia', 11, 'Kuwaiti', '[{\"zoneName\":\"Asia/Kuwait\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"AST\",\"tzName\":\"Arabia Standard Time\"}]', '{\"ko\":\"쿠웨이트\",\"pt-BR\":\"Kuwait\",\"pt\":\"Kuwait\",\"nl\":\"Koeweit\",\"hr\":\"Kuvajt\",\"fa\":\"کویت\",\"de\":\"Kuwait\",\"es\":\"Kuwait\",\"fr\":\"Koweït\",\"ja\":\"クウェート\",\"it\":\"Kuwait\",\"zh-CN\":\"科威特\",\"tr\":\"Kuveyt\",\"ru\":\"Кувейт\",\"uk\":\"Кувейт\",\"pl\":\"Kuwejt\"}', '29.50000000', '45.75000000', '🇰🇼', 'U+1F1F0 U+1F1FC', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q817'),
+(118, 'Kyrgyzstan', 'KGZ', '417', 'KG', '996', 'Bishkek', 'KGS', 'Kyrgyzstani som', 'лв', '.kg', 'Кыргызстан', 'Asia', 3, 'Central Asia', 10, 'Kyrgyzstani, Kyrgyz, Kirgiz, Kirghiz', '[{\"zoneName\":\"Asia/Bishkek\",\"gmtOffset\":21600,\"gmtOffsetName\":\"UTC+06:00\",\"abbreviation\":\"KGT\",\"tzName\":\"Kyrgyzstan Time\"}]', '{\"ko\":\"키르기스스탄\",\"pt-BR\":\"Quirguistão\",\"pt\":\"Quirguizistão\",\"nl\":\"Kirgizië\",\"hr\":\"Kirgistan\",\"fa\":\"قرقیزستان\",\"de\":\"Kirgisistan\",\"es\":\"Kirguizistán\",\"fr\":\"Kirghizistan\",\"ja\":\"キルギス\",\"it\":\"Kirghizistan\",\"zh-CN\":\"吉尔吉斯斯坦\",\"tr\":\"Kirgizistan\",\"ru\":\"Кыргызстан\",\"uk\":\"Киргизстан\",\"pl\":\"Kirgistan\"}', '41.00000000', '75.00000000', '🇰🇬', 'U+1F1F0 U+1F1EC', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q813'),
+(119, 'Laos', 'LAO', '418', 'LA', '856', 'Vientiane', 'LAK', 'Lao kip', '₭', '.la', 'ສປປລາວ', 'Asia', 3, 'South-Eastern Asia', 13, 'Lao, Laotian', '[{\"zoneName\":\"Asia/Vientiane\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"ICT\",\"tzName\":\"Indochina Time\"}]', '{\"ko\":\"라오스\",\"pt-BR\":\"Laos\",\"pt\":\"Laos\",\"nl\":\"Laos\",\"hr\":\"Laos\",\"fa\":\"لائوس\",\"de\":\"Laos\",\"es\":\"Laos\",\"fr\":\"Laos\",\"ja\":\"ラオス人民民主共和国\",\"it\":\"Laos\",\"zh-CN\":\"寮人民民主共和国\",\"tr\":\"Laos\",\"ru\":\"Лаос\",\"uk\":\"Лаос\",\"pl\":\"Laos\"}', '18.00000000', '105.00000000', '🇱🇦', 'U+1F1F1 U+1F1E6', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q819'),
+(120, 'Latvia', 'LVA', '428', 'LV', '371', 'Riga', 'EUR', 'Euro', '€', '.lv', 'Latvija', 'Europe', 4, 'Northern Europe', 18, 'Latvian', '[{\"zoneName\":\"Europe/Riga\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"라트비아\",\"pt-BR\":\"Letônia\",\"pt\":\"Letónia\",\"nl\":\"Letland\",\"hr\":\"Latvija\",\"fa\":\"لتونی\",\"de\":\"Lettland\",\"es\":\"Letonia\",\"fr\":\"Lettonie\",\"ja\":\"ラトビア\",\"it\":\"Lettonia\",\"zh-CN\":\"拉脱维亚\",\"tr\":\"Letonya\",\"ru\":\"Латвия\",\"uk\":\"Латвія\",\"pl\":\"Łotwa\"}', '57.00000000', '25.00000000', '🇱🇻', 'U+1F1F1 U+1F1FB', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q211'),
+(121, 'Lebanon', 'LBN', '422', 'LB', '961', 'Beirut', 'LBP', 'Lebanese pound', '£', '.lb', 'لبنان', 'Asia', 3, 'Western Asia', 11, 'Lebanese', '[{\"zoneName\":\"Asia/Beirut\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"레바논\",\"pt-BR\":\"Líbano\",\"pt\":\"Líbano\",\"nl\":\"Libanon\",\"hr\":\"Libanon\",\"fa\":\"لبنان\",\"de\":\"Libanon\",\"es\":\"Líbano\",\"fr\":\"Liban\",\"ja\":\"レバノン\",\"it\":\"Libano\",\"zh-CN\":\"黎巴嫩\",\"tr\":\"Lübnan\",\"ru\":\"Ливан\",\"uk\":\"Ліван\",\"pl\":\"Liban\"}', '33.83333333', '35.83333333', '🇱🇧', 'U+1F1F1 U+1F1E7', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q822'),
+(122, 'Lesotho', 'LSO', '426', 'LS', '266', 'Maseru', 'LSL', 'Lesotho loti', 'L', '.ls', 'Lesotho', 'Africa', 1, 'Southern Africa', 5, 'Basotho', '[{\"zoneName\":\"Africa/Maseru\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"SAST\",\"tzName\":\"South African Standard Time\"}]', '{\"ko\":\"레소토\",\"pt-BR\":\"Lesoto\",\"pt\":\"Lesoto\",\"nl\":\"Lesotho\",\"hr\":\"Lesoto\",\"fa\":\"لسوتو\",\"de\":\"Lesotho\",\"es\":\"Lesotho\",\"fr\":\"Lesotho\",\"ja\":\"レソト\",\"it\":\"Lesotho\",\"zh-CN\":\"莱索托\",\"tr\":\"Lesotho\",\"ru\":\"Лесото\",\"uk\":\"Лесото\",\"pl\":\"Lesotho\"}', '-29.50000000', '28.50000000', '🇱🇸', 'U+1F1F1 U+1F1F8', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q1013'),
+(123, 'Liberia', 'LBR', '430', 'LR', '231', 'Monrovia', 'LRD', 'Liberian dollar', '$', '.lr', 'Liberia', 'Africa', 1, 'Western Africa', 3, 'Liberian', '[{\"zoneName\":\"Africa/Monrovia\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"라이베리아\",\"pt-BR\":\"Libéria\",\"pt\":\"Libéria\",\"nl\":\"Liberia\",\"hr\":\"Liberija\",\"fa\":\"لیبریا\",\"de\":\"Liberia\",\"es\":\"Liberia\",\"fr\":\"Liberia\",\"ja\":\"リベリア\",\"it\":\"Liberia\",\"zh-CN\":\"利比里亚\",\"tr\":\"Liberya\",\"ru\":\"Либерия\",\"uk\":\"Ліберія\",\"pl\":\"Liberia\"}', '6.50000000', '-9.50000000', '🇱🇷', 'U+1F1F1 U+1F1F7', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q1014'),
+(124, 'Libya', 'LBY', '434', 'LY', '218', 'Tripolis', 'LYD', 'Libyan dinar', 'د.ل', '.ly', '‏ليبيا', 'Africa', 1, 'Northern Africa', 1, 'Libyan', '[{\"zoneName\":\"Africa/Tripoli\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"리비아\",\"pt-BR\":\"Líbia\",\"pt\":\"Líbia\",\"nl\":\"Libië\",\"hr\":\"Libija\",\"fa\":\"لیبی\",\"de\":\"Libyen\",\"es\":\"Libia\",\"fr\":\"Libye\",\"ja\":\"リビア\",\"it\":\"Libia\",\"zh-CN\":\"利比亚\",\"tr\":\"Libya\",\"ru\":\"Ливия\",\"uk\":\"Лівія\",\"pl\":\"Libia\"}', '25.00000000', '17.00000000', '🇱🇾', 'U+1F1F1 U+1F1FE', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q1016'),
+(125, 'Liechtenstein', 'LIE', '438', 'LI', '423', 'Vaduz', 'CHF', 'Swiss franc', 'CHf', '.li', 'Liechtenstein', 'Europe', 4, 'Western Europe', 17, 'Liechtenstein', '[{\"zoneName\":\"Europe/Vaduz\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"리히텐슈타인\",\"pt-BR\":\"Liechtenstein\",\"pt\":\"Listenstaine\",\"nl\":\"Liechtenstein\",\"hr\":\"Lihtenštajn\",\"fa\":\"لیختن‌اشتاین\",\"de\":\"Liechtenstein\",\"es\":\"Liechtenstein\",\"fr\":\"Liechtenstein\",\"ja\":\"リヒテンシュタイン\",\"it\":\"Liechtenstein\",\"zh-CN\":\"列支敦士登\",\"tr\":\"Lihtenştayn\",\"ru\":\"Лихтенштейн\",\"uk\":\"Ліхтенштейн\",\"pl\":\"Liechtenstein\"}', '47.26666666', '9.53333333', '🇱🇮', 'U+1F1F1 U+1F1EE', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q347'),
+(126, 'Lithuania', 'LTU', '440', 'LT', '370', 'Vilnius', 'EUR', 'Euro', '€', '.lt', 'Lietuva', 'Europe', 4, 'Northern Europe', 18, 'Lithuanian', '[{\"zoneName\":\"Europe/Vilnius\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"리투아니아\",\"pt-BR\":\"Lituânia\",\"pt\":\"Lituânia\",\"nl\":\"Litouwen\",\"hr\":\"Litva\",\"fa\":\"لیتوانی\",\"de\":\"Litauen\",\"es\":\"Lituania\",\"fr\":\"Lituanie\",\"ja\":\"リトアニア\",\"it\":\"Lituania\",\"zh-CN\":\"立陶宛\",\"tr\":\"Litvanya\",\"ru\":\"Литва\",\"uk\":\"Литва\",\"pl\":\"Litwa\"}', '56.00000000', '24.00000000', '🇱🇹', 'U+1F1F1 U+1F1F9', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q37'),
+(127, 'Luxembourg', 'LUX', '442', 'LU', '352', 'Luxembourg', 'EUR', 'Euro', '€', '.lu', 'Luxembourg', 'Europe', 4, 'Western Europe', 17, 'Luxembourg, Luxembourgish', '[{\"zoneName\":\"Europe/Luxembourg\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"룩셈부르크\",\"pt-BR\":\"Luxemburgo\",\"pt\":\"Luxemburgo\",\"nl\":\"Luxemburg\",\"hr\":\"Luksemburg\",\"fa\":\"لوکزامبورگ\",\"de\":\"Luxemburg\",\"es\":\"Luxemburgo\",\"fr\":\"Luxembourg\",\"ja\":\"ルクセンブルク\",\"it\":\"Lussemburgo\",\"zh-CN\":\"卢森堡\",\"tr\":\"Lüksemburg\",\"ru\":\"Люксембург\",\"uk\":\"Люксембург\",\"pl\":\"Luksemburg\"}', '49.75000000', '6.16666666', '🇱🇺', 'U+1F1F1 U+1F1FA', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q32'),
+(128, 'Macau S.A.R.', 'MAC', '446', 'MO', '853', 'Macao', 'MOP', 'Macanese pataca', '$', '.mo', '澳門', 'Asia', 3, 'Eastern Asia', 12, 'Macanese, Chinese', '[{\"zoneName\":\"Asia/Macau\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"CST\",\"tzName\":\"China Standard Time\"}]', '{\"ko\":\"마카오\",\"pt-BR\":\"Macau\",\"pt\":\"Macau\",\"nl\":\"Macao\",\"hr\":\"Makao\",\"fa\":\"مکائو\",\"de\":\"Macao\",\"es\":\"Macao\",\"fr\":\"Macao\",\"ja\":\"マカオ\",\"it\":\"Macao\",\"zh-CN\":\"中国澳门\",\"tr\":\"Makao\",\"ru\":\"Макао С.А.Р.\",\"uk\":\"САР Макао.\",\"pl\":\"Macau S.A.R.\"}', '22.16666666', '113.55000000', '🇲🇴', 'U+1F1F2 U+1F1F4', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q14773'),
+(129, 'North Macedonia', 'MKD', '807', 'MK', '389', 'Skopje', 'MKD', 'Denar', 'ден', '.mk', 'Северна Македонија', 'Europe', 4, 'Southern Europe', 16, 'Macedonian', '[{\"zoneName\":\"Europe/Skopje\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"북마케도니아\",\"pt-BR\":\"Macedônia do Norte\",\"pt\":\"Macedónia do Norte\",\"nl\":\"Noord-Macedonië\",\"hr\":\"Sjeverna Makedonija\",\"fa\":\"ﻢﻗﺩﻮﻨﯿﻫ ﺶﻣﺎﻠﯾ\",\"de\":\"Nordmazedonien\",\"es\":\"Macedonia del Norte\",\"fr\":\"Macédoine du Nord\",\"ja\":\"北マケドニア\",\"it\":\"Macedonia del Nord\",\"zh-CN\":\"北馬其頓\",\"tr\":\"Kuzey Makedonya\",\"ru\":\"Северная Македония\",\"uk\":\"Північна Македонія\",\"pl\":\"Macedonia Północna\"}', '41.83333333', '22.00000000', '🇲🇰', 'U+1F1F2 U+1F1F0', '2018-07-21 07:41:03', '2023-08-11 16:15:55', 1, 'Q221'),
+(130, 'Madagascar', 'MDG', '450', 'MG', '261', 'Antananarivo', 'MGA', 'Malagasy ariary', 'Ar', '.mg', 'Madagasikara', 'Africa', 1, 'Eastern Africa', 4, 'Malagasy', '[{\"zoneName\":\"Indian/Antananarivo\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EAT\",\"tzName\":\"East Africa Time\"}]', '{\"ko\":\"마다가스카르\",\"pt-BR\":\"Madagascar\",\"pt\":\"Madagáscar\",\"nl\":\"Madagaskar\",\"hr\":\"Madagaskar\",\"fa\":\"ماداگاسکار\",\"de\":\"Madagaskar\",\"es\":\"Madagascar\",\"fr\":\"Madagascar\",\"ja\":\"マダガスカル\",\"it\":\"Madagascar\",\"zh-CN\":\"马达加斯加\",\"tr\":\"Madagaskar\",\"ru\":\"Мадагаскар\",\"uk\":\"Мадагаскар\",\"pl\":\"Madagaskar\"}', '-20.00000000', '47.00000000', '🇲🇬', 'U+1F1F2 U+1F1EC', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q1019'),
+(131, 'Malawi', 'MWI', '454', 'MW', '265', 'Lilongwe', 'MWK', 'Malawian kwacha', 'MK', '.mw', 'Malawi', 'Africa', 1, 'Eastern Africa', 4, 'Malawian', '[{\"zoneName\":\"Africa/Blantyre\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"CAT\",\"tzName\":\"Central Africa Time\"}]', '{\"ko\":\"말라위\",\"pt-BR\":\"Malawi\",\"pt\":\"Malávi\",\"nl\":\"Malawi\",\"hr\":\"Malavi\",\"fa\":\"مالاوی\",\"de\":\"Malawi\",\"es\":\"Malawi\",\"fr\":\"Malawi\",\"ja\":\"マラウイ\",\"it\":\"Malawi\",\"zh-CN\":\"马拉维\",\"tr\":\"Malavi\",\"ru\":\"Малави\",\"uk\":\"Малаві\",\"pl\":\"Malawi\"}', '-13.50000000', '34.00000000', '🇲🇼', 'U+1F1F2 U+1F1FC', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q1020'),
+(132, 'Malaysia', 'MYS', '458', 'MY', '60', 'Kuala Lumpur', 'MYR', 'Malaysian ringgit', 'RM', '.my', 'Malaysia', 'Asia', 3, 'South-Eastern Asia', 13, 'Malaysian', '[{\"zoneName\":\"Asia/Kuala_Lumpur\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"MYT\",\"tzName\":\"Malaysia Time\"},{\"zoneName\":\"Asia/Kuching\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"MYT\",\"tzName\":\"Malaysia Time\"}]', '{\"ko\":\"말레이시아\",\"pt-BR\":\"Malásia\",\"pt\":\"Malásia\",\"nl\":\"Maleisië\",\"hr\":\"Malezija\",\"fa\":\"مالزی\",\"de\":\"Malaysia\",\"es\":\"Malasia\",\"fr\":\"Malaisie\",\"ja\":\"マレーシア\",\"it\":\"Malesia\",\"zh-CN\":\"马来西亚\",\"tr\":\"Malezya\",\"ru\":\"Малайзия\",\"uk\":\"Малайзія\",\"pl\":\"Malezja\"}', '2.50000000', '112.50000000', '🇲🇾', 'U+1F1F2 U+1F1FE', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q833'),
+(133, 'Maldives', 'MDV', '462', 'MV', '960', 'Male', 'MVR', 'Maldivian rufiyaa', 'Rf', '.mv', 'Maldives', 'Asia', 3, 'Southern Asia', 14, 'Maldivian', '[{\"zoneName\":\"Indian/Maldives\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"MVT\",\"tzName\":\"Maldives Time\"}]', '{\"ko\":\"몰디브\",\"pt-BR\":\"Maldivas\",\"pt\":\"Maldivas\",\"nl\":\"Maldiven\",\"hr\":\"Maldivi\",\"fa\":\"مالدیو\",\"de\":\"Malediven\",\"es\":\"Maldivas\",\"fr\":\"Maldives\",\"ja\":\"モルディブ\",\"it\":\"Maldive\",\"zh-CN\":\"马尔代夫\",\"tr\":\"Maldivler\",\"ru\":\"Мальдивы\",\"uk\":\"Мальдіви\",\"pl\":\"Malediwy\"}', '3.25000000', '73.00000000', '🇲🇻', 'U+1F1F2 U+1F1FB', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q826'),
+(134, 'Mali', 'MLI', '466', 'ML', '223', 'Bamako', 'XOF', 'West African CFA franc', 'CFA', '.ml', 'Mali', 'Africa', 1, 'Western Africa', 3, 'Malian, Malinese', '[{\"zoneName\":\"Africa/Bamako\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"말리\",\"pt-BR\":\"Mali\",\"pt\":\"Mali\",\"nl\":\"Mali\",\"hr\":\"Mali\",\"fa\":\"مالی\",\"de\":\"Mali\",\"es\":\"Mali\",\"fr\":\"Mali\",\"ja\":\"マリ\",\"it\":\"Mali\",\"zh-CN\":\"马里\",\"tr\":\"Mali\",\"ru\":\"Мали\",\"uk\":\"Малі\",\"pl\":\"Mali\"}', '17.00000000', '-4.00000000', '🇲🇱', 'U+1F1F2 U+1F1F1', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q912'),
+(135, 'Malta', 'MLT', '470', 'MT', '356', 'Valletta', 'EUR', 'Euro', '€', '.mt', 'Malta', 'Europe', 4, 'Southern Europe', 16, 'Maltese', '[{\"zoneName\":\"Europe/Malta\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"몰타\",\"pt-BR\":\"Malta\",\"pt\":\"Malta\",\"nl\":\"Malta\",\"hr\":\"Malta\",\"fa\":\"مالت\",\"de\":\"Malta\",\"es\":\"Malta\",\"fr\":\"Malte\",\"ja\":\"マルタ\",\"it\":\"Malta\",\"zh-CN\":\"马耳他\",\"tr\":\"Malta\",\"ru\":\"Мальта\",\"uk\":\"Мальта\",\"pl\":\"Malta\"}', '35.83333333', '14.58333333', '🇲🇹', 'U+1F1F2 U+1F1F9', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q233'),
+(136, 'Man (Isle of)', 'IMN', '833', 'IM', '44', 'Douglas, Isle of Man', 'GBP', 'British pound', '£', '.im', 'Isle of Man', 'Europe', 4, 'Northern Europe', 18, 'Manx', '[{\"zoneName\":\"Europe/Isle_of_Man\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"맨 섬\",\"pt-BR\":\"Ilha de Man\",\"pt\":\"Ilha de Man\",\"nl\":\"Isle of Man\",\"hr\":\"Otok Man\",\"fa\":\"جزیره من\",\"de\":\"Insel Man\",\"es\":\"Isla de Man\",\"fr\":\"Île de Man\",\"ja\":\"マン島\",\"it\":\"Isola di Man\",\"zh-CN\":\"马恩岛\",\"tr\":\"Man Adasi\",\"ru\":\"Мэн (остров)\",\"uk\":\"Мен (острів Мен)\",\"pl\":\"Man (Wyspa)\"}', '54.25000000', '-4.50000000', '🇮🇲', 'U+1F1EE U+1F1F2', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, NULL),
+(137, 'Marshall Islands', 'MHL', '584', 'MH', '692', 'Majuro', 'USD', 'United States dollar', '$', '.mh', 'M̧ajeļ', 'Oceania', 5, 'Micronesia', 21, 'Marshallese', '[{\"zoneName\":\"Pacific/Kwajalein\",\"gmtOffset\":43200,\"gmtOffsetName\":\"UTC+12:00\",\"abbreviation\":\"MHT\",\"tzName\":\"Marshall Islands Time\"},{\"zoneName\":\"Pacific/Majuro\",\"gmtOffset\":43200,\"gmtOffsetName\":\"UTC+12:00\",\"abbreviation\":\"MHT\",\"tzName\":\"Marshall Islands Time\"}]', '{\"ko\":\"마셜 제도\",\"pt-BR\":\"Ilhas Marshall\",\"pt\":\"Ilhas Marshall\",\"nl\":\"Marshalleilanden\",\"hr\":\"Maršalovi Otoci\",\"fa\":\"جزایر مارشال\",\"de\":\"Marshallinseln\",\"es\":\"Islas Marshall\",\"fr\":\"Îles Marshall\",\"ja\":\"マーシャル諸島\",\"it\":\"Isole Marshall\",\"zh-CN\":\"马绍尔群岛\",\"tr\":\"Marşal Adalari\",\"ru\":\"Маршалловы острова\",\"uk\":\"Маршаллові острови\",\"pl\":\"Wyspy Marshalla\"}', '9.00000000', '168.00000000', '🇲🇭', 'U+1F1F2 U+1F1ED', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q709'),
+(138, 'Martinique', 'MTQ', '474', 'MQ', '596', 'Fort-de-France', 'EUR', 'Euro', '€', '.mq', 'Martinique', 'Americas', 2, 'Caribbean', 7, 'Martiniquais, Martinican', '[{\"zoneName\":\"America/Martinique\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"마르티니크\",\"pt-BR\":\"Martinica\",\"pt\":\"Martinica\",\"nl\":\"Martinique\",\"hr\":\"Martinique\",\"fa\":\"مونتسرات\",\"de\":\"Martinique\",\"es\":\"Martinica\",\"fr\":\"Martinique\",\"ja\":\"マルティニーク\",\"it\":\"Martinica\",\"zh-CN\":\"马提尼克岛\",\"tr\":\"Martinik\",\"ru\":\"Мартиника\",\"uk\":\"Мартініка\",\"pl\":\"Martynika\"}', '14.66666700', '-61.00000000', '🇲🇶', 'U+1F1F2 U+1F1F6', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q17054'),
+(139, 'Mauritania', 'MRT', '478', 'MR', '222', 'Nouakchott', 'MRO', 'Mauritanian ouguiya', 'MRU', '.mr', 'موريتانيا', 'Africa', 1, 'Western Africa', 3, 'Mauritanian', '[{\"zoneName\":\"Africa/Nouakchott\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"모리타니\",\"pt-BR\":\"Mauritânia\",\"pt\":\"Mauritânia\",\"nl\":\"Mauritanië\",\"hr\":\"Mauritanija\",\"fa\":\"موریتانی\",\"de\":\"Mauretanien\",\"es\":\"Mauritania\",\"fr\":\"Mauritanie\",\"ja\":\"モーリタニア\",\"it\":\"Mauritania\",\"zh-CN\":\"毛里塔尼亚\",\"tr\":\"Moritanya\",\"ru\":\"Мавритания\",\"uk\":\"Мавританія\",\"pl\":\"Mauretania\"}', '20.00000000', '-12.00000000', '🇲🇷', 'U+1F1F2 U+1F1F7', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1025'),
+(140, 'Mauritius', 'MUS', '480', 'MU', '230', 'Port Louis', 'MUR', 'Mauritian rupee', '₨', '.mu', 'Maurice', 'Africa', 1, 'Eastern Africa', 4, 'Mauritian', '[{\"zoneName\":\"Indian/Mauritius\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"MUT\",\"tzName\":\"Mauritius Time\"}]', '{\"ko\":\"모리셔스\",\"pt-BR\":\"Maurício\",\"pt\":\"Maurícia\",\"nl\":\"Mauritius\",\"hr\":\"Mauricijus\",\"fa\":\"موریس\",\"de\":\"Mauritius\",\"es\":\"Mauricio\",\"fr\":\"Île Maurice\",\"ja\":\"モーリシャス\",\"it\":\"Mauritius\",\"zh-CN\":\"毛里求斯\",\"tr\":\"Morityus\",\"ru\":\"Маврикий\",\"uk\":\"Маврикій\",\"pl\":\"Mauritius\"}', '-20.28333333', '57.55000000', '🇲🇺', 'U+1F1F2 U+1F1FA', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1027'),
+(141, 'Mayotte', 'MYT', '175', 'YT', '262', 'Mamoudzou', 'EUR', 'Euro', '€', '.yt', 'Mayotte', 'Africa', 1, 'Eastern Africa', 4, 'Mahoran', '[{\"zoneName\":\"Indian/Mayotte\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EAT\",\"tzName\":\"East Africa Time\"}]', '{\"ko\":\"마요트\",\"pt-BR\":\"Mayotte\",\"pt\":\"Mayotte\",\"nl\":\"Mayotte\",\"hr\":\"Mayotte\",\"fa\":\"مایوت\",\"de\":\"Mayotte\",\"es\":\"Mayotte\",\"fr\":\"Mayotte\",\"ja\":\"マヨット\",\"it\":\"Mayotte\",\"zh-CN\":\"马约特\",\"tr\":\"Mayotte\",\"ru\":\"Майотта\",\"uk\":\"Майотта\",\"pl\":\"Majotta\"}', '-12.83333333', '45.16666666', '🇾🇹', 'U+1F1FE U+1F1F9', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q17063'),
+(142, 'Mexico', 'MEX', '484', 'MX', '52', 'Ciudad de México', 'MXN', 'Mexican peso', '$', '.mx', 'México', 'Americas', 2, 'Central America', 9, 'Mexican', '[{\"zoneName\":\"America/Bahia_Banderas\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Cancun\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Chihuahua\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America\"},{\"zoneName\":\"America/Hermosillo\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America\"},{\"zoneName\":\"America/Matamoros\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Mazatlan\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America\"},{\"zoneName\":\"America/Merida\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Mexico_City\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Monterrey\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Ojinaga\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America\"},{\"zoneName\":\"America/Tijuana\",\"gmtOffset\":-28800,\"gmtOffsetName\":\"UTC-08:00\",\"abbreviation\":\"PST\",\"tzName\":\"Pacific Standard Time (North America\"}]', '{\"ko\":\"멕시코\",\"pt-BR\":\"México\",\"pt\":\"México\",\"nl\":\"Mexico\",\"hr\":\"Meksiko\",\"fa\":\"مکزیک\",\"de\":\"Mexiko\",\"es\":\"México\",\"fr\":\"Mexique\",\"ja\":\"メキシコ\",\"it\":\"Messico\",\"zh-CN\":\"墨西哥\",\"tr\":\"Meksika\",\"ru\":\"Мексика\",\"uk\":\"Мексика\",\"pl\":\"Meksyk\"}', '23.00000000', '-102.00000000', '🇲🇽', 'U+1F1F2 U+1F1FD', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q96'),
+(143, 'Micronesia', 'FSM', '583', 'FM', '691', 'Palikir', 'USD', 'United States dollar', '$', '.fm', 'Micronesia', 'Oceania', 5, 'Micronesia', 21, 'Micronesian', '[{\"zoneName\":\"Pacific/Chuuk\",\"gmtOffset\":36000,\"gmtOffsetName\":\"UTC+10:00\",\"abbreviation\":\"CHUT\",\"tzName\":\"Chuuk Time\"},{\"zoneName\":\"Pacific/Kosrae\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"KOST\",\"tzName\":\"Kosrae Time\"},{\"zoneName\":\"Pacific/Pohnpei\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"PONT\",\"tzName\":\"Pohnpei Standard Time\"}]', '{\"ko\":\"미크로네시아 연방\",\"pt-BR\":\"Micronésia\",\"pt\":\"Micronésia\",\"nl\":\"Micronesië\",\"hr\":\"Mikronezija\",\"fa\":\"ایالات فدرال میکرونزی\",\"de\":\"Mikronesien\",\"es\":\"Micronesia\",\"fr\":\"Micronésie\",\"ja\":\"ミクロネシア連邦\",\"it\":\"Micronesia\",\"zh-CN\":\"密克罗尼西亚\",\"tr\":\"Mikronezya\",\"ru\":\"Микронезия\",\"uk\":\"Мікронезія\",\"pl\":\"Mikronezja\"}', '6.91666666', '158.25000000', '🇫🇲', 'U+1F1EB U+1F1F2', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q702'),
+(144, 'Moldova', 'MDA', '498', 'MD', '373', 'Chisinau', 'MDL', 'Moldovan leu', 'L', '.md', 'Moldova', 'Europe', 4, 'Eastern Europe', 15, 'Moldovan', '[{\"zoneName\":\"Europe/Chisinau\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"몰도바\",\"pt-BR\":\"Moldávia\",\"pt\":\"Moldávia\",\"nl\":\"Moldavië\",\"hr\":\"Moldova\",\"fa\":\"مولداوی\",\"de\":\"Moldawie\",\"es\":\"Moldavia\",\"fr\":\"Moldavie\",\"ja\":\"モルドバ共和国\",\"it\":\"Moldavia\",\"zh-CN\":\"摩尔多瓦\",\"tr\":\"Moldova\",\"ru\":\"Молдова\",\"uk\":\"Молдова\",\"pl\":\"Mołdawia\"}', '47.00000000', '29.00000000', '🇲🇩', 'U+1F1F2 U+1F1E9', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q217'),
+(145, 'Monaco', 'MCO', '492', 'MC', '377', 'Monaco', 'EUR', 'Euro', '€', '.mc', 'Monaco', 'Europe', 4, 'Western Europe', 17, 'Monegasque, Monacan', '[{\"zoneName\":\"Europe/Monaco\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"모나코\",\"pt-BR\":\"Mônaco\",\"pt\":\"Mónaco\",\"nl\":\"Monaco\",\"hr\":\"Monako\",\"fa\":\"موناکو\",\"de\":\"Monaco\",\"es\":\"Mónaco\",\"fr\":\"Monaco\",\"ja\":\"モナコ\",\"it\":\"Principato di Monaco\",\"zh-CN\":\"摩纳哥\",\"tr\":\"Monako\",\"ru\":\"Монако\",\"uk\":\"Монако\",\"pl\":\"Monako\"}', '43.73333333', '7.40000000', '🇲🇨', 'U+1F1F2 U+1F1E8', '2018-07-21 07:41:03', '2023-08-11 16:15:55', 1, 'Q235'),
+(146, 'Mongolia', 'MNG', '496', 'MN', '976', 'Ulan Bator', 'MNT', 'Mongolian tögrög', '₮', '.mn', 'Монгол улс', 'Asia', 3, 'Eastern Asia', 12, 'Mongolian', '[{\"zoneName\":\"Asia/Choibalsan\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"CHOT\",\"tzName\":\"Choibalsan Standard Time\"},{\"zoneName\":\"Asia/Hovd\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"HOVT\",\"tzName\":\"Hovd Time\"},{\"zoneName\":\"Asia/Ulaanbaatar\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"ULAT\",\"tzName\":\"Ulaanbaatar Standard Time\"}]', '{\"ko\":\"몽골\",\"pt-BR\":\"Mongólia\",\"pt\":\"Mongólia\",\"nl\":\"Mongolië\",\"hr\":\"Mongolija\",\"fa\":\"مغولستان\",\"de\":\"Mongolei\",\"es\":\"Mongolia\",\"fr\":\"Mongolie\",\"ja\":\"モンゴル\",\"it\":\"Mongolia\",\"zh-CN\":\"蒙古\",\"tr\":\"Moğolistan\",\"ru\":\"Монголия\",\"uk\":\"Монголія\",\"pl\":\"Mongolia\"}', '46.00000000', '105.00000000', '🇲🇳', 'U+1F1F2 U+1F1F3', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q711'),
+(147, 'Montenegro', 'MNE', '499', 'ME', '382', 'Podgorica', 'EUR', 'Euro', '€', '.me', 'Црна Гора', 'Europe', 4, 'Southern Europe', 16, 'Montenegrin', '[{\"zoneName\":\"Europe/Podgorica\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"몬테네그로\",\"pt-BR\":\"Montenegro\",\"pt\":\"Montenegro\",\"nl\":\"Montenegro\",\"hr\":\"Crna Gora\",\"fa\":\"مونته‌نگرو\",\"de\":\"Montenegro\",\"es\":\"Montenegro\",\"fr\":\"Monténégro\",\"ja\":\"モンテネグロ\",\"it\":\"Montenegro\",\"zh-CN\":\"黑山\",\"tr\":\"Karadağ\",\"ru\":\"Черногория\",\"uk\":\"Чорногорія\",\"pl\":\"Czarnogóra\"}', '42.50000000', '19.30000000', '🇲🇪', 'U+1F1F2 U+1F1EA', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q236'),
+(148, 'Montserrat', 'MSR', '500', 'MS', '1', 'Plymouth', 'XCD', 'Eastern Caribbean dollar', '$', '.ms', 'Montserrat', 'Americas', 2, 'Caribbean', 7, 'Montserratian', '[{\"zoneName\":\"America/Montserrat\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"몬트세랫\",\"pt-BR\":\"Montserrat\",\"pt\":\"Monserrate\",\"nl\":\"Montserrat\",\"hr\":\"Montserrat\",\"fa\":\"مایوت\",\"de\":\"Montserrat\",\"es\":\"Montserrat\",\"fr\":\"Montserrat\",\"ja\":\"モントセラト\",\"it\":\"Montserrat\",\"zh-CN\":\"蒙特塞拉特\",\"tr\":\"Montserrat\",\"ru\":\"Монтсеррат\",\"uk\":\"Монтсеррат\",\"pl\":\"Montserrat\"}', '16.75000000', '-62.20000000', '🇲🇸', 'U+1F1F2 U+1F1F8', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q13353'),
+(149, 'Morocco', 'MAR', '504', 'MA', '212', 'Rabat', 'MAD', 'Moroccan dirham', 'DH', '.ma', 'المغرب', 'Africa', 1, 'Northern Africa', 1, 'Moroccan', '[{\"zoneName\":\"Africa/Casablanca\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WEST\",\"tzName\":\"Western European Summer Time\"}]', '{\"ko\":\"모로코\",\"pt-BR\":\"Marrocos\",\"pt\":\"Marrocos\",\"nl\":\"Marokko\",\"hr\":\"Maroko\",\"fa\":\"مراکش\",\"de\":\"Marokko\",\"es\":\"Marruecos\",\"fr\":\"Maroc\",\"ja\":\"モロッコ\",\"it\":\"Marocco\",\"zh-CN\":\"摩洛哥\",\"tr\":\"Fas\",\"ru\":\"Марокко\",\"uk\":\"Марокко\",\"pl\":\"Maroko\"}', '32.00000000', '-5.00000000', '🇲🇦', 'U+1F1F2 U+1F1E6', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1028'),
+(150, 'Mozambique', 'MOZ', '508', 'MZ', '258', 'Maputo', 'MZN', 'Mozambican metical', 'MT', '.mz', 'Moçambique', 'Africa', 1, 'Eastern Africa', 4, 'Mozambican', '[{\"zoneName\":\"Africa/Maputo\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"CAT\",\"tzName\":\"Central Africa Time\"}]', '{\"ko\":\"모잠비크\",\"pt-BR\":\"Moçambique\",\"pt\":\"Moçambique\",\"nl\":\"Mozambique\",\"hr\":\"Mozambik\",\"fa\":\"موزامبیک\",\"de\":\"Mosambik\",\"es\":\"Mozambique\",\"fr\":\"Mozambique\",\"ja\":\"モザンビーク\",\"it\":\"Mozambico\",\"zh-CN\":\"莫桑比克\",\"tr\":\"Mozambik\",\"ru\":\"Мозамбик\",\"uk\":\"Мозамбік\",\"pl\":\"Mozambik\"}', '-18.25000000', '35.00000000', '🇲🇿', 'U+1F1F2 U+1F1FF', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1029'),
+(151, 'Myanmar', 'MMR', '104', 'MM', '95', 'Nay Pyi Taw', 'MMK', 'Burmese kyat', 'K', '.mm', 'မြန်မာ', 'Asia', 3, 'South-Eastern Asia', 13, 'Burmese', '[{\"zoneName\":\"Asia/Yangon\",\"gmtOffset\":23400,\"gmtOffsetName\":\"UTC+06:30\",\"abbreviation\":\"MMT\",\"tzName\":\"Myanmar Standard Time\"}]', '{\"ko\":\"미얀마\",\"pt-BR\":\"Myanmar\",\"pt\":\"Myanmar\",\"nl\":\"Myanmar\",\"hr\":\"Mijanmar\",\"fa\":\"میانمار\",\"de\":\"Myanmar\",\"es\":\"Myanmar\",\"fr\":\"Myanmar\",\"ja\":\"ミャンマー\",\"it\":\"Birmania\",\"zh-CN\":\"缅甸\",\"tr\":\"Myanmar\",\"ru\":\"Мьянма\",\"uk\":\"М\'янма\",\"pl\":\"Birma\"}', '22.00000000', '98.00000000', '🇲🇲', 'U+1F1F2 U+1F1F2', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q836'),
+(152, 'Namibia', 'NAM', '516', 'NA', '264', 'Windhoek', 'NAD', 'Namibian dollar', '$', '.na', 'Namibia', 'Africa', 1, 'Southern Africa', 5, 'Namibian', '[{\"zoneName\":\"Africa/Windhoek\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"WAST\",\"tzName\":\"West Africa Summer Time\"}]', '{\"ko\":\"나미비아\",\"pt-BR\":\"Namíbia\",\"pt\":\"Namíbia\",\"nl\":\"Namibië\",\"hr\":\"Namibija\",\"fa\":\"نامیبیا\",\"de\":\"Namibia\",\"es\":\"Namibia\",\"fr\":\"Namibie\",\"ja\":\"ナミビア\",\"it\":\"Namibia\",\"zh-CN\":\"纳米比亚\",\"tr\":\"Namibya\",\"ru\":\"Намибия\",\"uk\":\"Намібія\",\"pl\":\"Namibia\"}', '-22.00000000', '17.00000000', '🇳🇦', 'U+1F1F3 U+1F1E6', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1030'),
+(153, 'Nauru', 'NRU', '520', 'NR', '674', 'Yaren', 'AUD', 'Australian dollar', '$', '.nr', 'Nauru', 'Oceania', 5, 'Micronesia', 21, 'Nauruan', '[{\"zoneName\":\"Pacific/Nauru\",\"gmtOffset\":43200,\"gmtOffsetName\":\"UTC+12:00\",\"abbreviation\":\"NRT\",\"tzName\":\"Nauru Time\"}]', '{\"ko\":\"나우루\",\"pt-BR\":\"Nauru\",\"pt\":\"Nauru\",\"nl\":\"Nauru\",\"hr\":\"Nauru\",\"fa\":\"نائورو\",\"de\":\"Nauru\",\"es\":\"Nauru\",\"fr\":\"Nauru\",\"ja\":\"ナウル\",\"it\":\"Nauru\",\"zh-CN\":\"瑙鲁\",\"tr\":\"Nauru\",\"ru\":\"Науру\",\"uk\":\"Науру\",\"pl\":\"Nauru\"}', '-0.53333333', '166.91666666', '🇳🇷', 'U+1F1F3 U+1F1F7', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q697'),
+(154, 'Nepal', 'NPL', '524', 'NP', '977', 'Kathmandu', 'NPR', 'Nepalese rupee', '₨', '.np', 'नपल', 'Asia', 3, 'Southern Asia', 14, 'Nepali, Nepalese', '[{\"zoneName\":\"Asia/Kathmandu\",\"gmtOffset\":20700,\"gmtOffsetName\":\"UTC+05:45\",\"abbreviation\":\"NPT\",\"tzName\":\"Nepal Time\"}]', '{\"ko\":\"네팔\",\"pt-BR\":\"Nepal\",\"pt\":\"Nepal\",\"nl\":\"Nepal\",\"hr\":\"Nepal\",\"fa\":\"نپال\",\"de\":\"Népal\",\"es\":\"Nepal\",\"fr\":\"Népal\",\"ja\":\"ネパール\",\"it\":\"Nepal\",\"zh-CN\":\"尼泊尔\",\"tr\":\"Nepal\",\"ru\":\"Непал\",\"uk\":\"Непал\",\"pl\":\"Nepal\"}', '28.00000000', '84.00000000', '🇳🇵', 'U+1F1F3 U+1F1F5', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q837'),
+(155, 'Bonaire, Sint Eustatius and Saba', 'BES', '535', 'BQ', '599', 'Kralendijk', 'USD', 'United States dollar', '$', '.an', 'Caribisch Nederland', 'Americas', 2, 'Caribbean', 7, 'Bonaire', '[{\"zoneName\":\"America/Anguilla\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"보네르 섬\",\"pt-BR\":\"Bonaire\",\"pt\":\"Bonaire\",\"fa\":\"بونیر\",\"de\":\"Bonaire, Sint Eustatius und Saba\",\"fr\":\"Bonaire, Saint-Eustache et Saba\",\"it\":\"Bonaire, Saint-Eustache e Saba\",\"zh-CN\":\"博内尔岛、圣尤斯特歇斯和萨巴岛\",\"tr\":\"Karayip Hollandasi\",\"ru\":\"Бонайре, Синт-Эстатиус и Саба\",\"uk\":\"Бонайре, Сент-Естатіус і Саба\",\"pl\":\"Bonaire, Sint Eustatius i Saba\"}', '12.15000000', '-68.26666700', '🇧🇶', 'U+1F1E7 U+1F1F6', '2018-07-21 07:41:03', '2023-08-08 21:34:58', 1, 'Q27561'),
+(156, 'Netherlands', 'NLD', '528', 'NL', '31', 'Amsterdam', 'EUR', 'Euro', '€', '.nl', 'Nederland', 'Europe', 4, 'Western Europe', 17, 'Dutch, Netherlandic', '[{\"zoneName\":\"Europe/Amsterdam\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"네덜란드 \",\"pt-BR\":\"Holanda\",\"pt\":\"Países Baixos\",\"nl\":\"Nederland\",\"hr\":\"Nizozemska\",\"fa\":\"پادشاهی هلند\",\"de\":\"Niederlande\",\"es\":\"Países Bajos\",\"fr\":\"Pays-Bas\",\"ja\":\"オランダ\",\"it\":\"Paesi Bassi\",\"zh-CN\":\"荷兰\",\"tr\":\"Hollanda\",\"ru\":\"Нидерланды\",\"uk\":\"Нідерланди\",\"pl\":\"Holandia\"}', '52.50000000', '5.75000000', '🇳🇱', 'U+1F1F3 U+1F1F1', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q55'),
+(157, 'New Caledonia', 'NCL', '540', 'NC', '687', 'Noumea', 'XPF', 'CFP franc', '₣', '.nc', 'Nouvelle-Calédonie', 'Oceania', 5, 'Melanesia', 20, 'New Caledonian', '[{\"zoneName\":\"Pacific/Noumea\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"NCT\",\"tzName\":\"New Caledonia Time\"}]', '{\"ko\":\"누벨칼레도니\",\"pt-BR\":\"Nova Caledônia\",\"pt\":\"Nova Caledónia\",\"nl\":\"Nieuw-Caledonië\",\"hr\":\"Nova Kaledonija\",\"fa\":\"کالدونیای جدید\",\"de\":\"Neukaledonien\",\"es\":\"Nueva Caledonia\",\"fr\":\"Nouvelle-Calédonie\",\"ja\":\"ニューカレドニア\",\"it\":\"Nuova Caledonia\",\"zh-CN\":\"新喀里多尼亚\",\"tr\":\"Yeni Kaledonya\",\"ru\":\"Новая Каледония\",\"uk\":\"Нова Каледонія\",\"pl\":\"Nowa Kaledonia\"}', '-21.50000000', '165.50000000', '🇳🇨', 'U+1F1F3 U+1F1E8', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q33788'),
+(158, 'New Zealand', 'NZL', '554', 'NZ', '64', 'Wellington', 'NZD', 'New Zealand dollar', '$', '.nz', 'New Zealand', 'Oceania', 5, 'Australia and New Zealand', 19, 'New Zealand, NZ', '[{\"zoneName\":\"Pacific/Auckland\",\"gmtOffset\":46800,\"gmtOffsetName\":\"UTC+13:00\",\"abbreviation\":\"NZDT\",\"tzName\":\"New Zealand Daylight Time\"},{\"zoneName\":\"Pacific/Chatham\",\"gmtOffset\":49500,\"gmtOffsetName\":\"UTC+13:45\",\"abbreviation\":\"CHAST\",\"tzName\":\"Chatham Standard Time\"}]', '{\"ko\":\"뉴질랜드\",\"pt-BR\":\"Nova Zelândia\",\"pt\":\"Nova Zelândia\",\"nl\":\"Nieuw-Zeeland\",\"hr\":\"Novi Zeland\",\"fa\":\"نیوزیلند\",\"de\":\"Neuseeland\",\"es\":\"Nueva Zelanda\",\"fr\":\"Nouvelle-Zélande\",\"ja\":\"ニュージーランド\",\"it\":\"Nuova Zelanda\",\"zh-CN\":\"新西兰\",\"tr\":\"Yeni Zelanda\",\"ru\":\"Новая Зеландия\",\"uk\":\"Нова Зеландія\",\"pl\":\"Nowa Zelandia\"}', '-41.00000000', '174.00000000', '🇳🇿', 'U+1F1F3 U+1F1FF', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q664'),
+(159, 'Nicaragua', 'NIC', '558', 'NI', '505', 'Managua', 'NIO', 'Nicaraguan córdoba', 'C$', '.ni', 'Nicaragua', 'Americas', 2, 'Central America', 9, 'Nicaraguan', '[{\"zoneName\":\"America/Managua\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"}]', '{\"ko\":\"니카라과\",\"pt-BR\":\"Nicarágua\",\"pt\":\"Nicarágua\",\"nl\":\"Nicaragua\",\"hr\":\"Nikaragva\",\"fa\":\"نیکاراگوئه\",\"de\":\"Nicaragua\",\"es\":\"Nicaragua\",\"fr\":\"Nicaragua\",\"ja\":\"ニカラグア\",\"it\":\"Nicaragua\",\"zh-CN\":\"尼加拉瓜\",\"tr\":\"Nikaragua\",\"ru\":\"Никарагуа\",\"uk\":\"Нікарагуа\",\"pl\":\"Nikaragua\"}', '13.00000000', '-85.00000000', '🇳🇮', 'U+1F1F3 U+1F1EE', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q811'),
+(160, 'Niger', 'NER', '562', 'NE', '227', 'Niamey', 'XOF', 'West African CFA franc', 'CFA', '.ne', 'Niger', 'Africa', 1, 'Western Africa', 3, 'Nigerien', '[{\"zoneName\":\"Africa/Niamey\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WAT\",\"tzName\":\"West Africa Time\"}]', '{\"ko\":\"니제르\",\"pt-BR\":\"Níger\",\"pt\":\"Níger\",\"nl\":\"Niger\",\"hr\":\"Niger\",\"fa\":\"نیجر\",\"de\":\"Niger\",\"es\":\"Níger\",\"fr\":\"Niger\",\"ja\":\"ニジェール\",\"it\":\"Niger\",\"zh-CN\":\"尼日尔\",\"tr\":\"Nijer\",\"ru\":\"Нигер\",\"uk\":\"Нігер\",\"pl\":\"Niger\"}', '16.00000000', '8.00000000', '🇳🇪', 'U+1F1F3 U+1F1EA', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1032'),
+(161, 'Nigeria', 'NGA', '566', 'NG', '234', 'Abuja', 'NGN', 'Nigerian naira', '₦', '.ng', 'Nigeria', 'Africa', 1, 'Western Africa', 3, 'Nigerian', '[{\"zoneName\":\"Africa/Lagos\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WAT\",\"tzName\":\"West Africa Time\"}]', '{\"ko\":\"나이지리아\",\"pt-BR\":\"Nigéria\",\"pt\":\"Nigéria\",\"nl\":\"Nigeria\",\"hr\":\"Nigerija\",\"fa\":\"نیجریه\",\"de\":\"Nigeria\",\"es\":\"Nigeria\",\"fr\":\"Nigéria\",\"ja\":\"ナイジェリア\",\"it\":\"Nigeria\",\"zh-CN\":\"尼日利亚\",\"tr\":\"Nijerya\",\"ru\":\"Нигерия\",\"uk\":\"Нігерія\",\"pl\":\"Nigeria\"}', '10.00000000', '8.00000000', '🇳🇬', 'U+1F1F3 U+1F1EC', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1033'),
+(162, 'Niue', 'NIU', '570', 'NU', '683', 'Alofi', 'NZD', 'New Zealand dollar', '$', '.nu', 'Niuē', 'Oceania', 5, 'Polynesia', 22, 'Niuean', '[{\"zoneName\":\"Pacific/Niue\",\"gmtOffset\":-39600,\"gmtOffsetName\":\"UTC-11:00\",\"abbreviation\":\"NUT\",\"tzName\":\"Niue Time\"}]', '{\"ko\":\"니우에\",\"pt-BR\":\"Niue\",\"pt\":\"Niue\",\"nl\":\"Niue\",\"hr\":\"Niue\",\"fa\":\"نیووی\",\"de\":\"Niue\",\"es\":\"Niue\",\"fr\":\"Niue\",\"ja\":\"ニウエ\",\"it\":\"Niue\",\"zh-CN\":\"纽埃\",\"tr\":\"Niue\",\"ru\":\"Ниуэ\",\"uk\":\"Ніуе\",\"pl\":\"Niue\"}', '-19.03333333', '-169.86666666', '🇳🇺', 'U+1F1F3 U+1F1FA', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q34020'),
+(163, 'Norfolk Island', 'NFK', '574', 'NF', '672', 'Kingston', 'AUD', 'Australian dollar', '$', '.nf', 'Norfolk Island', 'Oceania', 5, 'Australia and New Zealand', 19, 'Norfolk Island', '[{\"zoneName\":\"Pacific/Norfolk\",\"gmtOffset\":43200,\"gmtOffsetName\":\"UTC+12:00\",\"abbreviation\":\"NFT\",\"tzName\":\"Norfolk Time\"}]', '{\"ko\":\"노퍽 섬\",\"pt-BR\":\"Ilha Norfolk\",\"pt\":\"Ilha Norfolk\",\"nl\":\"Norfolkeiland\",\"hr\":\"Otok Norfolk\",\"fa\":\"جزیره نورفک\",\"de\":\"Norfolkinsel\",\"es\":\"Isla de Norfolk\",\"fr\":\"Île de Norfolk\",\"ja\":\"ノーフォーク島\",\"it\":\"Isola Norfolk\",\"zh-CN\":\"诺福克岛\",\"tr\":\"Norfolk Adasi\",\"ru\":\"Остров Норфолк\",\"uk\":\"Острів Норфолк\",\"pl\":\"Wyspa Norfolk\"}', '-29.03333333', '167.95000000', '🇳🇫', 'U+1F1F3 U+1F1EB', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q31057'),
+(164, 'Northern Mariana Islands', 'MNP', '580', 'MP', '1', 'Saipan', 'USD', 'United States dollar', '$', '.mp', 'Northern Mariana Islands', 'Oceania', 5, 'Micronesia', 21, 'Northern Marianan', '[{\"zoneName\":\"Pacific/Saipan\",\"gmtOffset\":36000,\"gmtOffsetName\":\"UTC+10:00\",\"abbreviation\":\"ChST\",\"tzName\":\"Chamorro Standard Time\"}]', '{\"ko\":\"북마리아나 제도\",\"pt-BR\":\"Ilhas Marianas\",\"pt\":\"Ilhas Marianas\",\"nl\":\"Noordelijke Marianeneilanden\",\"hr\":\"Sjevernomarijanski otoci\",\"fa\":\"جزایر ماریانای شمالی\",\"de\":\"Nördliche Marianen\",\"es\":\"Islas Marianas del Norte\",\"fr\":\"Îles Mariannes du Nord\",\"ja\":\"北マリアナ諸島\",\"it\":\"Isole Marianne Settentrionali\",\"zh-CN\":\"北马里亚纳群岛\",\"tr\":\"Kuzey Mariana Adalari\",\"ru\":\"Северные Марианские острова\",\"uk\":\"Північні Маріанські острови\",\"pl\":\"Mariany Północne\"}', '15.20000000', '145.75000000', '🇲🇵', 'U+1F1F2 U+1F1F5', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q16644'),
+(165, 'Norway', 'NOR', '578', 'NO', '47', 'Oslo', 'NOK', 'Norwegian krone', 'ko', '.no', 'Norge', 'Europe', 4, 'Northern Europe', 18, 'Norwegian', '[{\"zoneName\":\"Europe/Oslo\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"노르웨이\",\"pt-BR\":\"Noruega\",\"pt\":\"Noruega\",\"nl\":\"Noorwegen\",\"hr\":\"Norveška\",\"fa\":\"نروژ\",\"de\":\"Norwegen\",\"es\":\"Noruega\",\"fr\":\"Norvège\",\"ja\":\"ノルウェー\",\"it\":\"Norvegia\",\"zh-CN\":\"挪威\",\"tr\":\"Norveç\",\"ru\":\"Норвегия\",\"uk\":\"Норвегія\",\"pl\":\"Norwegia\"}', '62.00000000', '10.00000000', '🇳🇴', 'U+1F1F3 U+1F1F4', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q20'),
+(166, 'Oman', 'OMN', '512', 'OM', '968', 'Muscat', 'OMR', 'Omani rial', '.ع.ر', '.om', 'عمان', 'Asia', 3, 'Western Asia', 11, 'Omani', '[{\"zoneName\":\"Asia/Muscat\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"GST\",\"tzName\":\"Gulf Standard Time\"}]', '{\"ko\":\"오만\",\"pt-BR\":\"Omã\",\"pt\":\"Omã\",\"nl\":\"Oman\",\"hr\":\"Oman\",\"fa\":\"عمان\",\"de\":\"Oman\",\"es\":\"Omán\",\"fr\":\"Oman\",\"ja\":\"オマーン\",\"it\":\"oman\",\"zh-CN\":\"阿曼\",\"tr\":\"Umman\",\"ru\":\"Оман\",\"uk\":\"Оман\",\"pl\":\"Oman\"}', '21.00000000', '57.00000000', '🇴🇲', 'U+1F1F4 U+1F1F2', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q842'),
+(167, 'Pakistan', 'PAK', '586', 'PK', '92', 'Islamabad', 'PKR', 'Pakistani rupee', '₨', '.pk', 'پاکستان', 'Asia', 3, 'Southern Asia', 14, 'Pakistani', '[{\"zoneName\":\"Asia/Karachi\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"PKT\",\"tzName\":\"Pakistan Standard Time\"}]', '{\"ko\":\"파키스탄\",\"pt-BR\":\"Paquistão\",\"pt\":\"Paquistão\",\"nl\":\"Pakistan\",\"hr\":\"Pakistan\",\"fa\":\"پاکستان\",\"de\":\"Pakistan\",\"es\":\"Pakistán\",\"fr\":\"Pakistan\",\"ja\":\"パキスタン\",\"it\":\"Pakistan\",\"zh-CN\":\"巴基斯坦\",\"tr\":\"Pakistan\",\"ru\":\"Пакистан\",\"uk\":\"Пакистан\",\"pl\":\"Pakistan\"}', '30.00000000', '70.00000000', '🇵🇰', 'U+1F1F5 U+1F1F0', '2018-07-21 07:41:03', '2024-12-23 10:55:53', 1, 'Q843'),
+(168, 'Palau', 'PLW', '585', 'PW', '680', 'Melekeok', 'USD', 'United States dollar', '$', '.pw', 'Palau', 'Oceania', 5, 'Micronesia', 21, 'Palauan', '[{\"zoneName\":\"Pacific/Palau\",\"gmtOffset\":32400,\"gmtOffsetName\":\"UTC+09:00\",\"abbreviation\":\"PWT\",\"tzName\":\"Palau Time\"}]', '{\"ko\":\"팔라우\",\"pt-BR\":\"Palau\",\"pt\":\"Palau\",\"nl\":\"Palau\",\"hr\":\"Palau\",\"fa\":\"پالائو\",\"de\":\"Palau\",\"es\":\"Palau\",\"fr\":\"Palaos\",\"ja\":\"パラオ\",\"it\":\"Palau\",\"zh-CN\":\"帕劳\",\"tr\":\"Palau\",\"ru\":\"Палау\",\"uk\":\"Палау\",\"pl\":\"Palau\"}', '7.50000000', '134.50000000', '🇵🇼', 'U+1F1F5 U+1F1FC', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q695'),
+(169, 'Palestinian Territory Occupied', 'PSE', '275', 'PS', '970', 'East Jerusalem', 'ILS', 'Israeli new shekel', '₪', '.ps', 'فلسطين', 'Asia', 3, 'Western Asia', 11, 'Palestinian', '[{\"zoneName\":\"Asia/Gaza\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"},{\"zoneName\":\"Asia/Hebron\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"팔레스타인 영토\",\"pt-BR\":\"Palestina\",\"pt\":\"Palestina\",\"nl\":\"Palestijnse gebieden\",\"hr\":\"Palestina\",\"fa\":\"فلسطین\",\"de\":\"Palästina\",\"es\":\"Palestina\",\"fr\":\"Palestine\",\"ja\":\"パレスチナ\",\"it\":\"Palestina\",\"zh-CN\":\"巴勒斯坦\",\"tr\":\"Filistin\",\"ru\":\"Оккупированная палестинская территория\",\"uk\":\"Окупована палестинська територія\",\"pl\":\"Okupowane terytorium palestyńskie\"}', '31.90000000', '35.20000000', '🇵🇸', 'U+1F1F5 U+1F1F8', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, NULL),
+(170, 'Panama', 'PAN', '591', 'PA', '507', 'Panama City', 'PAB', 'Panamanian balboa', 'B/.', '.pa', 'Panamá', 'Americas', 2, 'Central America', 9, 'Panamanian', '[{\"zoneName\":\"America/Panama\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"}]', '{\"ko\":\"파나마\",\"pt-BR\":\"Panamá\",\"pt\":\"Panamá\",\"nl\":\"Panama\",\"hr\":\"Panama\",\"fa\":\"پاناما\",\"de\":\"Panama\",\"es\":\"Panamá\",\"fr\":\"Panama\",\"ja\":\"パナマ\",\"it\":\"Panama\",\"zh-CN\":\"巴拿马\",\"tr\":\"Panama\",\"ru\":\"Панама\",\"uk\":\"Панама\",\"pl\":\"Panama\"}', '9.00000000', '-80.00000000', '🇵🇦', 'U+1F1F5 U+1F1E6', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q804');
+INSERT INTO `countries` (`id`, `name`, `iso3`, `numeric_code`, `iso2`, `phonecode`, `capital`, `currency`, `currency_name`, `currency_symbol`, `tld`, `native`, `region`, `region_id`, `subregion`, `subregion_id`, `nationality`, `timezones`, `translations`, `latitude`, `longitude`, `emoji`, `emojiU`, `created_at`, `updated_at`, `flag`, `wikiDataId`) VALUES
+(171, 'Papua New Guinea', 'PNG', '598', 'PG', '675', 'Port Moresby', 'PGK', 'Papua New Guinean kina', 'K', '.pg', 'Papua Niugini', 'Oceania', 5, 'Melanesia', 20, 'Papua New Guinean, Papuan', '[{\"zoneName\":\"Pacific/Bougainville\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"BST\",\"tzName\":\"Bougainville Standard Time[6\"},{\"zoneName\":\"Pacific/Port_Moresby\",\"gmtOffset\":36000,\"gmtOffsetName\":\"UTC+10:00\",\"abbreviation\":\"PGT\",\"tzName\":\"Papua New Guinea Time\"}]', '{\"ko\":\"파푸아뉴기니\",\"pt-BR\":\"Papua Nova Guiné\",\"pt\":\"Papua Nova Guiné\",\"nl\":\"Papoea-Nieuw-Guinea\",\"hr\":\"Papua Nova Gvineja\",\"fa\":\"پاپوآ گینه نو\",\"de\":\"Papua-Neuguinea\",\"es\":\"Papúa Nueva Guinea\",\"fr\":\"Papouasie-Nouvelle-Guinée\",\"ja\":\"パプアニューギニア\",\"it\":\"Papua Nuova Guinea\",\"zh-CN\":\"巴布亚新几内亚\",\"tr\":\"Papua Yeni Gine\",\"ru\":\"Папуа - Новая Гвинея\",\"uk\":\"Папуа-Нова Гвінея\",\"pl\":\"Papua-Nowa Gwinea\"}', '-6.00000000', '147.00000000', '🇵🇬', 'U+1F1F5 U+1F1EC', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q691'),
+(172, 'Paraguay', 'PRY', '600', 'PY', '595', 'Asuncion', 'PYG', 'Paraguayan guarani', '₲', '.py', 'Paraguay', 'Americas', 2, 'South America', 8, 'Paraguayan', '[{\"zoneName\":\"America/Asuncion\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"PYST\",\"tzName\":\"Paraguay Summer Time\"}]', '{\"ko\":\"파라과이\",\"pt-BR\":\"Paraguai\",\"pt\":\"Paraguai\",\"nl\":\"Paraguay\",\"hr\":\"Paragvaj\",\"fa\":\"پاراگوئه\",\"de\":\"Paraguay\",\"es\":\"Paraguay\",\"fr\":\"Paraguay\",\"ja\":\"パラグアイ\",\"it\":\"Paraguay\",\"zh-CN\":\"巴拉圭\",\"tr\":\"Paraguay\",\"ru\":\"Парагвай\",\"uk\":\"Парагвай\",\"pl\":\"Paragwaj\"}', '-23.00000000', '-58.00000000', '🇵🇾', 'U+1F1F5 U+1F1FE', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q733'),
+(173, 'Peru', 'PER', '604', 'PE', '51', 'Lima', 'PEN', 'Peruvian sol', 'S/.', '.pe', 'Perú', 'Americas', 2, 'South America', 8, 'Peruvian', '[{\"zoneName\":\"America/Lima\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"PET\",\"tzName\":\"Peru Time\"}]', '{\"ko\":\"페루\",\"pt-BR\":\"Peru\",\"pt\":\"Peru\",\"nl\":\"Peru\",\"hr\":\"Peru\",\"fa\":\"پرو\",\"de\":\"Peru\",\"es\":\"Perú\",\"fr\":\"Pérou\",\"ja\":\"ペルー\",\"it\":\"Perù\",\"zh-CN\":\"秘鲁\",\"tr\":\"Peru\",\"ru\":\"Перу\",\"uk\":\"Перу\",\"pl\":\"Peru\"}', '-10.00000000', '-76.00000000', '🇵🇪', 'U+1F1F5 U+1F1EA', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q419'),
+(174, 'Philippines', 'PHL', '608', 'PH', '63', 'Manila', 'PHP', 'Philippine peso', '₱', '.ph', 'Pilipinas', 'Asia', 3, 'South-Eastern Asia', 13, 'Philippine, Filipino', '[{\"zoneName\":\"Asia/Manila\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"PHT\",\"tzName\":\"Philippine Time\"}]', '{\"ko\":\"필리핀\",\"pt-BR\":\"Filipinas\",\"pt\":\"Filipinas\",\"nl\":\"Filipijnen\",\"hr\":\"Filipini\",\"fa\":\"جزایر الندفیلیپین\",\"de\":\"Philippinen\",\"es\":\"Filipinas\",\"fr\":\"Philippines\",\"ja\":\"フィリピン\",\"it\":\"Filippine\",\"zh-CN\":\"菲律宾\",\"tr\":\"Filipinler\",\"ru\":\"Филиппины\",\"uk\":\"Філіппіни\",\"pl\":\"Filipiny\"}', '13.00000000', '122.00000000', '🇵🇭', 'U+1F1F5 U+1F1ED', '2018-07-21 07:41:03', '2023-08-11 16:15:55', 1, 'Q928'),
+(175, 'Pitcairn Island', 'PCN', '612', 'PN', '870', 'Adamstown', 'NZD', 'New Zealand dollar', '$', '.pn', 'Pitcairn Islands', 'Oceania', 5, 'Polynesia', 22, 'Pitcairn Island', '[{\"zoneName\":\"Pacific/Pitcairn\",\"gmtOffset\":-28800,\"gmtOffsetName\":\"UTC-08:00\",\"abbreviation\":\"PST\",\"tzName\":\"Pacific Standard Time (North America\"}]', '{\"ko\":\"핏케언 제도\",\"pt-BR\":\"Ilhas Pitcairn\",\"pt\":\"Ilhas Picárnia\",\"nl\":\"Pitcairneilanden\",\"hr\":\"Pitcairnovo otočje\",\"fa\":\"پیتکرن\",\"de\":\"Pitcairn\",\"es\":\"Islas Pitcairn\",\"fr\":\"Îles Pitcairn\",\"ja\":\"ピトケアン\",\"it\":\"Isole Pitcairn\",\"zh-CN\":\"皮特凯恩群岛\",\"tr\":\"Pitcairn Adalari\",\"ru\":\"Остров Питкэрн\",\"uk\":\"Острів Піткерн\",\"pl\":\"Wyspa Pitcairn\"}', '-25.06666666', '-130.10000000', '🇵🇳', 'U+1F1F5 U+1F1F3', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q1779748'),
+(176, 'Poland', 'POL', '616', 'PL', '48', 'Warsaw', 'PLN', 'Polish złoty', 'zł', '.pl', 'Polska', 'Europe', 4, 'Eastern Europe', 15, 'Polish', '[{\"zoneName\":\"Europe/Warsaw\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"폴란드\",\"pt-BR\":\"Polônia\",\"pt\":\"Polónia\",\"nl\":\"Polen\",\"hr\":\"Poljska\",\"fa\":\"لهستان\",\"de\":\"Polen\",\"es\":\"Polonia\",\"fr\":\"Pologne\",\"ja\":\"ポーランド\",\"it\":\"Polonia\",\"zh-CN\":\"波兰\",\"tr\":\"Polonya\",\"ru\":\"Польша\",\"uk\":\"Польща\",\"pl\":\"Polska\"}', '52.00000000', '20.00000000', '🇵🇱', 'U+1F1F5 U+1F1F1', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q36'),
+(177, 'Portugal', 'PRT', '620', 'PT', '351', 'Lisbon', 'EUR', 'Euro', '€', '.pt', 'Portugal', 'Europe', 4, 'Southern Europe', 16, 'Portuguese', '[{\"zoneName\":\"Atlantic/Azores\",\"gmtOffset\":-3600,\"gmtOffsetName\":\"UTC-01:00\",\"abbreviation\":\"AZOT\",\"tzName\":\"Azores Standard Time\"},{\"zoneName\":\"Atlantic/Madeira\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"WET\",\"tzName\":\"Western European Time\"},{\"zoneName\":\"Europe/Lisbon\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"WET\",\"tzName\":\"Western European Time\"}]', '{\"ko\":\"포르투갈\",\"pt-BR\":\"Portugal\",\"pt\":\"Portugal\",\"nl\":\"Portugal\",\"hr\":\"Portugal\",\"fa\":\"پرتغال\",\"de\":\"Portugal\",\"es\":\"Portugal\",\"fr\":\"Portugal\",\"ja\":\"ポルトガル\",\"it\":\"Portogallo\",\"zh-CN\":\"葡萄牙\",\"tr\":\"Portekiz\",\"ru\":\"Португалия\",\"uk\":\"Португалія\",\"pl\":\"Portugalia\"}', '39.50000000', '-8.00000000', '🇵🇹', 'U+1F1F5 U+1F1F9', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q45'),
+(178, 'Puerto Rico', 'PRI', '630', 'PR', '1', 'San Juan', 'USD', 'United States dollar', '$', '.pr', 'Puerto Rico', 'Americas', 2, 'Caribbean', 7, 'Puerto Rican', '[{\"zoneName\":\"America/Puerto_Rico\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"푸에르토리코\",\"pt-BR\":\"Porto Rico\",\"pt\":\"Porto Rico\",\"nl\":\"Puerto Rico\",\"hr\":\"Portoriko\",\"fa\":\"پورتو ریکو\",\"de\":\"Puerto Rico\",\"es\":\"Puerto Rico\",\"fr\":\"Porto Rico\",\"ja\":\"プエルトリコ\",\"it\":\"Porto Rico\",\"zh-CN\":\"波多黎各\",\"tr\":\"Porto Riko\",\"ru\":\"Пуэрто-Рико\",\"uk\":\"Пуерто-Ріко\",\"pl\":\"Portoryko\"}', '18.25000000', '-66.50000000', '🇵🇷', 'U+1F1F5 U+1F1F7', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q1183'),
+(179, 'Qatar', 'QAT', '634', 'QA', '974', 'Doha', 'QAR', 'Qatari riyal', 'ق.ر', '.qa', 'قطر', 'Asia', 3, 'Western Asia', 11, 'Qatari', '[{\"zoneName\":\"Asia/Qatar\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"AST\",\"tzName\":\"Arabia Standard Time\"}]', '{\"ko\":\"카타르\",\"pt-BR\":\"Catar\",\"pt\":\"Catar\",\"nl\":\"Qatar\",\"hr\":\"Katar\",\"fa\":\"قطر\",\"de\":\"Katar\",\"es\":\"Catar\",\"fr\":\"Qatar\",\"ja\":\"カタール\",\"it\":\"Qatar\",\"zh-CN\":\"卡塔尔\",\"tr\":\"Katar\",\"ru\":\"Катар\",\"uk\":\"Катар\",\"pl\":\"Katar\"}', '25.50000000', '51.25000000', '🇶🇦', 'U+1F1F6 U+1F1E6', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q846'),
+(180, 'Reunion', 'REU', '638', 'RE', '262', 'Saint-Denis', 'EUR', 'Euro', '€', '.re', 'La Réunion', 'Africa', 1, 'Eastern Africa', 4, 'Reunionese, Reunionnais', '[{\"zoneName\":\"Indian/Reunion\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"RET\",\"tzName\":\"Réunion Time\"}]', '{\"ko\":\"레위니옹\",\"pt-BR\":\"Reunião\",\"pt\":\"Reunião\",\"nl\":\"Réunion\",\"hr\":\"Réunion\",\"fa\":\"رئونیون\",\"de\":\"Réunion\",\"es\":\"Reunión\",\"fr\":\"Réunion\",\"ja\":\"レユニオン\",\"it\":\"Riunione\",\"zh-CN\":\"留尼汪岛\",\"tr\":\"Réunion\",\"ru\":\"Воссоединение\",\"uk\":\"Возз\'єднання\",\"pl\":\"Reunion\"}', '-21.15000000', '55.50000000', '🇷🇪', 'U+1F1F7 U+1F1EA', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q293585'),
+(181, 'Romania', 'ROU', '642', 'RO', '40', 'Bucharest', 'RON', 'Romanian leu', 'lei', '.ro', 'România', 'Europe', 4, 'Eastern Europe', 15, 'Romanian', '[{\"zoneName\":\"Europe/Bucharest\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"루마니아\",\"pt-BR\":\"Romênia\",\"pt\":\"Roménia\",\"nl\":\"Roemenië\",\"hr\":\"Rumunjska\",\"fa\":\"رومانی\",\"de\":\"Rumänien\",\"es\":\"Rumania\",\"fr\":\"Roumanie\",\"ja\":\"ルーマニア\",\"it\":\"Romania\",\"zh-CN\":\"罗马尼亚\",\"tr\":\"Romanya\",\"ru\":\"Румыния\",\"uk\":\"Румунія\",\"pl\":\"Rumunia\"}', '46.00000000', '25.00000000', '🇷🇴', 'U+1F1F7 U+1F1F4', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q218'),
+(182, 'Russia', 'RUS', '643', 'RU', '7', 'Moscow', 'RUB', 'Russian ruble', '₽', '.ru', 'Россия', 'Europe', 4, 'Eastern Europe', 15, 'Russian', '[{\"zoneName\":\"Asia/Anadyr\",\"gmtOffset\":43200,\"gmtOffsetName\":\"UTC+12:00\",\"abbreviation\":\"ANAT\",\"tzName\":\"Anadyr Time[4\"},{\"zoneName\":\"Asia/Barnaul\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"KRAT\",\"tzName\":\"Krasnoyarsk Time\"},{\"zoneName\":\"Asia/Chita\",\"gmtOffset\":32400,\"gmtOffsetName\":\"UTC+09:00\",\"abbreviation\":\"YAKT\",\"tzName\":\"Yakutsk Time\"},{\"zoneName\":\"Asia/Irkutsk\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"IRKT\",\"tzName\":\"Irkutsk Time\"},{\"zoneName\":\"Asia/Kamchatka\",\"gmtOffset\":43200,\"gmtOffsetName\":\"UTC+12:00\",\"abbreviation\":\"PETT\",\"tzName\":\"Kamchatka Time\"},{\"zoneName\":\"Asia/Khandyga\",\"gmtOffset\":32400,\"gmtOffsetName\":\"UTC+09:00\",\"abbreviation\":\"YAKT\",\"tzName\":\"Yakutsk Time\"},{\"zoneName\":\"Asia/Krasnoyarsk\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"KRAT\",\"tzName\":\"Krasnoyarsk Time\"},{\"zoneName\":\"Asia/Magadan\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"MAGT\",\"tzName\":\"Magadan Time\"},{\"zoneName\":\"Asia/Novokuznetsk\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"KRAT\",\"tzName\":\"Krasnoyarsk Time\"},{\"zoneName\":\"Asia/Novosibirsk\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"NOVT\",\"tzName\":\"Novosibirsk Time\"},{\"zoneName\":\"Asia/Omsk\",\"gmtOffset\":21600,\"gmtOffsetName\":\"UTC+06:00\",\"abbreviation\":\"OMST\",\"tzName\":\"Omsk Time\"},{\"zoneName\":\"Asia/Sakhalin\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"SAKT\",\"tzName\":\"Sakhalin Island Time\"},{\"zoneName\":\"Asia/Srednekolymsk\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"SRET\",\"tzName\":\"Srednekolymsk Time\"},{\"zoneName\":\"Asia/Tomsk\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"MSD+3\",\"tzName\":\"Moscow Daylight Time+3\"},{\"zoneName\":\"Asia/Ust-Nera\",\"gmtOffset\":36000,\"gmtOffsetName\":\"UTC+10:00\",\"abbreviation\":\"VLAT\",\"tzName\":\"Vladivostok Time\"},{\"zoneName\":\"Asia/Vladivostok\",\"gmtOffset\":36000,\"gmtOffsetName\":\"UTC+10:00\",\"abbreviation\":\"VLAT\",\"tzName\":\"Vladivostok Time\"},{\"zoneName\":\"Asia/Yakutsk\",\"gmtOffset\":32400,\"gmtOffsetName\":\"UTC+09:00\",\"abbreviation\":\"YAKT\",\"tzName\":\"Yakutsk Time\"},{\"zoneName\":\"Asia/Yekaterinburg\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"YEKT\",\"tzName\":\"Yekaterinburg Time\"},{\"zoneName\":\"Europe/Astrakhan\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"SAMT\",\"tzName\":\"Samara Time\"},{\"zoneName\":\"Europe/Kaliningrad\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"},{\"zoneName\":\"Europe/Kirov\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"MSK\",\"tzName\":\"Moscow Time\"},{\"zoneName\":\"Europe/Moscow\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"MSK\",\"tzName\":\"Moscow Time\"},{\"zoneName\":\"Europe/Samara\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"SAMT\",\"tzName\":\"Samara Time\"},{\"zoneName\":\"Europe/Saratov\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"MSD\",\"tzName\":\"Moscow Daylight Time+4\"},{\"zoneName\":\"Europe/Ulyanovsk\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"SAMT\",\"tzName\":\"Samara Time\"},{\"zoneName\":\"Europe/Volgograd\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"MSK\",\"tzName\":\"Moscow Standard Time\"}]', '{\"ko\":\"러시아\",\"pt-BR\":\"Rússia\",\"pt\":\"Rússia\",\"nl\":\"Rusland\",\"hr\":\"Rusija\",\"fa\":\"روسیه\",\"de\":\"Russland\",\"es\":\"Rusia\",\"fr\":\"Russie\",\"ja\":\"ロシア連邦\",\"it\":\"Russia\",\"zh-CN\":\"俄罗斯联邦\",\"tr\":\"Rusya\",\"ru\":\"Россия\",\"uk\":\"Росія\",\"pl\":\"Rosja\"}', '60.00000000', '100.00000000', '🇷🇺', 'U+1F1F7 U+1F1FA', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q159'),
+(183, 'Rwanda', 'RWA', '646', 'RW', '250', 'Kigali', 'RWF', 'Rwandan franc', 'FRw', '.rw', 'Rwanda', 'Africa', 1, 'Eastern Africa', 4, 'Rwandan', '[{\"zoneName\":\"Africa/Kigali\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"CAT\",\"tzName\":\"Central Africa Time\"}]', '{\"ko\":\"르완다\",\"pt-BR\":\"Ruanda\",\"pt\":\"Ruanda\",\"nl\":\"Rwanda\",\"hr\":\"Ruanda\",\"fa\":\"رواندا\",\"de\":\"Ruanda\",\"es\":\"Ruanda\",\"fr\":\"Rwanda\",\"ja\":\"ルワンダ\",\"it\":\"Ruanda\",\"zh-CN\":\"卢旺达\",\"tr\":\"Ruanda\",\"ru\":\"Руанда\",\"uk\":\"Руанда\",\"pl\":\"Rwanda\"}', '-2.00000000', '30.00000000', '🇷🇼', 'U+1F1F7 U+1F1FC', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1037'),
+(184, 'Saint Helena', 'SHN', '654', 'SH', '290', 'Jamestown', 'SHP', 'Saint Helena pound', '£', '.sh', 'Saint Helena', 'Africa', 1, 'Western Africa', 3, 'Saint Helenian', '[{\"zoneName\":\"Atlantic/St_Helena\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"세인트헬레나\",\"pt-BR\":\"Santa Helena\",\"pt\":\"Santa Helena\",\"nl\":\"Sint-Helena\",\"hr\":\"Sveta Helena\",\"fa\":\"سنت هلنا، اسنشن و تریستان دا کونا\",\"de\":\"Sankt Helena\",\"es\":\"Santa Helena\",\"fr\":\"Sainte-Hélène\",\"ja\":\"セントヘレナ・アセンションおよびトリスタンダクーニャ\",\"it\":\"Sant\'Elena\",\"zh-CN\":\"圣赫勒拿\",\"tr\":\"Saint Helena\",\"ru\":\"Святая Елена\",\"uk\":\"Свята Єлена\",\"pl\":\"Święta Helena\"}', '-15.95000000', '-5.70000000', '🇸🇭', 'U+1F1F8 U+1F1ED', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q34497'),
+(185, 'Saint Kitts and Nevis', 'KNA', '659', 'KN', '1', 'Basseterre', 'XCD', 'Eastern Caribbean dollar', '$', '.kn', 'Saint Kitts and Nevis', 'Americas', 2, 'Caribbean', 7, 'Kittitian or Nevisian', '[{\"zoneName\":\"America/St_Kitts\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"세인트키츠 네비스\",\"pt-BR\":\"São Cristóvão e Neves\",\"pt\":\"São Cristóvão e Neves\",\"nl\":\"Saint Kitts en Nevis\",\"hr\":\"Sveti Kristof i Nevis\",\"fa\":\"سنت کیتس و نویس\",\"de\":\"St. Kitts und Nevis\",\"es\":\"San Cristóbal y Nieves\",\"fr\":\"Saint-Christophe-et-Niévès\",\"ja\":\"セントクリストファー・ネイビス\",\"it\":\"Saint Kitts e Nevis\",\"zh-CN\":\"圣基茨和尼维斯\",\"tr\":\"Saint Kitts Ve Nevis\",\"ru\":\"Сент-Китс и Невис\",\"uk\":\"Сент-Кітс і Невіс\",\"pl\":\"Saint Kitts i Nevis\"}', '17.33333333', '-62.75000000', '🇰🇳', 'U+1F1F0 U+1F1F3', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q763'),
+(186, 'Saint Lucia', 'LCA', '662', 'LC', '1', 'Castries', 'XCD', 'Eastern Caribbean dollar', '$', '.lc', 'Saint Lucia', 'Americas', 2, 'Caribbean', 7, 'Saint Lucian', '[{\"zoneName\":\"America/St_Lucia\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"세인트루시아\",\"pt-BR\":\"Santa Lúcia\",\"pt\":\"Santa Lúcia\",\"nl\":\"Saint Lucia\",\"hr\":\"Sveta Lucija\",\"fa\":\"سنت لوسیا\",\"de\":\"Saint Lucia\",\"es\":\"Santa Lucía\",\"fr\":\"Saint-Lucie\",\"ja\":\"セントルシア\",\"it\":\"Santa Lucia\",\"zh-CN\":\"圣卢西亚\",\"tr\":\"Saint Lucia\",\"ru\":\"Сент-Люсия\",\"uk\":\"Сент-Люсія\",\"pl\":\"Saint Lucia\"}', '13.88333333', '-60.96666666', '🇱🇨', 'U+1F1F1 U+1F1E8', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q760'),
+(187, 'Saint Pierre and Miquelon', 'SPM', '666', 'PM', '508', 'Saint-Pierre', 'EUR', 'Euro', '€', '.pm', 'Saint-Pierre-et-Miquelon', 'Americas', 2, 'Northern America', 6, 'Saint-Pierrais or Miquelonnais', '[{\"zoneName\":\"America/Miquelon\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"PMDT\",\"tzName\":\"Pierre & Miquelon Daylight Time\"}]', '{\"ko\":\"생피에르 미클롱\",\"pt-BR\":\"Saint-Pierre e Miquelon\",\"pt\":\"São Pedro e Miquelon\",\"nl\":\"Saint Pierre en Miquelon\",\"hr\":\"Sveti Petar i Mikelon\",\"fa\":\"سن پیر و میکلن\",\"de\":\"Saint-Pierre und Miquelon\",\"es\":\"San Pedro y Miquelón\",\"fr\":\"Saint-Pierre-et-Miquelon\",\"ja\":\"サンピエール島・ミクロン島\",\"it\":\"Saint-Pierre e Miquelon\",\"zh-CN\":\"圣皮埃尔和密克隆\",\"tr\":\"Saint Pierre Ve Miquelon\",\"ru\":\"Сен-Пьер и Микелон\",\"uk\":\"Сен-П\'єр і Мікелон\",\"pl\":\"Saint-Pierre i Miquelon\"}', '46.83333333', '-56.33333333', '🇵🇲', 'U+1F1F5 U+1F1F2', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q34617'),
+(188, 'Saint Vincent and the Grenadines', 'VCT', '670', 'VC', '1', 'Kingstown', 'XCD', 'Eastern Caribbean dollar', '$', '.vc', 'Saint Vincent and the Grenadines', 'Americas', 2, 'Caribbean', 7, 'Saint Vincentian, Vincentian', '[{\"zoneName\":\"America/St_Vincent\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"세인트빈센트 그레나딘\",\"pt-BR\":\"São Vicente e Granadinas\",\"pt\":\"São Vicente e Granadinas\",\"nl\":\"Saint Vincent en de Grenadines\",\"hr\":\"Sveti Vincent i Grenadini\",\"fa\":\"سنت وینسنت و گرنادین‌ها\",\"de\":\"Saint Vincent und die Grenadinen\",\"es\":\"San Vicente y Granadinas\",\"fr\":\"Saint-Vincent-et-les-Grenadines\",\"ja\":\"セントビンセントおよびグレナディーン諸島\",\"it\":\"Saint Vincent e Grenadine\",\"zh-CN\":\"圣文森特和格林纳丁斯\",\"tr\":\"Saint Vincent Ve Grenadinler\",\"ru\":\"Сент-Винсент и Гренадины\",\"uk\":\"Сент-Вінсент і Гренадини\",\"pl\":\"Saint Vincent i Grenadyny\"}', '13.25000000', '-61.20000000', '🇻🇨', 'U+1F1FB U+1F1E8', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q757'),
+(189, 'Saint-Barthelemy', 'BLM', '652', 'BL', '590', 'Gustavia', 'EUR', 'Euro', '€', '.bl', 'Saint-Barthélemy', 'Americas', 2, 'Caribbean', 7, 'Barthelemois', '[{\"zoneName\":\"America/St_Barthelemy\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"생바르텔레미\",\"pt-BR\":\"São Bartolomeu\",\"pt\":\"São Bartolomeu\",\"nl\":\"Saint Barthélemy\",\"hr\":\"Saint Barthélemy\",\"fa\":\"سن-بارتلمی\",\"de\":\"Saint-Barthélemy\",\"es\":\"San Bartolomé\",\"fr\":\"Saint-Barthélemy\",\"ja\":\"サン・バルテルミー\",\"it\":\"Antille Francesi\",\"zh-CN\":\"圣巴泰勒米\",\"tr\":\"Saint Barthélemy\",\"ru\":\"Сен-Бартелеми\",\"uk\":\"Сен-Бартелемі\",\"pl\":\"Saint-Barthelemy\"}', '18.50000000', '-63.41666666', '🇧🇱', 'U+1F1E7 U+1F1F1', '2018-07-21 07:41:03', '2024-12-19 16:00:55', 1, 'Q25362'),
+(190, 'Saint-Martin (French part)', 'MAF', '663', 'MF', '590', 'Marigot', 'EUR', 'Euro', '€', '.mf', 'Saint-Martin', 'Americas', 2, 'Caribbean', 7, 'Saint-Martinoise', '[{\"zoneName\":\"America/Marigot\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"세인트마틴 섬\",\"pt-BR\":\"Saint Martin\",\"pt\":\"Ilha São Martinho\",\"nl\":\"Saint-Martin\",\"hr\":\"Sveti Martin\",\"fa\":\"سینت مارتن\",\"de\":\"Saint Martin\",\"es\":\"Saint Martin\",\"fr\":\"Saint-Martin\",\"ja\":\"サン・マルタン（フランス領）\",\"it\":\"Saint Martin\",\"zh-CN\":\"密克罗尼西亚\",\"tr\":\"Saint Martin\",\"ru\":\"Сен-Мартен (французская часть)\",\"uk\":\"Сен-Мартен (французька частина)\",\"pl\":\"Saint-Martin (część francuska)\"}', '18.08333333', '-63.95000000', '🇲🇫', 'U+1F1F2 U+1F1EB', '2018-07-21 07:41:03', '2023-08-11 16:15:55', 1, NULL),
+(191, 'Samoa', 'WSM', '882', 'WS', '685', 'Apia', 'WST', 'Samoan tālā', 'SAT', '.ws', 'Samoa', 'Oceania', 5, 'Polynesia', 22, 'Samoan', '[{\"zoneName\":\"Pacific/Apia\",\"gmtOffset\":50400,\"gmtOffsetName\":\"UTC+14:00\",\"abbreviation\":\"WST\",\"tzName\":\"West Samoa Time\"}]', '{\"ko\":\"사모아\",\"pt-BR\":\"Samoa\",\"pt\":\"Samoa\",\"nl\":\"Samoa\",\"hr\":\"Samoa\",\"fa\":\"ساموآ\",\"de\":\"Samoa\",\"es\":\"Samoa\",\"fr\":\"Samoa\",\"ja\":\"サモア\",\"it\":\"Samoa\",\"zh-CN\":\"萨摩亚\",\"tr\":\"Samoa\",\"ru\":\"Самоа\",\"uk\":\"Самоа\",\"pl\":\"Samoa\"}', '-13.58333333', '-172.33333333', '🇼🇸', 'U+1F1FC U+1F1F8', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q683'),
+(192, 'San Marino', 'SMR', '674', 'SM', '378', 'San Marino', 'EUR', 'Euro', '€', '.sm', 'San Marino', 'Europe', 4, 'Southern Europe', 16, 'Sammarinese', '[{\"zoneName\":\"Europe/San_Marino\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"산마리노\",\"pt-BR\":\"San Marino\",\"pt\":\"São Marinho\",\"nl\":\"San Marino\",\"hr\":\"San Marino\",\"fa\":\"سان مارینو\",\"de\":\"San Marino\",\"es\":\"San Marino\",\"fr\":\"Saint-Marin\",\"ja\":\"サンマリノ\",\"it\":\"San Marino\",\"zh-CN\":\"圣马力诺\",\"tr\":\"San Marino\",\"ru\":\"Сан-Марино\",\"uk\":\"Сан-Марино\",\"pl\":\"San Marino\"}', '43.76666666', '12.41666666', '🇸🇲', 'U+1F1F8 U+1F1F2', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q238'),
+(193, 'Sao Tome and Principe', 'STP', '678', 'ST', '239', 'Sao Tome', 'STD', 'Dobra', 'Db', '.st', 'São Tomé e Príncipe', 'Africa', 1, 'Middle Africa', 2, 'Sao Tomean', '[{\"zoneName\":\"Africa/Sao_Tome\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"상투메 프린시페\",\"pt-BR\":\"São Tomé e Príncipe\",\"pt\":\"São Tomé e Príncipe\",\"nl\":\"Sao Tomé en Principe\",\"hr\":\"Sveti Toma i Princip\",\"fa\":\"کواترو دو فرویرو\",\"de\":\"São Tomé und Príncipe\",\"es\":\"Santo Tomé y Príncipe\",\"fr\":\"Sao Tomé-et-Principe\",\"ja\":\"サントメ・プリンシペ\",\"it\":\"São Tomé e Príncipe\",\"zh-CN\":\"圣多美和普林西比\",\"tr\":\"Sao Tome Ve Prinsipe\",\"ru\":\"Сан-Томе и Принсипи\",\"uk\":\"Сан-Томе і Принсіпі\",\"pl\":\"Wyspy Świętego Tomasza i Książęca\"}', '1.00000000', '7.00000000', '🇸🇹', 'U+1F1F8 U+1F1F9', '2018-07-21 07:41:03', '2023-08-11 16:15:55', 1, 'Q1039'),
+(194, 'Saudi Arabia', 'SAU', '682', 'SA', '966', 'Riyadh', 'SAR', 'Saudi riyal', '﷼', '.sa', 'المملكة العربية السعودية', 'Asia', 3, 'Western Asia', 11, 'Saudi, Saudi Arabian', '[{\"zoneName\":\"Asia/Riyadh\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"AST\",\"tzName\":\"Arabia Standard Time\"}]', '{\"ko\":\"사우디아라비아\",\"pt-BR\":\"Arábia Saudita\",\"pt\":\"Arábia Saudita\",\"nl\":\"Saoedi-Arabië\",\"hr\":\"Saudijska Arabija\",\"fa\":\"عربستان سعودی\",\"de\":\"Saudi-Arabien\",\"es\":\"Arabia Saudí\",\"fr\":\"Arabie Saoudite\",\"ja\":\"サウジアラビア\",\"it\":\"Arabia Saudita\",\"zh-CN\":\"沙特阿拉伯\",\"tr\":\"Suudi Arabistan\",\"ru\":\"Саудовская Аравия\",\"uk\":\"Саудівська Аравія\",\"pl\":\"Arabia Saudyjska\"}', '25.00000000', '45.00000000', '🇸🇦', 'U+1F1F8 U+1F1E6', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q851'),
+(195, 'Senegal', 'SEN', '686', 'SN', '221', 'Dakar', 'XOF', 'West African CFA franc', 'CFA', '.sn', 'Sénégal', 'Africa', 1, 'Western Africa', 3, 'Senegalese', '[{\"zoneName\":\"Africa/Dakar\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"세네갈\",\"pt-BR\":\"Senegal\",\"pt\":\"Senegal\",\"nl\":\"Senegal\",\"hr\":\"Senegal\",\"fa\":\"سنگال\",\"de\":\"Senegal\",\"es\":\"Senegal\",\"fr\":\"Sénégal\",\"ja\":\"セネガル\",\"it\":\"Senegal\",\"zh-CN\":\"塞内加尔\",\"tr\":\"Senegal\",\"ru\":\"Сенегал\",\"uk\":\"Сенегал\",\"pl\":\"Senegal\"}', '14.00000000', '-14.00000000', '🇸🇳', 'U+1F1F8 U+1F1F3', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1041'),
+(196, 'Serbia', 'SRB', '688', 'RS', '381', 'Belgrade', 'RSD', 'Serbian dinar', 'din', '.rs', 'Србија', 'Europe', 4, 'Southern Europe', 16, 'Serbian', '[{\"zoneName\":\"Europe/Belgrade\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"세르비아\",\"pt-BR\":\"Sérvia\",\"pt\":\"Sérvia\",\"nl\":\"Servië\",\"hr\":\"Srbija\",\"fa\":\"صربستان\",\"de\":\"Serbien\",\"es\":\"Serbia\",\"fr\":\"Serbie\",\"ja\":\"セルビア\",\"it\":\"Serbia\",\"zh-CN\":\"塞尔维亚\",\"tr\":\"Sirbistan\",\"ru\":\"Сербия\",\"uk\":\"Сербія\",\"pl\":\"Serbia\"}', '44.00000000', '21.00000000', '🇷🇸', 'U+1F1F7 U+1F1F8', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q403'),
+(197, 'Seychelles', 'SYC', '690', 'SC', '248', 'Victoria', 'SCR', 'Seychellois rupee', 'SRe', '.sc', 'Seychelles', 'Africa', 1, 'Eastern Africa', 4, 'Seychellois', '[{\"zoneName\":\"Indian/Mahe\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"SCT\",\"tzName\":\"Seychelles Time\"}]', '{\"ko\":\"세이셸\",\"pt-BR\":\"Seicheles\",\"pt\":\"Seicheles\",\"nl\":\"Seychellen\",\"hr\":\"Sejšeli\",\"fa\":\"سیشل\",\"de\":\"Seychellen\",\"es\":\"Seychelles\",\"fr\":\"Seychelles\",\"ja\":\"セーシェル\",\"it\":\"Seychelles\",\"zh-CN\":\"塞舌尔\",\"tr\":\"Seyşeller\",\"ru\":\"Сейшельские острова\",\"uk\":\"Сейшельські острови\",\"pl\":\"Seszele\"}', '-4.58333333', '55.66666666', '🇸🇨', 'U+1F1F8 U+1F1E8', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1042'),
+(198, 'Sierra Leone', 'SLE', '694', 'SL', '232', 'Freetown', 'SLL', 'Sierra Leonean leone', 'Le', '.sl', 'Sierra Leone', 'Africa', 1, 'Western Africa', 3, 'Sierra Leonean', '[{\"zoneName\":\"Africa/Freetown\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"시에라리온\",\"pt-BR\":\"Serra Leoa\",\"pt\":\"Serra Leoa\",\"nl\":\"Sierra Leone\",\"hr\":\"Sijera Leone\",\"fa\":\"سیرالئون\",\"de\":\"Sierra Leone\",\"es\":\"Sierra Leone\",\"fr\":\"Sierra Leone\",\"ja\":\"シエラレオネ\",\"it\":\"Sierra Leone\",\"zh-CN\":\"塞拉利昂\",\"tr\":\"Sierra Leone\",\"ru\":\"Сьерра-Леоне\",\"uk\":\"Сьєрра-Леоне\",\"pl\":\"Sierra Leone\"}', '8.50000000', '-11.50000000', '🇸🇱', 'U+1F1F8 U+1F1F1', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1044'),
+(199, 'Singapore', 'SGP', '702', 'SG', '65', 'Singapur', 'SGD', 'Singapore dollar', '$', '.sg', 'Singapore', 'Asia', 3, 'South-Eastern Asia', 13, 'Singaporean', '[{\"zoneName\":\"Asia/Singapore\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"SGT\",\"tzName\":\"Singapore Time\"}]', '{\"ko\":\"싱가포르\",\"pt-BR\":\"Singapura\",\"pt\":\"Singapura\",\"nl\":\"Singapore\",\"hr\":\"Singapur\",\"fa\":\"سنگاپور\",\"de\":\"Singapur\",\"es\":\"Singapur\",\"fr\":\"Singapour\",\"ja\":\"シンガポール\",\"it\":\"Singapore\",\"zh-CN\":\"新加坡\",\"tr\":\"Singapur\",\"ru\":\"Сингапур\",\"uk\":\"Сінгапур\",\"pl\":\"Singapur\"}', '1.36666666', '103.80000000', '🇸🇬', 'U+1F1F8 U+1F1EC', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q334'),
+(200, 'Slovakia', 'SVK', '703', 'SK', '421', 'Bratislava', 'EUR', 'Euro', '€', '.sk', 'Slovensko', 'Europe', 4, 'Eastern Europe', 15, 'Slovak', '[{\"zoneName\":\"Europe/Bratislava\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"슬로바키아\",\"pt-BR\":\"Eslováquia\",\"pt\":\"Eslováquia\",\"nl\":\"Slowakije\",\"hr\":\"Slovačka\",\"fa\":\"اسلواکی\",\"de\":\"Slowakei\",\"es\":\"República Eslovaca\",\"fr\":\"Slovaquie\",\"ja\":\"スロバキア\",\"it\":\"Slovacchia\",\"zh-CN\":\"斯洛伐克\",\"tr\":\"Slovakya\",\"ru\":\"Словакия\",\"uk\":\"Словаччина\",\"pl\":\"Słowacja\"}', '48.66666666', '19.50000000', '🇸🇰', 'U+1F1F8 U+1F1F0', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q214'),
+(201, 'Slovenia', 'SVN', '705', 'SI', '386', 'Ljubljana', 'EUR', 'Euro', '€', '.si', 'Slovenija', 'Europe', 4, 'Southern Europe', 16, 'Slovenian, Slovene', '[{\"zoneName\":\"Europe/Ljubljana\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"슬로베니아\",\"pt-BR\":\"Eslovênia\",\"pt\":\"Eslovénia\",\"nl\":\"Slovenië\",\"hr\":\"Slovenija\",\"fa\":\"اسلوونی\",\"de\":\"Slowenien\",\"es\":\"Eslovenia\",\"fr\":\"Slovénie\",\"ja\":\"スロベニア\",\"it\":\"Slovenia\",\"zh-CN\":\"斯洛文尼亚\",\"tr\":\"Slovenya\",\"ru\":\"Словения\",\"uk\":\"Словенія\",\"pl\":\"Słowenia\"}', '46.11666666', '14.81666666', '🇸🇮', 'U+1F1F8 U+1F1EE', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q215'),
+(202, 'Solomon Islands', 'SLB', '090', 'SB', '677', 'Honiara', 'SBD', 'Solomon Islands dollar', 'Si$', '.sb', 'Solomon Islands', 'Oceania', 5, 'Melanesia', 20, 'Solomon Island', '[{\"zoneName\":\"Pacific/Guadalcanal\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"SBT\",\"tzName\":\"Solomon Islands Time\"}]', '{\"ko\":\"솔로몬 제도\",\"pt-BR\":\"Ilhas Salomão\",\"pt\":\"Ilhas Salomão\",\"nl\":\"Salomonseilanden\",\"hr\":\"Solomonski Otoci\",\"fa\":\"جزایر سلیمان\",\"de\":\"Salomonen\",\"es\":\"Islas Salomón\",\"fr\":\"Îles Salomon\",\"ja\":\"ソロモン諸島\",\"it\":\"Isole Salomone\",\"zh-CN\":\"所罗门群岛\",\"tr\":\"Solomon Adalari\",\"ru\":\"Соломоновы острова\",\"uk\":\"Соломонові острови\",\"pl\":\"Wyspy Salomona\"}', '-8.00000000', '159.00000000', '🇸🇧', 'U+1F1F8 U+1F1E7', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q685'),
+(203, 'Somalia', 'SOM', '706', 'SO', '252', 'Mogadishu', 'SOS', 'Somali shilling', 'Sh.so.', '.so', 'Soomaaliya', 'Africa', 1, 'Eastern Africa', 4, 'Somali, Somalian', '[{\"zoneName\":\"Africa/Mogadishu\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EAT\",\"tzName\":\"East Africa Time\"}]', '{\"ko\":\"소말리아\",\"pt-BR\":\"Somália\",\"pt\":\"Somália\",\"nl\":\"Somalië\",\"hr\":\"Somalija\",\"fa\":\"سومالی\",\"de\":\"Somalia\",\"es\":\"Somalia\",\"fr\":\"Somalie\",\"ja\":\"ソマリア\",\"it\":\"Somalia\",\"zh-CN\":\"索马里\",\"tr\":\"Somali\",\"ru\":\"Сомали\",\"uk\":\"Сомалі\",\"pl\":\"Somalia\"}', '10.00000000', '49.00000000', '🇸🇴', 'U+1F1F8 U+1F1F4', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1045'),
+(204, 'South Africa', 'ZAF', '710', 'ZA', '27', 'Pretoria', 'ZAR', 'South African rand', 'R', '.za', 'South Africa', 'Africa', 1, 'Southern Africa', 5, 'South African', '[{\"zoneName\":\"Africa/Johannesburg\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"SAST\",\"tzName\":\"South African Standard Time\"}]', '{\"ko\":\"남아프리카 공화국\",\"pt-BR\":\"República Sul-Africana\",\"pt\":\"República Sul-Africana\",\"nl\":\"Zuid-Afrika\",\"hr\":\"Južnoafrička Republika\",\"fa\":\"آفریقای جنوبی\",\"de\":\"Republik Südafrika\",\"es\":\"República de Sudáfrica\",\"fr\":\"Afrique du Sud\",\"ja\":\"南アフリカ\",\"it\":\"Sud Africa\",\"zh-CN\":\"南非\",\"tr\":\"Güney Afrika Cumhuriyeti\",\"ru\":\"Южная Африка\",\"uk\":\"Південна Африка\",\"pl\":\"Republika Południowej Afryki\"}', '-29.00000000', '24.00000000', '🇿🇦', 'U+1F1FF U+1F1E6', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q258'),
+(205, 'South Georgia', 'SGS', '239', 'GS', '500', 'Grytviken', 'GBP', 'British pound', '£', '.gs', 'South Georgia', 'Americas', 2, 'South America', 8, 'South Georgia or South Sandwich Islands', '[{\"zoneName\":\"Atlantic/South_Georgia\",\"gmtOffset\":-7200,\"gmtOffsetName\":\"UTC-02:00\",\"abbreviation\":\"GST\",\"tzName\":\"South Georgia and the South Sandwich Islands Time\"}]', '{\"ko\":\"사우스조지아\",\"pt-BR\":\"Ilhas Geórgias do Sul e Sandwich do Sul\",\"pt\":\"Ilhas Geórgia do Sul e Sanduíche do Sul\",\"nl\":\"Zuid-Georgia en Zuidelijke Sandwicheilanden\",\"hr\":\"Južna Georgija i otočje Južni Sandwich\",\"fa\":\"جزایر جورجیای جنوبی و ساندویچ جنوبی\",\"de\":\"Südgeorgien und die Südlichen Sandwichinseln\",\"es\":\"Islas Georgias del Sur y Sandwich del Sur\",\"fr\":\"Géorgie du Sud-et-les Îles Sandwich du Sud\",\"ja\":\"サウスジョージア・サウスサンドウィッチ諸島\",\"it\":\"Georgia del Sud e Isole Sandwich Meridionali\",\"zh-CN\":\"南乔治亚\",\"tr\":\"Güney Georgia\",\"ru\":\"Южная Джорджия\",\"uk\":\"Південна Джорджія\",\"pl\":\"Południowa Georgia\"}', '-54.50000000', '-37.00000000', '🇬🇸', 'U+1F1EC U+1F1F8', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q1137202'),
+(206, 'South Sudan', 'SSD', '728', 'SS', '211', 'Juba', 'SSP', 'South Sudanese pound', '£', '.ss', 'South Sudan', 'Africa', 1, 'Middle Africa', 2, 'South Sudanese', '[{\"zoneName\":\"Africa/Juba\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EAT\",\"tzName\":\"East Africa Time\"}]', '{\"ko\":\"남수단\",\"pt-BR\":\"Sudão do Sul\",\"pt\":\"Sudão do Sul\",\"nl\":\"Zuid-Soedan\",\"hr\":\"Južni Sudan\",\"fa\":\"سودان جنوبی\",\"de\":\"Südsudan\",\"es\":\"Sudán del Sur\",\"fr\":\"Soudan du Sud\",\"ja\":\"南スーダン\",\"it\":\"Sudan del sud\",\"zh-CN\":\"南苏丹\",\"tr\":\"Güney Sudan\",\"ru\":\"Южный Судан\",\"uk\":\"Південний Судан\",\"pl\":\"Sudan Południowy\"}', '7.00000000', '30.00000000', '🇸🇸', 'U+1F1F8 U+1F1F8', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q958'),
+(207, 'Spain', 'ESP', '724', 'ES', '34', 'Madrid', 'EUR', 'Euro', '€', '.es', 'España', 'Europe', 4, 'Southern Europe', 16, 'Spanish', '[{\"zoneName\":\"Africa/Ceuta\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"},{\"zoneName\":\"Atlantic/Canary\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"WET\",\"tzName\":\"Western European Time\"},{\"zoneName\":\"Europe/Madrid\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"스페인\",\"pt-BR\":\"Espanha\",\"pt\":\"Espanha\",\"nl\":\"Spanje\",\"hr\":\"Španjolska\",\"fa\":\"اسپانیا\",\"de\":\"Spanien\",\"es\":\"España\",\"fr\":\"Espagne\",\"ja\":\"スペイン\",\"it\":\"Spagna\",\"zh-CN\":\"西班牙\",\"tr\":\"İspanya\",\"ru\":\"Испания\",\"uk\":\"Іспанія\",\"pl\":\"Hiszpania\"}', '40.00000000', '-4.00000000', '🇪🇸', 'U+1F1EA U+1F1F8', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q29'),
+(208, 'Sri Lanka', 'LKA', '144', 'LK', '94', 'Colombo', 'LKR', 'Sri Lankan rupee', 'Rs', '.lk', 'śrī laṃkāva', 'Asia', 3, 'Southern Asia', 14, 'Sri Lankan', '[{\"zoneName\":\"Asia/Colombo\",\"gmtOffset\":19800,\"gmtOffsetName\":\"UTC+05:30\",\"abbreviation\":\"IST\",\"tzName\":\"Indian Standard Time\"}]', '{\"ko\":\"스리랑카\",\"pt-BR\":\"Sri Lanka\",\"pt\":\"Sri Lanka\",\"nl\":\"Sri Lanka\",\"hr\":\"Šri Lanka\",\"fa\":\"سری‌لانکا\",\"de\":\"Sri Lanka\",\"es\":\"Sri Lanka\",\"fr\":\"Sri Lanka\",\"ja\":\"スリランカ\",\"it\":\"Sri Lanka\",\"zh-CN\":\"斯里兰卡\",\"tr\":\"Sri Lanka\",\"ru\":\"Шри-Ланка\",\"uk\":\"Шрі-Ланка\",\"pl\":\"Sri Lanka\"}', '7.00000000', '81.00000000', '🇱🇰', 'U+1F1F1 U+1F1F0', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q854'),
+(209, 'Sudan', 'SDN', '729', 'SD', '249', 'Khartoum', 'SDG', 'Sudanese pound', '.س.ج', '.sd', 'السودان', 'Africa', 1, 'Northern Africa', 1, 'Sudanese', '[{\"zoneName\":\"Africa/Khartoum\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EAT\",\"tzName\":\"Eastern African Time\"}]', '{\"ko\":\"수단\",\"pt-BR\":\"Sudão\",\"pt\":\"Sudão\",\"nl\":\"Soedan\",\"hr\":\"Sudan\",\"fa\":\"سودان\",\"de\":\"Sudan\",\"es\":\"Sudán\",\"fr\":\"Soudan\",\"ja\":\"スーダン\",\"it\":\"Sudan\",\"zh-CN\":\"苏丹\",\"tr\":\"Sudan\",\"ru\":\"Судан\",\"uk\":\"Судан\",\"pl\":\"Sudan\"}', '15.00000000', '30.00000000', '🇸🇩', 'U+1F1F8 U+1F1E9', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1049'),
+(210, 'Suriname', 'SUR', '740', 'SR', '597', 'Paramaribo', 'SRD', 'Surinamese dollar', '$', '.sr', 'Suriname', 'Americas', 2, 'South America', 8, 'Surinamese', '[{\"zoneName\":\"America/Paramaribo\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"SRT\",\"tzName\":\"Suriname Time\"}]', '{\"ko\":\"수리남\",\"pt-BR\":\"Suriname\",\"pt\":\"Suriname\",\"nl\":\"Suriname\",\"hr\":\"Surinam\",\"fa\":\"سورینام\",\"de\":\"Suriname\",\"es\":\"Surinam\",\"fr\":\"Surinam\",\"ja\":\"スリナム\",\"it\":\"Suriname\",\"zh-CN\":\"苏里南\",\"tr\":\"Surinam\",\"ru\":\"Суринам\",\"uk\":\"Суринам\",\"pl\":\"Surinam\"}', '4.00000000', '-56.00000000', '🇸🇷', 'U+1F1F8 U+1F1F7', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q730'),
+(211, 'Svalbard and Jan Mayen Islands', 'SJM', '744', 'SJ', '47', 'Longyearbyen', 'NOK', 'Norwegian krone', 'ko', '.sj', 'Svalbard og Jan Mayen', 'Europe', 4, 'Northern Europe', 18, 'Svalbard', '[{\"zoneName\":\"Arctic/Longyearbyen\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"스발바르 얀마옌 제도\",\"pt-BR\":\"Svalbard\",\"pt\":\"Svalbard\",\"nl\":\"Svalbard en Jan Mayen\",\"hr\":\"Svalbard i Jan Mayen\",\"fa\":\"سوالبارد و یان ماین\",\"de\":\"Svalbard und Jan Mayen\",\"es\":\"Islas Svalbard y Jan Mayen\",\"fr\":\"Svalbard et Jan Mayen\",\"ja\":\"スヴァールバル諸島およびヤンマイエン島\",\"it\":\"Svalbard e Jan Mayen\",\"zh-CN\":\"斯瓦尔巴和扬马延群岛\",\"tr\":\"Svalbard Ve Jan Mayen\",\"ru\":\"Шпицберген и острова Ян-Майен\",\"uk\":\"Шпіцберген та острови Ян-Майєн\",\"pl\":\"Wyspy Svalbard i Jan Mayen\"}', '78.00000000', '20.00000000', '🇸🇯', 'U+1F1F8 U+1F1EF', '2018-07-21 07:41:03', '2024-12-23 10:33:12', 1, 'Q842829'),
+(212, 'Eswatini', 'SWZ', '748', 'SZ', '268', 'Mbabane', 'SZL', 'Lilangeni', 'E', '.sz', 'Swaziland', 'Africa', 1, 'Southern Africa', 5, 'Swazi', '[{\"zoneName\":\"Africa/Mbabane\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"SAST\",\"tzName\":\"South African Standard Time\"}]', '{\"ko\":\"에스와티니\",\"pt-BR\":\"Suazilândia\",\"pt\":\"Suazilândia\",\"nl\":\"Swaziland\",\"hr\":\"Svazi\",\"fa\":\"سوازیلند\",\"de\":\"Swasiland\",\"es\":\"Suazilandia\",\"fr\":\"Swaziland\",\"ja\":\"スワジランド\",\"it\":\"Swaziland\",\"zh-CN\":\"斯威士兰\",\"tr\":\"Esvatini\",\"ru\":\"Эсватини\",\"uk\":\"Есватіні\",\"pl\":\"Eswatini\"}', '-26.50000000', '31.50000000', '🇸🇿', 'U+1F1F8 U+1F1FF', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1050'),
+(213, 'Sweden', 'SWE', '752', 'SE', '46', 'Stockholm', 'SEK', 'Swedish krona', 'ko', '.se', 'Sverige', 'Europe', 4, 'Northern Europe', 18, 'Swedish', '[{\"zoneName\":\"Europe/Stockholm\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"스웨덴\",\"pt-BR\":\"Suécia\",\"pt\":\"Suécia\",\"nl\":\"Zweden\",\"hr\":\"Švedska\",\"fa\":\"سوئد\",\"de\":\"Schweden\",\"es\":\"Suecia\",\"fr\":\"Suède\",\"ja\":\"スウェーデン\",\"it\":\"Svezia\",\"zh-CN\":\"瑞典\",\"tr\":\"İsveç\",\"ru\":\"Швеция\",\"uk\":\"Швеція\",\"pl\":\"Szwecja\"}', '62.00000000', '15.00000000', '🇸🇪', 'U+1F1F8 U+1F1EA', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q34'),
+(214, 'Switzerland', 'CHE', '756', 'CH', '41', 'Bern', 'CHF', 'Swiss franc', 'CHf', '.ch', 'Schweiz', 'Europe', 4, 'Western Europe', 17, 'Swiss', '[{\"zoneName\":\"Europe/Zurich\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"스위스\",\"pt-BR\":\"Suíça\",\"pt\":\"Suíça\",\"nl\":\"Zwitserland\",\"hr\":\"Švicarska\",\"fa\":\"سوئیس\",\"de\":\"Schweiz\",\"es\":\"Suiza\",\"fr\":\"Suisse\",\"ja\":\"スイス\",\"it\":\"Svizzera\",\"zh-CN\":\"瑞士\",\"tr\":\"İsviçre\",\"ru\":\"Швейцария\",\"uk\":\"Швейцарія\",\"pl\":\"Szwajcaria\"}', '47.00000000', '8.00000000', '🇨🇭', 'U+1F1E8 U+1F1ED', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q39'),
+(215, 'Syria', 'SYR', '760', 'SY', '963', 'Damascus', 'SYP', 'Syrian pound', 'LS', '.sy', 'سوريا', 'Asia', 3, 'Western Asia', 11, 'Syrian', '[{\"zoneName\":\"Asia/Damascus\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"시리아\",\"pt-BR\":\"Síria\",\"pt\":\"Síria\",\"nl\":\"Syrië\",\"hr\":\"Sirija\",\"fa\":\"سوریه\",\"de\":\"Syrien\",\"es\":\"Siria\",\"fr\":\"Syrie\",\"ja\":\"シリア・アラブ共和国\",\"it\":\"Siria\",\"zh-CN\":\"叙利亚\",\"tr\":\"Suriye\",\"ru\":\"Сирия\",\"uk\":\"Сирія\",\"pl\":\"Syria\"}', '35.00000000', '38.00000000', '🇸🇾', 'U+1F1F8 U+1F1FE', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q858'),
+(216, 'Taiwan', 'TWN', '158', 'TW', '886', 'Taipei', 'TWD', 'New Taiwan dollar', '$', '.tw', '臺灣', 'Asia', 3, 'Eastern Asia', 12, 'Chinese, Taiwanese', '[{\"zoneName\":\"Asia/Taipei\",\"gmtOffset\":28800,\"gmtOffsetName\":\"UTC+08:00\",\"abbreviation\":\"CST\",\"tzName\":\"China Standard Time\"}]', '{\"ko\":\"대만\",\"pt-BR\":\"Taiwan\",\"pt\":\"Taiwan\",\"nl\":\"Taiwan\",\"hr\":\"Tajvan\",\"fa\":\"تایوان\",\"de\":\"Taiwan\",\"es\":\"Taiwán\",\"fr\":\"Taïwan\",\"ja\":\"台湾（中華民国）\",\"it\":\"Taiwan\",\"zh-CN\":\"中国台湾\",\"tr\":\"Tayvan\",\"ru\":\"Тайвань\",\"uk\":\"Тайвань\",\"pl\":\"Tajwan\"}', '23.50000000', '121.00000000', '🇹🇼', 'U+1F1F9 U+1F1FC', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q865'),
+(217, 'Tajikistan', 'TJK', '762', 'TJ', '992', 'Dushanbe', 'TJS', 'Tajikistani somoni', 'SM', '.tj', 'Тоҷикистон', 'Asia', 3, 'Central Asia', 10, 'Tajikistani', '[{\"zoneName\":\"Asia/Dushanbe\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"TJT\",\"tzName\":\"Tajikistan Time\"}]', '{\"ko\":\"타지키스탄\",\"pt-BR\":\"Tajiquistão\",\"pt\":\"Tajiquistão\",\"nl\":\"Tadzjikistan\",\"hr\":\"Tađikistan\",\"fa\":\"تاجیکستان\",\"de\":\"Tadschikistan\",\"es\":\"Tayikistán\",\"fr\":\"Tadjikistan\",\"ja\":\"タジキスタン\",\"it\":\"Tagikistan\",\"zh-CN\":\"塔吉克斯坦\",\"tr\":\"Tacikistan\",\"ru\":\"Таджикистан\",\"uk\":\"Таджикистан\",\"pl\":\"Tadżykistan\"}', '39.00000000', '71.00000000', '🇹🇯', 'U+1F1F9 U+1F1EF', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q863'),
+(218, 'Tanzania', 'TZA', '834', 'TZ', '255', 'Dodoma', 'TZS', 'Tanzanian shilling', 'TSh', '.tz', 'Tanzania', 'Africa', 1, 'Eastern Africa', 4, 'Tanzanian', '[{\"zoneName\":\"Africa/Dar_es_Salaam\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EAT\",\"tzName\":\"East Africa Time\"}]', '{\"ko\":\"탄자니아\",\"pt-BR\":\"Tanzânia\",\"pt\":\"Tanzânia\",\"nl\":\"Tanzania\",\"hr\":\"Tanzanija\",\"fa\":\"تانزانیا\",\"de\":\"Tansania\",\"es\":\"Tanzania\",\"fr\":\"Tanzanie\",\"ja\":\"タンザニア\",\"it\":\"Tanzania\",\"zh-CN\":\"坦桑尼亚\",\"tr\":\"Tanzanya\",\"ru\":\"Танзания\",\"uk\":\"Танзанія\",\"pl\":\"Tanzania\"}', '-6.00000000', '35.00000000', '🇹🇿', 'U+1F1F9 U+1F1FF', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q924'),
+(219, 'Thailand', 'THA', '764', 'TH', '66', 'Bangkok', 'THB', 'Thai baht', '฿', '.th', 'ประเทศไทย', 'Asia', 3, 'South-Eastern Asia', 13, 'Thai', '[{\"zoneName\":\"Asia/Bangkok\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"ICT\",\"tzName\":\"Indochina Time\"}]', '{\"ko\":\"태국\",\"pt-BR\":\"Tailândia\",\"pt\":\"Tailândia\",\"nl\":\"Thailand\",\"hr\":\"Tajland\",\"fa\":\"تایلند\",\"de\":\"Thailand\",\"es\":\"Tailandia\",\"fr\":\"Thaïlande\",\"ja\":\"タイ\",\"it\":\"Tailandia\",\"zh-CN\":\"泰国\",\"tr\":\"Tayland\",\"ru\":\"Таиланд\",\"uk\":\"Таїланд\",\"pl\":\"Tajlandia\"}', '15.00000000', '100.00000000', '🇹🇭', 'U+1F1F9 U+1F1ED', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q869'),
+(220, 'Togo', 'TGO', '768', 'TG', '228', 'Lome', 'XOF', 'West African CFA franc', 'CFA', '.tg', 'Togo', 'Africa', 1, 'Western Africa', 3, 'Togolese', '[{\"zoneName\":\"Africa/Lome\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"토고\",\"pt-BR\":\"Togo\",\"pt\":\"Togo\",\"nl\":\"Togo\",\"hr\":\"Togo\",\"fa\":\"توگو\",\"de\":\"Togo\",\"es\":\"Togo\",\"fr\":\"Togo\",\"ja\":\"トーゴ\",\"it\":\"Togo\",\"zh-CN\":\"多哥\",\"tr\":\"Togo\",\"ru\":\"Того\",\"uk\":\"Того\",\"pl\":\"Togo\"}', '8.00000000', '1.16666666', '🇹🇬', 'U+1F1F9 U+1F1EC', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q945'),
+(221, 'Tokelau', 'TKL', '772', 'TK', '690', '', 'NZD', 'New Zealand dollar', '$', '.tk', 'Tokelau', 'Oceania', 5, 'Polynesia', 22, 'Tokelauan', '[{\"zoneName\":\"Pacific/Fakaofo\",\"gmtOffset\":46800,\"gmtOffsetName\":\"UTC+13:00\",\"abbreviation\":\"TKT\",\"tzName\":\"Tokelau Time\"}]', '{\"ko\":\"토켈라우\",\"pt-BR\":\"Tokelau\",\"pt\":\"Toquelau\",\"nl\":\"Tokelau\",\"hr\":\"Tokelau\",\"fa\":\"توکلائو\",\"de\":\"Tokelau\",\"es\":\"Islas Tokelau\",\"fr\":\"Tokelau\",\"ja\":\"トケラウ\",\"it\":\"Isole Tokelau\",\"zh-CN\":\"托克劳\",\"tr\":\"Tokelau\",\"ru\":\"Токелау\",\"uk\":\"Токелау\",\"pl\":\"Tokelau\"}', '-9.00000000', '-172.00000000', '🇹🇰', 'U+1F1F9 U+1F1F0', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q36823'),
+(222, 'Tonga', 'TON', '776', 'TO', '676', 'Nuku\'alofa', 'TOP', 'Tongan paʻanga', '$', '.to', 'Tonga', 'Oceania', 5, 'Polynesia', 22, 'Tongan', '[{\"zoneName\":\"Pacific/Tongatapu\",\"gmtOffset\":46800,\"gmtOffsetName\":\"UTC+13:00\",\"abbreviation\":\"TOT\",\"tzName\":\"Tonga Time\"}]', '{\"ko\":\"통가\",\"pt-BR\":\"Tonga\",\"pt\":\"Tonga\",\"nl\":\"Tonga\",\"hr\":\"Tonga\",\"fa\":\"تونگا\",\"de\":\"Tonga\",\"es\":\"Tonga\",\"fr\":\"Tonga\",\"ja\":\"トンガ\",\"it\":\"Tonga\",\"zh-CN\":\"汤加\",\"tr\":\"Tonga\",\"ru\":\"Тонга\",\"uk\":\"Тонга\",\"pl\":\"Tonga\"}', '-20.00000000', '-175.00000000', '🇹🇴', 'U+1F1F9 U+1F1F4', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q678'),
+(223, 'Trinidad and Tobago', 'TTO', '780', 'TT', '1', 'Port of Spain', 'TTD', 'Trinidad and Tobago dollar', '$', '.tt', 'Trinidad and Tobago', 'Americas', 2, 'Caribbean', 7, 'Trinidadian or Tobagonian', '[{\"zoneName\":\"America/Port_of_Spain\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"트리니다드 토바고\",\"pt-BR\":\"Trinidad e Tobago\",\"pt\":\"Trindade e Tobago\",\"nl\":\"Trinidad en Tobago\",\"hr\":\"Trinidad i Tobago\",\"fa\":\"ترینیداد و توباگو\",\"de\":\"Trinidad und Tobago\",\"es\":\"Trinidad y Tobago\",\"fr\":\"Trinité et Tobago\",\"ja\":\"トリニダード・トバゴ\",\"it\":\"Trinidad e Tobago\",\"zh-CN\":\"特立尼达和多巴哥\",\"tr\":\"Trinidad Ve Tobago\",\"ru\":\"Тринидад и Тобаго\",\"uk\":\"Тринідад і Тобаго\",\"pl\":\"Trynidad i Tobago\"}', '11.00000000', '-61.00000000', '🇹🇹', 'U+1F1F9 U+1F1F9', '2018-07-21 07:41:03', '2024-09-05 11:47:03', 1, 'Q754'),
+(224, 'Tunisia', 'TUN', '788', 'TN', '216', 'Tunis', 'TND', 'Tunisian dinar', 'ت.د', '.tn', 'تونس', 'Africa', 1, 'Northern Africa', 1, 'Tunisian', '[{\"zoneName\":\"Africa/Tunis\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"튀니지\",\"pt-BR\":\"Tunísia\",\"pt\":\"Tunísia\",\"nl\":\"Tunesië\",\"hr\":\"Tunis\",\"fa\":\"تونس\",\"de\":\"Tunesien\",\"es\":\"Túnez\",\"fr\":\"Tunisie\",\"ja\":\"チュニジア\",\"it\":\"Tunisia\",\"zh-CN\":\"突尼斯\",\"tr\":\"Tunus\",\"ru\":\"Тунис\",\"uk\":\"Туніс\",\"pl\":\"Tunezja\"}', '34.00000000', '9.00000000', '🇹🇳', 'U+1F1F9 U+1F1F3', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q948'),
+(225, 'Turkey', 'TUR', '792', 'TR', '90', 'Ankara', 'TRY', 'Turkish lira', '₺', '.tr', 'Türkiye', 'Asia', 3, 'Western Asia', 11, 'Turkish', '[{\"zoneName\":\"Europe/Istanbul\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"터키\",\"pt-BR\":\"Turquia\",\"pt\":\"Turquia\",\"nl\":\"Turkije\",\"hr\":\"Turska\",\"fa\":\"ترکیه\",\"de\":\"Türkei\",\"es\":\"Turquía\",\"fr\":\"Turquie\",\"ja\":\"トルコ\",\"it\":\"Turchia\",\"zh-CN\":\"土耳其\",\"tr\":\"Türkiye\",\"ru\":\"Турция\",\"uk\":\"Туреччина\",\"pl\":\"Turcja\"}', '39.00000000', '35.00000000', '🇹🇷', 'U+1F1F9 U+1F1F7', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q43'),
+(226, 'Turkmenistan', 'TKM', '795', 'TM', '993', 'Ashgabat', 'TMT', 'Turkmenistan manat', 'T', '.tm', 'Türkmenistan', 'Asia', 3, 'Central Asia', 10, 'Turkmen', '[{\"zoneName\":\"Asia/Ashgabat\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"TMT\",\"tzName\":\"Turkmenistan Time\"}]', '{\"ko\":\"투르크메니스탄\",\"pt-BR\":\"Turcomenistão\",\"pt\":\"Turquemenistão\",\"nl\":\"Turkmenistan\",\"hr\":\"Turkmenistan\",\"fa\":\"ترکمنستان\",\"de\":\"Turkmenistan\",\"es\":\"Turkmenistán\",\"fr\":\"Turkménistan\",\"ja\":\"トルクメニスタン\",\"it\":\"Turkmenistan\",\"zh-CN\":\"土库曼斯坦\",\"tr\":\"Türkmenistan\",\"ru\":\"Туркменистан\",\"uk\":\"Туркменістан\",\"pl\":\"Turkmenistan\"}', '40.00000000', '60.00000000', '🇹🇲', 'U+1F1F9 U+1F1F2', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q874'),
+(227, 'Turks and Caicos Islands', 'TCA', '796', 'TC', '1', 'Cockburn Town', 'USD', 'United States dollar', '$', '.tc', 'Turks and Caicos Islands', 'Americas', 2, 'Caribbean', 7, 'Turks and Caicos Island', '[{\"zoneName\":\"America/Grand_Turk\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"}]', '{\"ko\":\"터크스 케이커스 제도\",\"pt-BR\":\"Ilhas Turcas e Caicos\",\"pt\":\"Ilhas Turcas e Caicos\",\"nl\":\"Turks- en Caicoseilanden\",\"hr\":\"Otoci Turks i Caicos\",\"fa\":\"جزایر تورکس و کایکوس\",\"de\":\"Turks- und Caicosinseln\",\"es\":\"Islas Turks y Caicos\",\"fr\":\"Îles Turques-et-Caïques\",\"ja\":\"タークス・カイコス諸島\",\"it\":\"Isole Turks e Caicos\",\"zh-CN\":\"特克斯和凯科斯群岛\",\"tr\":\"Turks Ve Caicos Adalari\",\"ru\":\"Острова Теркс и Кайкос\",\"uk\":\"Острови Теркс і Кайкос\",\"pl\":\"Wyspy Turks i Caicos\"}', '21.75000000', '-71.58333333', '🇹🇨', 'U+1F1F9 U+1F1E8', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q18221');
+INSERT INTO `countries` (`id`, `name`, `iso3`, `numeric_code`, `iso2`, `phonecode`, `capital`, `currency`, `currency_name`, `currency_symbol`, `tld`, `native`, `region`, `region_id`, `subregion`, `subregion_id`, `nationality`, `timezones`, `translations`, `latitude`, `longitude`, `emoji`, `emojiU`, `created_at`, `updated_at`, `flag`, `wikiDataId`) VALUES
+(228, 'Tuvalu', 'TUV', '798', 'TV', '688', 'Funafuti', 'AUD', 'Australian dollar', '$', '.tv', 'Tuvalu', 'Oceania', 5, 'Polynesia', 22, 'Tuvaluan', '[{\"zoneName\":\"Pacific/Funafuti\",\"gmtOffset\":43200,\"gmtOffsetName\":\"UTC+12:00\",\"abbreviation\":\"TVT\",\"tzName\":\"Tuvalu Time\"}]', '{\"ko\":\"투발루\",\"pt-BR\":\"Tuvalu\",\"pt\":\"Tuvalu\",\"nl\":\"Tuvalu\",\"hr\":\"Tuvalu\",\"fa\":\"تووالو\",\"de\":\"Tuvalu\",\"es\":\"Tuvalu\",\"fr\":\"Tuvalu\",\"ja\":\"ツバル\",\"it\":\"Tuvalu\",\"zh-CN\":\"图瓦卢\",\"tr\":\"Tuvalu\",\"ru\":\"Тувалу\",\"uk\":\"Тувалу\",\"pl\":\"Tuvalu\"}', '-8.00000000', '178.00000000', '🇹🇻', 'U+1F1F9 U+1F1FB', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q672'),
+(229, 'Uganda', 'UGA', '800', 'UG', '256', 'Kampala', 'UGX', 'Ugandan shilling', 'USh', '.ug', 'Uganda', 'Africa', 1, 'Eastern Africa', 4, 'Ugandan', '[{\"zoneName\":\"Africa/Kampala\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"EAT\",\"tzName\":\"East Africa Time\"}]', '{\"ko\":\"우간다\",\"pt-BR\":\"Uganda\",\"pt\":\"Uganda\",\"nl\":\"Oeganda\",\"hr\":\"Uganda\",\"fa\":\"اوگاندا\",\"de\":\"Uganda\",\"es\":\"Uganda\",\"fr\":\"Uganda\",\"ja\":\"ウガンダ\",\"it\":\"Uganda\",\"zh-CN\":\"乌干达\",\"tr\":\"Uganda\",\"ru\":\"Уганда\",\"uk\":\"Уганда\",\"pl\":\"Uganda\"}', '1.00000000', '32.00000000', '🇺🇬', 'U+1F1FA U+1F1EC', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q1036'),
+(230, 'Ukraine', 'UKR', '804', 'UA', '380', 'Kyiv', 'UAH', 'Ukrainian hryvnia', '₴', '.ua', 'Україна', 'Europe', 4, 'Eastern Europe', 15, 'Ukrainian', '[{\"zoneName\":\"Europe/Kiev\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"},{\"zoneName\":\"Europe/Simferopol\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"MSK\",\"tzName\":\"Moscow Time\"},{\"zoneName\":\"Europe/Uzhgorod\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"},{\"zoneName\":\"Europe/Zaporozhye\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"EET\",\"tzName\":\"Eastern European Time\"}]', '{\"ko\":\"우크라이나\",\"pt-BR\":\"Ucrânia\",\"pt\":\"Ucrânia\",\"nl\":\"Oekraïne\",\"hr\":\"Ukrajina\",\"fa\":\"وکراین\",\"de\":\"Ukraine\",\"es\":\"Ucrania\",\"fr\":\"Ukraine\",\"ja\":\"ウクライナ\",\"it\":\"Ucraina\",\"zh-CN\":\"乌克兰\",\"tr\":\"Ukrayna\",\"ru\":\"Украина\",\"uk\":\"Україна\",\"pl\":\"Ukraina\"}', '49.00000000', '32.00000000', '🇺🇦', 'U+1F1FA U+1F1E6', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q212'),
+(231, 'United Arab Emirates', 'ARE', '784', 'AE', '971', 'Abu Dhabi', 'AED', 'United Arab Emirates dirham', 'إ.د', '.ae', 'دولة الإمارات العربية المتحدة', 'Asia', 3, 'Western Asia', 11, 'Emirati, Emirian, Emiri', '[{\"zoneName\":\"Asia/Dubai\",\"gmtOffset\":14400,\"gmtOffsetName\":\"UTC+04:00\",\"abbreviation\":\"GST\",\"tzName\":\"Gulf Standard Time\"}]', '{\"ko\":\"아랍에미리트\",\"pt-BR\":\"Emirados árabes Unidos\",\"pt\":\"Emirados árabes Unidos\",\"nl\":\"Verenigde Arabische Emiraten\",\"hr\":\"Ujedinjeni Arapski Emirati\",\"fa\":\"امارات متحده عربی\",\"de\":\"Vereinigte Arabische Emirate\",\"es\":\"Emiratos Árabes Unidos\",\"fr\":\"Émirats arabes unis\",\"ja\":\"アラブ首長国連邦\",\"it\":\"Emirati Arabi Uniti\",\"zh-CN\":\"阿拉伯联合酋长国\",\"tr\":\"Birleşik Arap Emirlikleri\",\"ru\":\"Объединенные Арабские Эмираты\",\"uk\":\"Об\'єднані Арабські Емірати\",\"pl\":\"Zjednoczone Emiraty Arabskie\"}', '24.00000000', '54.00000000', '🇦🇪', 'U+1F1E6 U+1F1EA', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q878'),
+(232, 'United Kingdom', 'GBR', '826', 'GB', '44', 'London', 'GBP', 'British pound', '£', '.uk', 'United Kingdom', 'Europe', 4, 'Northern Europe', 18, 'British, UK', '[{\"zoneName\":\"Europe/London\",\"gmtOffset\":0,\"gmtOffsetName\":\"UTC±00\",\"abbreviation\":\"GMT\",\"tzName\":\"Greenwich Mean Time\"}]', '{\"ko\":\"영국\",\"pt-BR\":\"Reino Unido\",\"pt\":\"Reino Unido\",\"nl\":\"Verenigd Koninkrijk\",\"hr\":\"Ujedinjeno Kraljevstvo\",\"fa\":\"بریتانیای کبیر و ایرلند شمالی\",\"de\":\"Vereinigtes Königreich\",\"es\":\"Reino Unido\",\"fr\":\"Royaume-Uni\",\"ja\":\"イギリス\",\"it\":\"Regno Unito\",\"zh-CN\":\"英国\",\"tr\":\"Birleşik Krallik\",\"ru\":\"Великобритания\",\"uk\":\"Сполучене Королівство\",\"pl\":\"Wielka Brytania\"}', '54.00000000', '-2.00000000', '🇬🇧', 'U+1F1EC U+1F1E7', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q145'),
+(233, 'United States', 'USA', '840', 'US', '1', 'Washington', 'USD', 'United States dollar', '$', '.us', 'United States', 'Americas', 2, 'Northern America', 6, 'American', '[{\"zoneName\":\"America/Adak\",\"gmtOffset\":-36000,\"gmtOffsetName\":\"UTC-10:00\",\"abbreviation\":\"HST\",\"tzName\":\"Hawaii–Aleutian Standard Time\"},{\"zoneName\":\"America/Anchorage\",\"gmtOffset\":-32400,\"gmtOffsetName\":\"UTC-09:00\",\"abbreviation\":\"AKST\",\"tzName\":\"Alaska Standard Time\"},{\"zoneName\":\"America/Boise\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America\"},{\"zoneName\":\"America/Chicago\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Denver\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America\"},{\"zoneName\":\"America/Detroit\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Indiana/Indianapolis\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Indiana/Knox\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Indiana/Marengo\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Indiana/Petersburg\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Indiana/Tell_City\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Indiana/Vevay\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Indiana/Vincennes\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Indiana/Winamac\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Juneau\",\"gmtOffset\":-32400,\"gmtOffsetName\":\"UTC-09:00\",\"abbreviation\":\"AKST\",\"tzName\":\"Alaska Standard Time\"},{\"zoneName\":\"America/Kentucky/Louisville\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Kentucky/Monticello\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Los_Angeles\",\"gmtOffset\":-28800,\"gmtOffsetName\":\"UTC-08:00\",\"abbreviation\":\"PST\",\"tzName\":\"Pacific Standard Time (North America\"},{\"zoneName\":\"America/Menominee\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Metlakatla\",\"gmtOffset\":-32400,\"gmtOffsetName\":\"UTC-09:00\",\"abbreviation\":\"AKST\",\"tzName\":\"Alaska Standard Time\"},{\"zoneName\":\"America/New_York\",\"gmtOffset\":-18000,\"gmtOffsetName\":\"UTC-05:00\",\"abbreviation\":\"EST\",\"tzName\":\"Eastern Standard Time (North America\"},{\"zoneName\":\"America/Nome\",\"gmtOffset\":-32400,\"gmtOffsetName\":\"UTC-09:00\",\"abbreviation\":\"AKST\",\"tzName\":\"Alaska Standard Time\"},{\"zoneName\":\"America/North_Dakota/Beulah\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/North_Dakota/Center\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/North_Dakota/New_Salem\",\"gmtOffset\":-21600,\"gmtOffsetName\":\"UTC-06:00\",\"abbreviation\":\"CST\",\"tzName\":\"Central Standard Time (North America\"},{\"zoneName\":\"America/Phoenix\",\"gmtOffset\":-25200,\"gmtOffsetName\":\"UTC-07:00\",\"abbreviation\":\"MST\",\"tzName\":\"Mountain Standard Time (North America\"},{\"zoneName\":\"America/Sitka\",\"gmtOffset\":-32400,\"gmtOffsetName\":\"UTC-09:00\",\"abbreviation\":\"AKST\",\"tzName\":\"Alaska Standard Time\"},{\"zoneName\":\"America/Yakutat\",\"gmtOffset\":-32400,\"gmtOffsetName\":\"UTC-09:00\",\"abbreviation\":\"AKST\",\"tzName\":\"Alaska Standard Time\"},{\"zoneName\":\"Pacific/Honolulu\",\"gmtOffset\":-36000,\"gmtOffsetName\":\"UTC-10:00\",\"abbreviation\":\"HST\",\"tzName\":\"Hawaii–Aleutian Standard Time\"}]', '{\"ko\":\"미국\",\"pt-BR\":\"Estados Unidos\",\"pt\":\"Estados Unidos\",\"nl\":\"Verenigde Staten\",\"hr\":\"Sjedinjene Američke Države\",\"fa\":\"ایالات متحده آمریکا\",\"de\":\"Vereinigte Staaten von Amerika\",\"es\":\"Estados Unidos\",\"fr\":\"États-Unis\",\"ja\":\"アメリカ合衆国\",\"it\":\"Stati Uniti D\'America\",\"zh-CN\":\"美国\",\"tr\":\"Amerika\",\"ru\":\"Соединенные Штаты\",\"uk\":\"Сполучені Штати\",\"pl\":\"Stany Zjednoczone\"}', '38.00000000', '-97.00000000', '🇺🇸', 'U+1F1FA U+1F1F8', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q30'),
+(234, 'United States Minor Outlying Islands', 'UMI', '581', 'UM', '1', '', 'USD', 'United States dollar', '$', '.us', 'United States Minor Outlying Islands', 'Americas', 2, 'Northern America', 6, 'American', '[{\"zoneName\":\"Pacific/Midway\",\"gmtOffset\":-39600,\"gmtOffsetName\":\"UTC-11:00\",\"abbreviation\":\"SST\",\"tzName\":\"Samoa Standard Time\"},{\"zoneName\":\"Pacific/Wake\",\"gmtOffset\":43200,\"gmtOffsetName\":\"UTC+12:00\",\"abbreviation\":\"WAKT\",\"tzName\":\"Wake Island Time\"}]', '{\"ko\":\"미국령 군소 제도\",\"pt-BR\":\"Ilhas Menores Distantes dos Estados Unidos\",\"pt\":\"Ilhas Menores Distantes dos Estados Unidos\",\"nl\":\"Kleine afgelegen eilanden van de Verenigde Staten\",\"hr\":\"Mali udaljeni otoci SAD-a\",\"fa\":\"جزایر کوچک حاشیه‌ای ایالات متحده آمریکا\",\"de\":\"Kleinere Inselbesitzungen der Vereinigten Staaten\",\"es\":\"Islas Ultramarinas Menores de Estados Unidos\",\"fr\":\"Îles mineures éloignées des États-Unis\",\"ja\":\"合衆国領有小離島\",\"it\":\"Isole minori esterne degli Stati Uniti d\'America\",\"zh-CN\":\"美国本土外小岛屿\",\"tr\":\"Abd Küçük Harici Adalari\",\"ru\":\"Малые отдаленные острова Соединенных Штатов\",\"uk\":\"Малі віддалені острови Сполучених Штатів\",\"pl\":\"Mniejsze Wyspy Zewnętrzne Stanów Zjednoczonych\"}', '0.00000000', '0.00000000', '🇺🇲', 'U+1F1FA U+1F1F2', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q16645'),
+(235, 'Uruguay', 'URY', '858', 'UY', '598', 'Montevideo', 'UYU', 'Uruguayan peso', '$', '.uy', 'Uruguay', 'Americas', 2, 'South America', 8, 'Uruguayan', '[{\"zoneName\":\"America/Montevideo\",\"gmtOffset\":-10800,\"gmtOffsetName\":\"UTC-03:00\",\"abbreviation\":\"UYT\",\"tzName\":\"Uruguay Standard Time\"}]', '{\"ko\":\"우루과이\",\"pt-BR\":\"Uruguai\",\"pt\":\"Uruguai\",\"nl\":\"Uruguay\",\"hr\":\"Urugvaj\",\"fa\":\"اروگوئه\",\"de\":\"Uruguay\",\"es\":\"Uruguay\",\"fr\":\"Uruguay\",\"ja\":\"ウルグアイ\",\"it\":\"Uruguay\",\"zh-CN\":\"乌拉圭\",\"tr\":\"Uruguay\",\"ru\":\"Уругвай\",\"uk\":\"Уругвай\",\"pl\":\"Urugwaj\"}', '-33.00000000', '-56.00000000', '🇺🇾', 'U+1F1FA U+1F1FE', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q77'),
+(236, 'Uzbekistan', 'UZB', '860', 'UZ', '998', 'Tashkent', 'UZS', 'Uzbekistani soʻm', 'лв', '.uz', 'O‘zbekiston', 'Asia', 3, 'Central Asia', 10, 'Uzbekistani, Uzbek', '[{\"zoneName\":\"Asia/Samarkand\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"UZT\",\"tzName\":\"Uzbekistan Time\"},{\"zoneName\":\"Asia/Tashkent\",\"gmtOffset\":18000,\"gmtOffsetName\":\"UTC+05:00\",\"abbreviation\":\"UZT\",\"tzName\":\"Uzbekistan Time\"}]', '{\"ko\":\"우즈베키스탄\",\"pt-BR\":\"Uzbequistão\",\"pt\":\"Usbequistão\",\"nl\":\"Oezbekistan\",\"hr\":\"Uzbekistan\",\"fa\":\"ازبکستان\",\"de\":\"Usbekistan\",\"es\":\"Uzbekistán\",\"fr\":\"Ouzbékistan\",\"ja\":\"ウズベキスタン\",\"it\":\"Uzbekistan\",\"zh-CN\":\"乌兹别克斯坦\",\"tr\":\"Özbekistan\",\"ru\":\"Узбекистан\",\"uk\":\"Узбекистан\",\"pl\":\"Uzbekistan\"}', '41.00000000', '64.00000000', '🇺🇿', 'U+1F1FA U+1F1FF', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q265'),
+(237, 'Vanuatu', 'VUT', '548', 'VU', '678', 'Port Vila', 'VUV', 'Vanuatu vatu', 'VT', '.vu', 'Vanuatu', 'Oceania', 5, 'Melanesia', 20, 'Ni-Vanuatu, Vanuatuan', '[{\"zoneName\":\"Pacific/Efate\",\"gmtOffset\":39600,\"gmtOffsetName\":\"UTC+11:00\",\"abbreviation\":\"VUT\",\"tzName\":\"Vanuatu Time\"}]', '{\"ko\":\"바누아투\",\"pt-BR\":\"Vanuatu\",\"pt\":\"Vanuatu\",\"nl\":\"Vanuatu\",\"hr\":\"Vanuatu\",\"fa\":\"وانواتو\",\"de\":\"Vanuatu\",\"es\":\"Vanuatu\",\"fr\":\"Vanuatu\",\"ja\":\"バヌアツ\",\"it\":\"Vanuatu\",\"zh-CN\":\"瓦努阿图\",\"tr\":\"Vanuatu\",\"ru\":\"Вануату\",\"uk\":\"Вануату\",\"pl\":\"Vanuatu\"}', '-16.00000000', '167.00000000', '🇻🇺', 'U+1F1FB U+1F1FA', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q686'),
+(238, 'Vatican City State (Holy See)', 'VAT', '336', 'VA', '379', 'Vatican City', 'EUR', 'Euro', '€', '.va', 'Vaticano', 'Europe', 4, 'Southern Europe', 16, 'Vatican', '[{\"zoneName\":\"Europe/Vatican\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"바티칸 시국\",\"pt-BR\":\"Vaticano\",\"pt\":\"Vaticano\",\"nl\":\"Heilige Stoel\",\"hr\":\"Sveta Stolica\",\"fa\":\"سریر مقدس\",\"de\":\"Heiliger Stuhl\",\"es\":\"Santa Sede\",\"fr\":\"voir Saint\",\"ja\":\"聖座\",\"it\":\"Santa Sede\",\"zh-CN\":\"梵蒂冈\",\"tr\":\"Vatikan\",\"ru\":\"Город-государство Ватикан (Святой Престол)\",\"uk\":\"Держава-місто Ватикан (Святий Престол)\",\"pl\":\"Państwo Watykańskie (Stolica Apostolska)\"}', '41.90000000', '12.45000000', '🇻🇦', 'U+1F1FB U+1F1E6', '2018-07-21 07:41:03', '2023-08-11 16:15:55', 1, 'Q237'),
+(239, 'Venezuela', 'VEN', '862', 'VE', '58', 'Caracas', 'VES', 'Bolívar', 'Bs', '.ve', 'Venezuela', 'Americas', 2, 'South America', 8, 'Venezuelan', '[{\"zoneName\":\"America/Caracas\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"VET\",\"tzName\":\"Venezuelan Standard Time\"}]', '{\"ko\":\"베네수엘라\",\"pt-BR\":\"Venezuela\",\"pt\":\"Venezuela\",\"nl\":\"Venezuela\",\"hr\":\"Venezuela\",\"fa\":\"ونزوئلا\",\"de\":\"Venezuela\",\"es\":\"Venezuela\",\"fr\":\"Venezuela\",\"ja\":\"ベネズエラ・ボリバル共和国\",\"it\":\"Venezuela\",\"zh-CN\":\"委内瑞拉\",\"tr\":\"Venezuela\",\"ru\":\"Венесуэла\",\"uk\":\"Венесуела\",\"pl\":\"Wenezuela\"}', '8.00000000', '-66.00000000', '🇻🇪', 'U+1F1FB U+1F1EA', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q717'),
+(240, 'Vietnam', 'VNM', '704', 'VN', '84', 'Hanoi', 'VND', 'Vietnamese đồng', '₫', '.vn', 'Việt Nam', 'Asia', 3, 'South-Eastern Asia', 13, 'Vietnamese', '[{\"zoneName\":\"Asia/Ho_Chi_Minh\",\"gmtOffset\":25200,\"gmtOffsetName\":\"UTC+07:00\",\"abbreviation\":\"ICT\",\"tzName\":\"Indochina Time\"}]', '{\"ko\":\"베트남\",\"pt-BR\":\"Vietnã\",\"pt\":\"Vietname\",\"nl\":\"Vietnam\",\"hr\":\"Vijetnam\",\"fa\":\"ویتنام\",\"de\":\"Vietnam\",\"es\":\"Vietnam\",\"fr\":\"Viêt Nam\",\"ja\":\"ベトナム\",\"it\":\"Vietnam\",\"zh-CN\":\"越南\",\"tr\":\"Vietnam\",\"ru\":\"Вьетнам\",\"uk\":\"В\'єтнам\",\"pl\":\"Wietnam\"}', '16.16666666', '107.83333333', '🇻🇳', 'U+1F1FB U+1F1F3', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q881'),
+(241, 'Virgin Islands (British)', 'VGB', '092', 'VG', '1', 'Road Town', 'USD', 'United States dollar', '$', '.vg', 'British Virgin Islands', 'Americas', 2, 'Caribbean', 7, 'British Virgin Island', '[{\"zoneName\":\"America/Tortola\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"영국령 버진아일랜드\",\"pt-BR\":\"Ilhas Virgens Britânicas\",\"pt\":\"Ilhas Virgens Britânicas\",\"nl\":\"Britse Maagdeneilanden\",\"hr\":\"Britanski Djevičanski Otoci\",\"fa\":\"جزایر ویرجین بریتانیا\",\"de\":\"Britische Jungferninseln\",\"es\":\"Islas Vírgenes del Reino Unido\",\"fr\":\"Îles Vierges britanniques\",\"ja\":\"イギリス領ヴァージン諸島\",\"it\":\"Isole Vergini Britanniche\",\"zh-CN\":\"圣文森特和格林纳丁斯\",\"tr\":\"Britanya Virjin Adalari\",\"ru\":\"Виргинские острова (Британские)\",\"uk\":\"Віргінські острови (Британські)\",\"pl\":\"Wyspy Dziewicze (Brytyjskie)\"}', '18.43138300', '-64.62305000', '🇻🇬', 'U+1F1FB U+1F1EC', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q25305'),
+(242, 'Virgin Islands (US)', 'VIR', '850', 'VI', '1', 'Charlotte Amalie', 'USD', 'United States dollar', '$', '.vi', 'United States Virgin Islands', 'Americas', 2, 'Caribbean', 7, 'U.S. Virgin Island', '[{\"zoneName\":\"America/St_Thomas\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"미국령 버진아일랜드\",\"pt-BR\":\"Ilhas Virgens Americanas\",\"pt\":\"Ilhas Virgens Americanas\",\"nl\":\"Verenigde Staten Maagdeneilanden\",\"fa\":\"جزایر ویرجین آمریکا\",\"de\":\"Amerikanische Jungferninseln\",\"es\":\"Islas Vírgenes de los Estados Unidos\",\"fr\":\"Îles Vierges des États-Unis\",\"ja\":\"アメリカ領ヴァージン諸島\",\"it\":\"Isole Vergini americane\",\"zh-CN\":\"维尔京群岛（美国）\",\"tr\":\"Abd Virjin Adalari\",\"ru\":\"Виргинские острова (США)\",\"uk\":\"Віргінські острови (США)\",\"pl\":\"Wyspy Dziewicze (USA)\"}', '18.34000000', '-64.93000000', '🇻🇮', 'U+1F1FB U+1F1EE', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q11703'),
+(243, 'Wallis and Futuna Islands', 'WLF', '876', 'WF', '681', 'Mata Utu', 'XPF', 'CFP franc', '₣', '.wf', 'Wallis et Futuna', 'Oceania', 5, 'Polynesia', 22, 'Wallis and Futuna, Wallisian or Futunan', '[{\"zoneName\":\"Pacific/Wallis\",\"gmtOffset\":43200,\"gmtOffsetName\":\"UTC+12:00\",\"abbreviation\":\"WFT\",\"tzName\":\"Wallis & Futuna Time\"}]', '{\"ko\":\"왈리스 푸투나\",\"pt-BR\":\"Wallis e Futuna\",\"pt\":\"Wallis e Futuna\",\"nl\":\"Wallis en Futuna\",\"hr\":\"Wallis i Fortuna\",\"fa\":\"والیس و فوتونا\",\"de\":\"Wallis und Futuna\",\"es\":\"Wallis y Futuna\",\"fr\":\"Wallis-et-Futuna\",\"ja\":\"ウォリス・フツナ\",\"it\":\"Wallis e Futuna\",\"zh-CN\":\"瓦利斯群岛和富图纳群岛\",\"tr\":\"Wallis Ve Futuna\",\"ru\":\"Острова Уоллис и Футуна\",\"uk\":\"Острови Уолліс і Футуна\",\"pl\":\"Wyspy Wallis i Futuna\"}', '-13.30000000', '-176.20000000', '🇼🇫', 'U+1F1FC U+1F1EB', '2018-07-21 07:41:03', '2024-12-19 16:04:08', 1, 'Q35555'),
+(244, 'Western Sahara', 'ESH', '732', 'EH', '212', 'El-Aaiun', 'MAD', 'Moroccan dirham', 'MAD', '.eh', 'الصحراء الغربية', 'Africa', 1, 'Northern Africa', 1, 'Sahrawi, Sahrawian, Sahraouian', '[{\"zoneName\":\"Africa/El_Aaiun\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"WEST\",\"tzName\":\"Western European Summer Time\"}]', '{\"ko\":\"서사하라\",\"pt-BR\":\"Saara Ocidental\",\"pt\":\"Saara Ocidental\",\"nl\":\"Westelijke Sahara\",\"hr\":\"Zapadna Sahara\",\"fa\":\"جمهوری دموکراتیک عربی صحرا\",\"de\":\"Westsahara\",\"es\":\"Sahara Occidental\",\"fr\":\"Sahara Occidental\",\"ja\":\"西サハラ\",\"it\":\"Sahara Occidentale\",\"zh-CN\":\"西撒哈拉\",\"tr\":\"Bati Sahra\",\"ru\":\"Западная Сахара\",\"uk\":\"Західна Сахара\",\"pl\":\"Sahara Zachodnia\"}', '24.50000000', '-13.00000000', '🇪🇭', 'U+1F1EA U+1F1ED', '2018-07-21 07:41:03', '2024-12-23 10:33:12', 1, 'Q6250'),
+(245, 'Yemen', 'YEM', '887', 'YE', '967', 'Sanaa', 'YER', 'Yemeni rial', '﷼', '.ye', 'اليَمَن', 'Asia', 3, 'Western Asia', 11, 'Yemeni', '[{\"zoneName\":\"Asia/Aden\",\"gmtOffset\":10800,\"gmtOffsetName\":\"UTC+03:00\",\"abbreviation\":\"AST\",\"tzName\":\"Arabia Standard Time\"}]', '{\"ko\":\"예멘\",\"pt-BR\":\"Iêmen\",\"pt\":\"Iémen\",\"nl\":\"Jemen\",\"hr\":\"Jemen\",\"fa\":\"یمن\",\"de\":\"Jemen\",\"es\":\"Yemen\",\"fr\":\"Yémen\",\"ja\":\"イエメン\",\"it\":\"Yemen\",\"zh-CN\":\"也门\",\"tr\":\"Yemen\",\"ru\":\"Йемен\",\"uk\":\"Ємен\",\"pl\":\"Jemen\"}', '15.00000000', '48.00000000', '🇾🇪', 'U+1F1FE U+1F1EA', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q805'),
+(246, 'Zambia', 'ZMB', '894', 'ZM', '260', 'Lusaka', 'ZMW', 'Zambian kwacha', 'ZK', '.zm', 'Zambia', 'Africa', 1, 'Southern Africa', 5, 'Zambian', '[{\"zoneName\":\"Africa/Lusaka\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"CAT\",\"tzName\":\"Central Africa Time\"}]', '{\"ko\":\"잠비아\",\"pt-BR\":\"Zâmbia\",\"pt\":\"Zâmbia\",\"nl\":\"Zambia\",\"hr\":\"Zambija\",\"fa\":\"زامبیا\",\"de\":\"Sambia\",\"es\":\"Zambia\",\"fr\":\"Zambie\",\"ja\":\"ザンビア\",\"it\":\"Zambia\",\"zh-CN\":\"赞比亚\",\"tr\":\"Zambiya\",\"ru\":\"Замбия\",\"uk\":\"Замбія\",\"pl\":\"Zambia\"}', '-15.00000000', '30.00000000', '🇿🇲', 'U+1F1FF U+1F1F2', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q953'),
+(247, 'Zimbabwe', 'ZWE', '716', 'ZW', '263', 'Harare', 'ZWL', 'Zimbabwe Dollar', '$', '.zw', 'Zimbabwe', 'Africa', 1, 'Eastern Africa', 4, 'Zimbabwean', '[{\"zoneName\":\"Africa/Harare\",\"gmtOffset\":7200,\"gmtOffsetName\":\"UTC+02:00\",\"abbreviation\":\"CAT\",\"tzName\":\"Central Africa Time\"}]', '{\"ko\":\"짐바브웨\",\"pt-BR\":\"Zimbabwe\",\"pt\":\"Zimbabué\",\"nl\":\"Zimbabwe\",\"hr\":\"Zimbabve\",\"fa\":\"زیمباوه\",\"de\":\"Simbabwe\",\"es\":\"Zimbabue\",\"fr\":\"Zimbabwe\",\"ja\":\"ジンバブエ\",\"it\":\"Zimbabwe\",\"zh-CN\":\"津巴布韦\",\"tr\":\"Zimbabve\",\"ru\":\"Зимбабве\",\"uk\":\"Зімбабве\",\"pl\":\"Zimbabwe\"}', '-20.00000000', '30.00000000', '🇿🇼', 'U+1F1FF U+1F1FC', '2018-07-21 07:41:03', '2023-08-09 19:53:19', 1, 'Q954'),
+(248, 'Kosovo', 'XKX', '926', 'XK', '383', 'Pristina', 'EUR', 'Euro', '€', '.xk', 'Republika e Kosovës', 'Europe', 4, 'Eastern Europe', 15, 'Kosovar, Kosovan', '[{\"zoneName\":\"Europe/Belgrade\",\"gmtOffset\":3600,\"gmtOffsetName\":\"UTC+01:00\",\"abbreviation\":\"CET\",\"tzName\":\"Central European Time\"}]', '{\"ko\":\"코소보\",\"zh-CN\":\"科索沃\",\"tr\":\"Kosova\",\"ru\":\"Косово\",\"uk\":\"Косово\",\"pl\":\"Kosowo\"}', '42.56129090', '20.34030350', '🇽🇰', 'U+1F1FD U+1F1F0', '2020-08-16 03:03:50', '2023-08-11 16:16:28', 1, 'Q1246'),
+(249, 'Curaçao', 'CUW', '531', 'CW', '599', 'Willemstad', 'ANG', 'Netherlands Antillean guilder', 'ƒ', '.cw', 'Curaçao', 'Americas', 2, 'Caribbean', 7, 'Curacaoan', '[{\"zoneName\":\"America/Curacao\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"퀴라소\",\"pt-BR\":\"Curaçao\",\"pt\":\"Curaçao\",\"nl\":\"Curaçao\",\"fa\":\"کوراسائو\",\"de\":\"Curaçao\",\"fr\":\"Curaçao\",\"it\":\"Curaçao\",\"zh-CN\":\"库拉索\",\"tr\":\"Curaçao\",\"ru\":\"Кюрасао\",\"uk\":\"Кюрасао\",\"pl\":\"Curaçao\"}', '12.11666700', '-68.93333300', '🇨🇼', 'U+1F1E8 U+1F1FC', '2020-10-26 02:24:20', '2023-08-11 16:15:55', 1, 'Q25279'),
+(250, 'Sint Maarten (Dutch part)', 'SXM', '534', 'SX', '1721', 'Philipsburg', 'ANG', 'Netherlands Antillean guilder', 'ƒ', '.sx', 'Sint Maarten', 'Americas', 2, 'Caribbean', 7, 'Sint Maarten', '[{\"zoneName\":\"America/Anguilla\",\"gmtOffset\":-14400,\"gmtOffsetName\":\"UTC-04:00\",\"abbreviation\":\"AST\",\"tzName\":\"Atlantic Standard Time\"}]', '{\"ko\":\"신트마르턴\",\"pt-BR\":\"Sint Maarten\",\"pt\":\"São Martinho\",\"nl\":\"Sint Maarten\",\"fa\":\"سینت مارتن\",\"de\":\"Sint Maarten (niederl. Teil)\",\"fr\":\"Saint Martin (partie néerlandaise)\",\"it\":\"Saint Martin (parte olandese)\",\"zh-CN\":\"圣马丁岛（荷兰部分）\",\"tr\":\"Sint Maarten\",\"ru\":\"Синт-Мартен (голландская часть)\",\"uk\":\"Сінт-Мартен (голландська частина)\",\"pl\":\"Sint Maarten (część niderlandzka)\"}', '18.03333300', '-63.05000000', '🇸🇽', 'U+1F1F8 U+1F1FD', '2020-12-06 00:33:39', '2023-08-09 19:53:19', 1, 'Q26273');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `customer`
+--
+
+CREATE TABLE `customer` (
+  `id` bigint(20) NOT NULL,
+  `user_id` bigint(20) DEFAULT NULL,
+  `fullname` varchar(512) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `createdAt` datetime(3) DEFAULT current_timestamp(3),
+  `updatedAt` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3),
+  `gender` enum('male','female','other') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `date_of_birth` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `customer`
+--
+
+INSERT INTO `customer` (`id`, `user_id`, `fullname`, `createdAt`, `updatedAt`, `gender`, `date_of_birth`) VALUES
+(1, 2, 'Ameer hamza', '2025-05-10 18:37:10.670', '2025-09-12 19:20:01.441', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `favorite_products`
+--
+
+CREATE TABLE `favorite_products` (
+  `id` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
+  `product_id` bigint(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `media`
+--
+
+CREATE TABLE `media` (
+  `imageID` bigint(20) NOT NULL,
+  `type` enum('product','banner','gallery') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'product',
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `alt_text` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mime_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'image/jpeg',
+  `file_size` int(11) DEFAULT NULL,
+  `width` int(11) DEFAULT NULL,
+  `height` int(11) DEFAULT NULL,
+  `is_featured` tinyint(1) NOT NULL DEFAULT 0,
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `productID` bigint(20) DEFAULT NULL,
+  `category_id` bigint(20) DEFAULT NULL,
+  `banner_position` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `banner_url` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `banner_target` enum('_self','_blank') COLLATE utf8mb4_unicode_ci DEFAULT '_self',
+  `campaign_id` bigint(20) DEFAULT NULL,
+  `status` enum('active','inactive','archived') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `created_by` bigint(20) DEFAULT NULL,
+  `updated_by` bigint(20) DEFAULT NULL,
+  `image` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `media`
+--
+
+INSERT INTO `media` (`imageID`, `type`, `title`, `description`, `alt_text`, `mime_type`, `file_size`, `width`, `height`, `is_featured`, `sort_order`, `productID`, `category_id`, `banner_position`, `banner_url`, `banner_target`, `campaign_id`, `status`, `created_by`, `updated_by`, `image`, `created_at`) VALUES
+(1, 'banner', 'Strawberry Cheese Cake', 'Promotional banner strawberry cheesecake', 'Summer Ice Cream Specials', 'image/jpeg', NULL, NULL, NULL, 1, 1, NULL, 1, 'homepage_top', '/summer-sale', '_self', 5, 'active', 1, NULL, '/banners/summer-ice-cream.jpg', '2025-09-08 20:52:21'),
+(2, 'banner', 'Chocolate Cones Special', 'Special offer on chocolate cones', 'Chocolate Cones Discount', 'image/jpeg', NULL, NULL, NULL, 1, 2, NULL, 1, 'category_top', '/chocolate-specials', '_self', 5, 'active', 1, NULL, '/banners/chocolate-cones.jpg', '2025-09-08 20:52:21'),
+(12, 'banner', 'Summer Ice Cream Banner', 'Main promotional banner for summer ice cream festival', 'Summer Ice Cream Specials - 20% Off', 'image/jpeg', 102400, 1200, 400, 1, 1, NULL, 1, 'homepage_top', '/promotions/summer-festival', '_self', 1, 'active', 1, NULL, '/banners/summer/summer-main-banner.jpg', '2025-05-15 05:30:00'),
+(13, 'banner', 'Family Pack Special', 'Summer family pack promotion with mixed flavors', 'Family Pack - 4 Flavors - $24.99', 'image/jpeg', 98304, 800, 300, 1, 2, NULL, 1, 'category_top', '/products/family-packs', '_self', 1, 'active', 1, NULL, '/banners/summer/family-pack-banner.jpg', '2025-05-15 06:00:00'),
+(14, 'banner', 'New Summer Flavors', 'Introducing new summer exclusive flavors', 'Try New Mango Tango & Berry Blast', 'image/png', 87654, 600, 250, 0, 3, NULL, 1, 'product_sidebar', '/new-flavors', '_self', 1, 'active', 1, NULL, '/banners/summer/new-flavors-banner.png', '2025-05-16 04:20:00'),
+(15, 'banner', 'Back to School Lunchbox', 'Perfect ice cream treats for school lunches', 'Lunchbox Specials - Kid Friendly', 'image/jpeg', 112640, 1000, 350, 1, 1, NULL, 1, 'homepage_top', '/back-to-school', '_self', 2, 'active', 1, NULL, '/banners/school/school-main-banner.jpg', '2025-08-01 03:45:00'),
+(16, 'banner', 'Mini Cup Assortment', 'Variety pack of mini ice cream cups', '12 Mini Cups - Perfect for Lunches', 'image/jpeg', 76543, 700, 280, 1, 2, NULL, 1, 'category_top', '/products/mini-cups', '_self', 2, 'active', 1, NULL, '/banners/school/mini-cups-banner.jpg', '2025-08-01 04:30:00'),
+(17, 'banner', 'Winter Warm-up Special', 'Hot chocolate and warm desserts for cold days', 'Hot Chocolate & Warm Brownies', 'image/jpeg', 118000, 1100, 380, 1, 1, NULL, 1, 'homepage_top', '/winter-specials', '_self', 3, 'active', 1, NULL, '/banners/winter/winter-main-banner.jpg', '2025-11-20 05:15:00'),
+(18, 'banner', 'Hot Chocolate Bundle', 'Special bundle with hot chocolate and marshmallows', 'Hot Chocolate Bundle - $19.99', 'image/jpeg', 89210, 750, 300, 0, 2, NULL, 1, 'product_sidebar', '/products/hot-chocolate', '_blank', 3, 'active', 1, NULL, '/banners/winter/hot-chocolate-banner.jpg', '2025-11-20 06:00:00'),
+(19, 'banner', 'Spring Refresh Launch', 'New spring flavors and seasonal refresh', 'New Strawberry Fields & Lemon Zest', 'image/png', 95420, 950, 320, 1, 1, NULL, 1, 'homepage_top', '/spring-refresh', '_self', 4, 'active', 1, NULL, '/banners/spring/spring-main-banner.png', '2025-02-20 08:20:00'),
+(20, 'banner', 'Easter Specials', 'Limited edition Easter themed ice creams', 'Easter Bunny Cones & Egg Surprises', 'image/jpeg', 82340, 850, 290, 1, 2, NULL, 1, 'category_top', '/easter-specials', '_self', 4, 'active', 1, NULL, '/banners/spring/easter-banner.jpg', '2025-02-25 09:40:00'),
+(21, 'product', 'Chocolate Cone Main Image', 'Main product image for chocolate cone ice cream', 'Chocolate Cone Ice Cream', 'image/jpeg', 65432, 600, 600, 1, 1, 1, NULL, NULL, NULL, '_self', NULL, 'active', 1, NULL, '', '2025-05-10 07:00:00'),
+(22, 'product', 'Chocolate Cone Alternate Angle', 'Alternate view of chocolate cone product', 'Chocolate Cone Side View', 'image/jpeg', 59876, 600, 600, 0, 2, 1, NULL, NULL, NULL, '_self', NULL, 'active', 1, NULL, '', '2025-05-10 07:05:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `media_meta`
+--
+
+CREATE TABLE `media_meta` (
+  `id` bigint(20) NOT NULL,
+  `media_id` bigint(20) NOT NULL,
+  `meta_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `meta_value` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT current_timestamp(3),
+  `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `media_meta`
+--
+
+INSERT INTO `media_meta` (`id`, `media_id`, `meta_key`, `meta_value`, `created_at`, `updated_at`) VALUES
+(17, 1, 'background_color', '#FF6B35', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(18, 1, 'text_color', '#FFFFFF', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(19, 1, 'cta_text', 'Shop Now', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(20, 1, 'display_duration', '30', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(21, 2, 'background_color', '#4ECDC4', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(22, 2, 'text_color', '#000000', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(23, 2, 'cta_text', 'View Family Packs', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(24, 12, 'animation_type', 'fade-in', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(25, 14, 'season', 'back-to-school', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(26, 14, 'target_audience', 'families', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(27, 15, 'package_type', 'mini-cups', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(28, 16, 'product_type', 'hot-beverages', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(29, 17, 'temperature', 'hot', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(30, 18, 'season', 'spring', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(31, 18, 'flavor_type', 'fruity', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539'),
+(32, 19, 'holiday', 'easter', '2025-09-09 02:00:45.539', '2025-09-09 02:00:45.539');
 
 -- --------------------------------------------------------
 
@@ -100,20 +1223,13 @@ CREATE TABLE `image` (
 --
 
 CREATE TABLE `order` (
-  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `lastname` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `company` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `address` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `apartment` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `postalCode` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` bigint(20) NOT NULL,
+  `customer_id` bigint(20) NOT NULL,
+  `branch_id` bigint(20) DEFAULT NULL,
+  `rider_id` bigint(20) DEFAULT NULL,
   `dateTime` datetime(3) DEFAULT current_timestamp(3),
   `status` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `total` int(11) NOT NULL,
-  `city` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `country` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `orderNotice` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -121,8 +1237,8 @@ CREATE TABLE `order` (
 -- Dumping data for table `order`
 --
 
-INSERT INTO `order` (`id`, `name`, `lastname`, `phone`, `email`, `company`, `address`, `apartment`, `postalCode`, `dateTime`, `status`, `total`, `city`, `country`, `orderNotice`) VALUES
-('c5a4da70-93bf-4872-b85d-378269032b7f', 'Ameer ', 'hamza', '+923254430008', 'ameerarif12348@gmail.com', 'Ameer', 'Post Office Sarhali Kalan Teshil And District Kasur', 'Post Office Sarhali Kalan Teshil And District Kasur', '55110', '2025-05-10 18:37:10.670', 'processing', 8133, 'KASUR', 'Pakistan', 'Extra chocolate dena mujhe');
+INSERT INTO `order` (`id`, `customer_id`, `branch_id`, `rider_id`, `dateTime`, `status`, `total`, `orderNotice`) VALUES
+(1, 1, NULL, NULL, '2025-05-10 18:37:10.670', 'processing', 8133, 'Extra chocolate dena mujhe');
 
 -- --------------------------------------------------------
 
@@ -131,11 +1247,11 @@ INSERT INTO `order` (`id`, `name`, `lastname`, `phone`, `email`, `company`, `add
 --
 
 CREATE TABLE `order_item` (
-  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `customerOrderId` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `productId` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `variantId` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `bundleId` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `id` bigint(20) NOT NULL,
+  `customerOrderId` bigint(20) NOT NULL,
+  `productId` bigint(20) NOT NULL,
+  `variantId` bigint(20) DEFAULT NULL,
+  `bundleId` bigint(20) DEFAULT NULL,
   `quantity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -144,7 +1260,7 @@ CREATE TABLE `order_item` (
 --
 
 INSERT INTO `order_item` (`id`, `customerOrderId`, `productId`, `variantId`, `bundleId`, `quantity`) VALUES
-('e33648cc-e488-489f-8403-7aceb22f210a', 'c5a4da70-93bf-4872-b85d-378269032b7f', 'fdd8cb83-1f70-4b31-9a8b-a0e1fbeea48b', NULL, NULL, 8);
+(1, 1, 1, NULL, NULL, 8);
 
 -- --------------------------------------------------------
 
@@ -153,24 +1269,29 @@ INSERT INTO `order_item` (`id`, `customerOrderId`, `productId`, `variantId`, `bu
 --
 
 CREATE TABLE `product` (
-  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` bigint(20) NOT NULL,
   `slug` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `title` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `mainImage` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `price` int(11) NOT NULL DEFAULT 0,
+  `discountType` enum('PERCENTAGE','FIXED_AMOUNT') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `discountValue` int(11) DEFAULT NULL,
+  `originalPrice` int(11) DEFAULT NULL,
+  `discountStartDate` datetime(3) DEFAULT NULL,
+  `discountEndDate` datetime(3) DEFAULT NULL,
   `rating` int(11) NOT NULL DEFAULT 0,
   `description` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `manufacturer` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `inStock` int(11) NOT NULL DEFAULT 1,
-  `categoryId` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL
+  `categoryId` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `product`
 --
 
-INSERT INTO `product` (`id`, `slug`, `title`, `mainImage`, `price`, `rating`, `description`, `manufacturer`, `inStock`, `categoryId`) VALUES
-('fdd8cb83-1f70-4b31-9a8b-a0e1fbeea48b', 'chocolate-con-ice-cream', 'Chocolate Con Ice Cream', 'Wafer-Ice-Cream-PNG-Picture.png', 1000, 5, 'This is a chocolate con icecream', 'Omore', 1, '2a8f4082-e886-4577-af99-85002358b944');
+INSERT INTO `product` (`id`, `slug`, `title`, `mainImage`, `price`, `discountType`, `discountValue`, `originalPrice`, `discountStartDate`, `discountEndDate`, `rating`, `description`, `manufacturer`, `inStock`, `categoryId`) VALUES
+(1, 'chocolate-con-ice-cream', 'Chocolate Con Ice Cream', 'Wafer-Ice-Cream-PNG-Picture.png', 800, 'PERCENTAGE', 20, 1000, '2025-01-01 00:00:00.000', '2025-12-31 23:59:59.000', 5, 'This is a chocolate con icecream', 'Omore', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -179,7 +1300,7 @@ INSERT INTO `product` (`id`, `slug`, `title`, `mainImage`, `price`, `rating`, `d
 --
 
 CREATE TABLE `promocode` (
-  `id` int(11) NOT NULL,
+  `id` bigint(20) NOT NULL,
   `code` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `discountAmount` int(11) NOT NULL,
   `discountType` enum('FLAT','PERCENTAGE') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'FLAT',
@@ -192,23 +1313,90 @@ CREATE TABLE `promocode` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `rider`
+--
+
+CREATE TABLE `rider` (
+  `id` bigint(20) NOT NULL,
+  `branch_id` bigint(20) NOT NULL,
+  `user_id` bigint(20) DEFAULT NULL COMMENT 'Optional link to user for login/app access',
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `vehicle_type` enum('bike','car','van') COLLATE utf8mb4_unicode_ci DEFAULT 'bike',
+  `license_number` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `current_status` enum('available','busy','offline') COLLATE utf8mb4_unicode_ci DEFAULT 'available',
+  `latitude` decimal(10,8) DEFAULT NULL COMMENT 'Current location',
+  `longitude` decimal(11,8) DEFAULT NULL COMMENT 'Current location',
+  `created_at` datetime(3) DEFAULT current_timestamp(3),
+  `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `rider`
+--
+
+INSERT INTO `rider` (`id`, `branch_id`, `user_id`, `name`, `phone`, `vehicle_type`, `license_number`, `is_active`, `current_status`, `latitude`, `longitude`, `created_at`, `updated_at`) VALUES
+(1, 1, NULL, 'Rider Ahmed', '+923001234567', 'bike', 'PK-BIKE-123', 1, 'available', '31.20000000', '74.45000000', '2025-09-10 00:35:37.000', '2025-09-10 00:35:37.000');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `roles`
+--
+
+CREATE TABLE `roles` (
+  `id` int(11) NOT NULL,
+  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `roles`
+--
+
+INSERT INTO `roles` (`id`, `name`, `description`, `created_at`) VALUES
+(1, 'administrator', 'Full system administrator', '2025-09-12 14:28:13'),
+(2, 'customer', 'Regular customer account', '2025-09-12 14:28:13'),
+(3, 'delivery_rider', 'Order delivery personnel', '2025-09-12 14:28:13');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `user`
 --
 
 CREATE TABLE `user` (
-  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `role` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT 'user'
+  `id` bigint(20) NOT NULL,
+  `email` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Email address for authentication',
+  `phone` varchar(65) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Mobile phone number',
+  `password` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'encrypted password',
+  `role` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT 'user' COMMENT 'User role assigned (customer, administrator, rider)',
+  `phone_verified` tinyint(1) DEFAULT 0 COMMENT 'Phone number verified',
+  `email_verified` tinyint(1) DEFAULT 0 COMMENT 'Email address verified'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id`, `email`, `password`, `role`) VALUES
-('', 'wmkhan101@gmail.com', '$2a$05$ODUflk37dIp7bOt4r1W.G.ENSz/A4dCwxen08ic4U3bZmIj.rY54q', 'user'),
-('G52vg9vwgkZfB0pfVp2v5', 'ameerarif12348@gmail.com', '$2a$05$ODUflk37dIp7bOt4r1W.G.ENSz/A4dCwxen08ic4U3bZmIj.rY54q', 'user');
+INSERT INTO `user` (`id`, `email`, `phone`, `password`, `role`, `phone_verified`, `email_verified`) VALUES
+(1, 'wmkhan101@gmail.com', '', '$2a$05$ODUflk37dIp7bOt4r1W.G.ENSz/A4dCwxen08ic4U3bZmIj.rY54q', 'user', 0, 0),
+(2, 'ameerarif12348@gmail.com', '', '$2a$05$ODUflk37dIp7bOt4r1W.G.ENSz/A4dCwxen08ic4U3bZmIj.rY54q', 'user', 0, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_roles`
+--
+
+CREATE TABLE `user_roles` (
+  `id` bigint(20) NOT NULL,
+  `user_id` bigint(20) NOT NULL,
+  `role_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -217,13 +1405,25 @@ INSERT INTO `user` (`id`, `email`, `password`, `role`) VALUES
 --
 
 CREATE TABLE `variant` (
-  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `productId` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` bigint(20) NOT NULL,
+  `productId` bigint(20) NOT NULL,
   `name` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `value` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   `price` int(11) NOT NULL DEFAULT 0,
+  `discountType` enum('PERCENTAGE','FIXED_AMOUNT') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `discountValue` int(11) DEFAULT NULL,
+  `originalPrice` int(11) DEFAULT NULL,
+  `discountStartDate` datetime(3) DEFAULT NULL,
+  `discountEndDate` datetime(3) DEFAULT NULL,
   `inStock` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `variant`
+--
+
+INSERT INTO `variant` (`id`, `productId`, `name`, `value`, `price`, `discountType`, `discountValue`, `originalPrice`, `discountStartDate`, `discountEndDate`, `inStock`) VALUES
+(1, 1, 'Size', 'Large', 1500, 'FIXED_AMOUNT', 500, 2000, '2025-01-01 00:00:00.000', '2025-12-31 23:59:59.000', 1);
 
 -- --------------------------------------------------------
 
@@ -232,9 +1432,9 @@ CREATE TABLE `variant` (
 --
 
 CREATE TABLE `wishlist` (
-  `id` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `productId` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `userId` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL
+  `id` bigint(20) NOT NULL,
+  `productId` bigint(20) NOT NULL,
+  `userId` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -242,7 +1442,7 @@ CREATE TABLE `wishlist` (
 --
 
 INSERT INTO `wishlist` (`id`, `productId`, `userId`) VALUES
-('55c892a1-5522-4f11-822d-9be73ab435fe', 'fdd8cb83-1f70-4b31-9a8b-a0e1fbeea48b', 'G52vg9vwgkZfB0pfVp2v5');
+(1, 1, 2);
 
 -- --------------------------------------------------------
 
@@ -279,12 +1479,61 @@ INSERT INTO `_prisma_migrations` (`id`, `checksum`, `finished_at`, `migration_na
 ('b7e72f36-7f25-4d93-8ca1-d6b8cff878f0', 'b40a651b6a85c620f98b6956424fe65424d36d1ffc2a0cd741a07b1e654605a1', '2025-05-10 17:58:47.157', '20240607075549_added_cascade_delete_for_categories_in_product_table', NULL, NULL, '2025-05-10 17:58:47.050', 1),
 ('c5d6f7e2-h6i7-5k9m-n3p4-0q1r2s3t4u5v', 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8', '2025-05-11 16:10:09.000', '20250511203000_add_variants_and_bundles', NULL, NULL, '2025-05-11 16:10:09.000', 1),
 ('c968b499-9ba9-4b87-ab9f-0f765eb3f1a3', '17372f962ba8a320258c9ee28293f5ebb1f0bdf6a87711ac9dc8390a2a43c619', '2025-05-10 17:58:47.361', '20240607111047_added_unique_constraint_to_name_column_in_the_category_table', NULL, NULL, '2025-05-10 17:58:47.321', 1),
+('d6e7f8g9-h0i1-j2k3-l4m5-n6o7p8q9r0s1', 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0', '2025-09-09 02:50:18.000', '20250511204500_add_discount_support', NULL, NULL, '2025-09-09 02:50:18.000', 1),
 ('d944f4bc-9f0d-4e1b-a515-84924d31981f', 'b0f5489621f0cbdfb6f5cd7aab54a295952b49ba3f555fb293469466f69d2f26', '2025-05-10 17:58:46.729', '20240515154444_added_necessary_fields_for_customer_order_table', NULL, NULL, '2025-05-10 17:58:46.713', 1),
 ('ec4d46eb-7596-4340-bfb5-12d902d9d8f7', '6bc5f178eb74f83131e0214946d0cf2790ed3c5c7393a6128294357c3f5f7fbf', '2025-05-10 17:58:47.317', '20240607083528_added_cascade_delete_for_wishlist_in_product_table', NULL, NULL, '2025-05-10 17:58:47.162', 1);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `banner_campaign`
+--
+ALTER TABLE `banner_campaign`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_banner_campaign_active` (`is_active`),
+  ADD KEY `idx_banner_campaign_dates` (`start_date`,`end_date`),
+  ADD KEY `fk_banner_campaign_created_by` (`created_by`),
+  ADD KEY `fk_banner_campaign_updated_by` (`updated_by`),
+  ADD KEY `fk_banner_campaign_branch` (`branch_id`),
+  ADD KEY `idx_banner_campaign_branch_date` (`branch_id`,`start_date`,`end_date`);
+
+--
+-- Indexes for table `branch`
+--
+ALTER TABLE `branch`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_branch_business` (`business_id`),
+  ADD KEY `fk_branch_created_by` (`created_by`),
+  ADD KEY `fk_branch_updated_by` (`updated_by`);
+
+--
+-- Indexes for table `branch_product`
+--
+ALTER TABLE `branch_product`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_branch_product_variant` (`branch_id`,`product_id`,`variant_id`),
+  ADD KEY `fk_branch_product_branch` (`branch_id`),
+  ADD KEY `fk_branch_product_product` (`product_id`),
+  ADD KEY `fk_branch_product_variant` (`variant_id`);
+
+--
+-- Indexes for table `branch_special_days`
+--
+ALTER TABLE `branch_special_days`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_branch_date` (`branch_id`,`date`),
+  ADD KEY `fk_branch_special_days_branch` (`branch_id`),
+  ADD KEY `idx_special_date` (`date`);
+
+--
+-- Indexes for table `branch_timings`
+--
+ALTER TABLE `branch_timings`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_branch_day` (`branch_id`,`day_of_week`),
+  ADD KEY `fk_branch_timings_branch` (`branch_id`);
 
 --
 -- Indexes for table `bundle`
@@ -302,32 +1551,94 @@ ALTER TABLE `bundle_product`
   ADD KEY `BundleProduct_variantId_fkey` (`variantId`);
 
 --
+-- Indexes for table `business`
+--
+ALTER TABLE `business`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_business_owner_user` (`owner_user_id`);
+
+--
+-- Indexes for table `cart`
+--
+ALTER TABLE `cart`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `Cart_userId_key` (`userId`),
+  ADD UNIQUE KEY `Cart_sessionId_key` (`sessionId`),
+  ADD KEY `Cart_userId_fkey` (`userId`);
+
+--
 -- Indexes for table `cart_item`
 --
 ALTER TABLE `cart_item`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `CartItem_userId_productId_variantId_key` (`userId`,`productId`,`variantId`),
+  ADD UNIQUE KEY `CartItem_cartId_productId_variantId_key` (`cartId`,`productId`,`variantId`),
   ADD KEY `CartItem_productId_fkey` (`productId`),
-  ADD KEY `CartItem_variantId_fkey` (`variantId`);
+  ADD KEY `CartItem_variantId_fkey` (`variantId`),
+  ADD KEY `CartItem_cartId_fkey` (`cartId`);
 
 --
 -- Indexes for table `category`
 --
 ALTER TABLE `category`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `Category_name_key` (`name`);
+  ADD KEY `fk_category_branch` (`branch_id`),
+  ADD KEY `idx_category_branch` (`branch_id`);
 
 --
--- Indexes for table `image`
+-- Indexes for table `cities`
 --
-ALTER TABLE `image`
-  ADD PRIMARY KEY (`imageID`);
+ALTER TABLE `cities`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `cities_test_ibfk_1` (`state_id`),
+  ADD KEY `cities_test_ibfk_2` (`country_id`);
+
+--
+-- Indexes for table `countries`
+--
+ALTER TABLE `countries`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `country_continent` (`region_id`),
+  ADD KEY `country_subregion` (`subregion_id`);
+
+--
+-- Indexes for table `customer`
+--
+ALTER TABLE `customer`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_customer_user_id` (`user_id`);
+
+--
+-- Indexes for table `media`
+--
+ALTER TABLE `media`
+  ADD PRIMARY KEY (`imageID`),
+  ADD KEY `image_productID_fkey` (`productID`),
+  ADD KEY `idx_media_type` (`type`),
+  ADD KEY `idx_media_product` (`productID`),
+  ADD KEY `idx_media_category` (`category_id`),
+  ADD KEY `idx_media_status` (`status`),
+  ADD KEY `idx_media_featured` (`is_featured`),
+  ADD KEY `idx_media_sort` (`sort_order`),
+  ADD KEY `fk_media_created_by` (`created_by`),
+  ADD KEY `fk_media_updated_by` (`updated_by`),
+  ADD KEY `fk_media_campaign` (`campaign_id`);
+
+--
+-- Indexes for table `media_meta`
+--
+ALTER TABLE `media_meta`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_media_meta` (`media_id`,`meta_key`),
+  ADD KEY `idx_media_meta_key` (`meta_key`);
 
 --
 -- Indexes for table `order`
 --
 ALTER TABLE `order`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_order_customer` (`customer_id`),
+  ADD KEY `fk_order_branch` (`branch_id`),
+  ADD KEY `fk_order_rider` (`rider_id`);
 
 --
 -- Indexes for table `order_item`
@@ -353,6 +1664,14 @@ ALTER TABLE `product`
 ALTER TABLE `promocode`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `PromoCode_code_key` (`code`);
+
+--
+-- Indexes for table `rider`
+--
+ALTER TABLE `rider`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_rider_branch` (`branch_id`),
+  ADD KEY `fk_rider_user` (`user_id`);
 
 --
 -- Indexes for table `user`
@@ -387,20 +1706,188 @@ ALTER TABLE `_prisma_migrations`
 --
 
 --
+-- AUTO_INCREMENT for table `banner_campaign`
+--
+ALTER TABLE `banner_campaign`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `branch`
+--
+ALTER TABLE `branch`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `branch_product`
+--
+ALTER TABLE `branch_product`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `branch_special_days`
+--
+ALTER TABLE `branch_special_days`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `branch_timings`
+--
+ALTER TABLE `branch_timings`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- AUTO_INCREMENT for table `bundle`
+--
+ALTER TABLE `bundle`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `bundle_product`
+--
+ALTER TABLE `bundle_product`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `business`
+--
+ALTER TABLE `business`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `cart`
+--
+ALTER TABLE `cart`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `cart_item`
 --
 ALTER TABLE `cart_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `category`
+--
+ALTER TABLE `category`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `cities`
+--
+ALTER TABLE `cities`
+  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=154475;
+
+--
+-- AUTO_INCREMENT for table `countries`
+--
+ALTER TABLE `countries`
+  MODIFY `id` mediumint(8) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=251;
+
+--
+-- AUTO_INCREMENT for table `customer`
+--
+ALTER TABLE `customer`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `media`
+--
+ALTER TABLE `media`
+  MODIFY `imageID` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
+-- AUTO_INCREMENT for table `media_meta`
+--
+ALTER TABLE `media_meta`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+
+--
+-- AUTO_INCREMENT for table `order`
+--
+ALTER TABLE `order`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `order_item`
+--
+ALTER TABLE `order_item`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `product`
+--
+ALTER TABLE `product`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `promocode`
 --
 ALTER TABLE `promocode`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `rider`
+--
+ALTER TABLE `rider`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `user`
+--
+ALTER TABLE `user`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `variant`
+--
+ALTER TABLE `variant`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `wishlist`
+--
+ALTER TABLE `wishlist`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `banner_campaign`
+--
+ALTER TABLE `banner_campaign`
+  ADD CONSTRAINT `fk_banner_campaign_branch` FOREIGN KEY (`branch_id`) REFERENCES `branch` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_banner_campaign_created_by` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_banner_campaign_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `branch`
+--
+ALTER TABLE `branch`
+  ADD CONSTRAINT `fk_branch_business` FOREIGN KEY (`business_id`) REFERENCES `business` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_branch_created_by` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_branch_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `branch_product`
+--
+ALTER TABLE `branch_product`
+  ADD CONSTRAINT `fk_branch_product_branch` FOREIGN KEY (`branch_id`) REFERENCES `branch` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_branch_product_product` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_branch_product_variant` FOREIGN KEY (`variant_id`) REFERENCES `variant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `branch_special_days`
+--
+ALTER TABLE `branch_special_days`
+  ADD CONSTRAINT `fk_branch_special_days_branch` FOREIGN KEY (`branch_id`) REFERENCES `branch` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `branch_timings`
+--
+ALTER TABLE `branch_timings`
+  ADD CONSTRAINT `fk_branch_timings_branch` FOREIGN KEY (`branch_id`) REFERENCES `branch` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `bundle_product`
@@ -411,12 +1898,60 @@ ALTER TABLE `bundle_product`
   ADD CONSTRAINT `BundleProduct_variantId_fkey` FOREIGN KEY (`variantId`) REFERENCES `variant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `business`
+--
+ALTER TABLE `business`
+  ADD CONSTRAINT `fk_business_owner_user` FOREIGN KEY (`owner_user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `cart`
+--
+ALTER TABLE `cart`
+  ADD CONSTRAINT `Cart_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user` (`id`) ON UPDATE CASCADE;
+
+--
 -- Constraints for table `cart_item`
 --
 ALTER TABLE `cart_item`
+  ADD CONSTRAINT `CartItem_cartId_fkey` FOREIGN KEY (`cartId`) REFERENCES `cart` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `CartItem_productId_fkey` FOREIGN KEY (`productId`) REFERENCES `product` (`id`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `CartItem_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `user` (`id`) ON UPDATE CASCADE,
   ADD CONSTRAINT `CartItem_variantId_fkey` FOREIGN KEY (`variantId`) REFERENCES `variant` (`id`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `category`
+--
+ALTER TABLE `category`
+  ADD CONSTRAINT `fk_category_branch` FOREIGN KEY (`branch_id`) REFERENCES `branch` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `customer`
+--
+ALTER TABLE `customer`
+  ADD CONSTRAINT `fk_customer_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `media`
+--
+ALTER TABLE `media`
+  ADD CONSTRAINT `fk_media_campaign` FOREIGN KEY (`campaign_id`) REFERENCES `banner_campaign` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_media_category` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_media_created_by` FOREIGN KEY (`created_by`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_media_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `image_productID_fkey` FOREIGN KEY (`productID`) REFERENCES `product` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `media_meta`
+--
+ALTER TABLE `media_meta`
+  ADD CONSTRAINT `fk_media_meta_media` FOREIGN KEY (`media_id`) REFERENCES `media` (`imageID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `order`
+--
+ALTER TABLE `order`
+  ADD CONSTRAINT `fk_order_branch` FOREIGN KEY (`branch_id`) REFERENCES `branch` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_order_customer` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_order_rider` FOREIGN KEY (`rider_id`) REFERENCES `rider` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `order_item`
@@ -432,6 +1967,13 @@ ALTER TABLE `order_item`
 --
 ALTER TABLE `product`
   ADD CONSTRAINT `Product_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `category` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `rider`
+--
+ALTER TABLE `rider`
+  ADD CONSTRAINT `fk_rider_branch` FOREIGN KEY (`branch_id`) REFERENCES `branch` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_rider_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `variant`
