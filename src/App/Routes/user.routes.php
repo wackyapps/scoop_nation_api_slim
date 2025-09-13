@@ -14,6 +14,7 @@
  *     security={{"bearerAuth": {}}}
  * )
  */
+
 $app->get('/api/users/guests', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
     return $controller->getGuestCustomers($request, $response);

@@ -58,18 +58,17 @@ class UserRepository extends BaseRepository
     {
         $sql = "
             SELECT 
-                u.*,
+                u.id,
+                u.email,
+                u.password,
+                u.role,
+                u.phone_verified,
+                u.email_verified,
+                u.createdAt as user_created,
                 c.id as customer_id,
                 c.fullname,
                 c.gender,
                 c.date_of_birth,
-                c.phone,
-                c.company,
-                c.address,
-                c.apartment,
-                c.postalCode,
-                c.city,
-                c.country,
                 c.createdAt as customer_created,
                 c.updatedAt as customer_updated
             FROM `user` u
@@ -108,7 +107,8 @@ class UserRepository extends BaseRepository
     public function loginCustomerUser(string $email, string $password): ?array
     {
         $user = $this->findByEmailWithProfile($email);
-        if ($user && $user->role === 'customer' && password_verify($password, $user->password)) {
+        var_dump($user["password"]); // Debug line to check the fetched user data
+        if ($user && $user["role"] === 'customer' && password_verify($password, $user["password"])) {
             return $user;
         }
         return null;

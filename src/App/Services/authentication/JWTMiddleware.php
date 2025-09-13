@@ -14,13 +14,7 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
      */
     private $publicApis = [
         '/',
-        '/users/login',
-        '/users/verify-otp',
-        '/usersforgotpassword',
-        '/userspasswordreset',
-        // database backup related APIs
-        '/db/backup/create',
-        '/db/backup/test-connection',
+        '/api/users/login-customer'
     ];
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
