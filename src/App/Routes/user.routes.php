@@ -1,7 +1,24 @@
 <?php
+use OpenApi\Annotations as OA;
+
+/**
+ * @OA\Info(title="Scoop Nation API", version="1.0")
+ * @OA\Server(url="http://localhost:8080")
+ */
+
 // User routes - IMPORTANT: Define specific routes BEFORE parameterized routes
 
-// Get guest customers (customers without user accounts) - SPECIFIC ROUTE FIRST
+/**
+ * @OA\Get(
+ *     path="/api/users/guests",
+ *     summary="Get guest customers",
+ *     tags={"Users"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     )
+ * )
+ */
 $app->get('/api/users/guests', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
     return $controller->getGuestCustomers($request, $response);
