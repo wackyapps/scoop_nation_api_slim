@@ -6,10 +6,13 @@ use DI\ContainerBuilder;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Middleware\BodyParsingMiddleware;
+use App\Services\Authentication\JWTMiddleware; // Add this use statement for the middleware
 
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../src/App/Constants.php';
 require __DIR__ . '/../src/App/meekrodb/db.class.php';
+// require for JWT Middleware
+require __DIR__ . '/../src/App/Services/Authentication/JWTMiddleware.php';
 
 // Configure MeekroDB
 DB::$host = DB_HOST;
@@ -26,6 +29,11 @@ $container = $containerBuilder->build();
 
 // Create Slim app instance with PHP-DI bridge
 $app = Bridge::create($container);
+
+/**
+ * Add JWT Middleware
+ */
+$app->add(new JWTMiddleware());
 
 // Add CORS middleware
 $app->add(function ($request, $handler) {
@@ -58,11 +66,16 @@ $app->add(function ($request, $handler) {
         ->withHeader('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
 });
 
+
 // Root route
 $app->get('/', function ($request, $response) {
     $response->getBody()->write(json_encode([
         'message' => 'ScoopNation API is running',
         'endpoints' => [
+            '/api/categories' => 'Get all categories (basic info)',
+            '/api/categories/with-products' => 'Get all categories with banners and products',
+            '/api/categories/{id}' => 'Get category by ID (basic info)',
+            '/api/categories/{id}/with-products' => 'Get category with banner and products',
             '/api/products' => 'Get all products',
             '/api/products/category/{categoryId}' => 'Get products by category',
             '/api/products/search' => 'Search products',
@@ -70,7 +83,10 @@ $app->get('/', function ($request, $response) {
             '/api/bundles/search' => 'Search bundles by name',
             '/api/bundles/{id}' => 'Get bundle with products',
             '/api/bundles/{id}/products' => 'Get bundle pricing info',
-            '/api/bundles/product/{productId}' => 'Get bundles by product'
+            '/api/bundles/product/{productId}' => 'Get bundles by product',
+            '/api/users' => 'User management endpoints',
+            '/api/customers' => 'Customer management endpoints',
+            '/api/banners/active' => 'Get all active banner campaigns for today with banners and meta'
         ]
     ]));
     return $response->withHeader('Content-Type', 'application/json');
@@ -80,11 +96,12 @@ $app->get('/', function ($request, $response) {
 global $app;
 
 // Load route files and pass the container
-require __DIR__ . '/../src/App/Routes/products.routes.php'; // Product routes
-require __DIR__ . '/../src/App/Routes/bundles.routes.php'; // Bundle routes
-require __DIR__ . '/../src/App/Routes/user.routes.php'; // User routes
-require __DIR__ . '/../src/App/Routes/customer.routes.php'; // Customer routes
-require __DIR__ . '/../src/App/Routes/swagger.routes.php'; // Swagger routes
+require __DIR__ . '/../src/App/Routes/category.routes.php';
+require __DIR__ . '/../src/App/Routes/products.routes.php';
+require __DIR__ . '/../src/App/Routes/bundles.routes.php';
+require __DIR__ . '/../src/App/Routes/user.routes.php';
+require __DIR__ . '/../src/App/Routes/customer.routes.php';
+require __DIR__ . '/../src/App/Routes/banner.routes.php';
 
 // Run the application
 $app->run();

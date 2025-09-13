@@ -30,7 +30,7 @@ class CustomerController
             $limit = isset($queryParams['limit']) ? (int)$queryParams['limit'] : null;
             $offset = isset($queryParams['offset']) ? (int)$queryParams['offset'] : null;
 
-            $customers = $this->customerRepository->findAll($orderBy, $limit, $offset);
+            $customers = $this->customerRepository->findBy($orderBy, $limit, $offset);
             
             $response->getBody()->write(json_encode([
                 'success' => true,

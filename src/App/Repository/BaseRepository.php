@@ -1,10 +1,9 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Repository;
 
-require_once __DIR__ . '/../meekrodb/db.class.php';
-
-use DB; // Import the MeekroDB class
+use DB;
 
 abstract class BaseRepository implements RepositoryInterface
 {
