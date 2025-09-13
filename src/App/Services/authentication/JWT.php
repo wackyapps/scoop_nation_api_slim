@@ -4,8 +4,7 @@ namespace App\Services\Authentication;
 
 use JsonException;
 
-require_once("constants.php");
-require_once("data_access/UsersDataAccess.php");
+require_once __DIR__ . '/../../Constants.php';
 
 class JWT
 {

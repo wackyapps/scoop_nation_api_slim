@@ -14,9 +14,9 @@ use OpenApi\Generator;
 /**
  * Split JsonContent into Schema and MediaType.
  */
-class MergeJsonContent implements ProcessorInterface
+class MergeJsonContent
 {
-    public function __invoke(Analysis $analysis)
+    public function __invoke(Analysis $analysis): void
     {
         /** @var OA\JsonContent[] $annotations */
         $annotations = $analysis->getAnnotationsOfType(OA\JsonContent::class);
