@@ -30,7 +30,7 @@ class SessionController
     {
         try {
             $data = $request->getParsedBody();
-            
+
             // Validate required fields
             if (!isset($data['cookie_token']) || empty($data['cookie_token'])) {
                 $response->getBody()->write(json_encode([
@@ -39,28 +39,28 @@ class SessionController
                 ]));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-            
+
             // Get IP address from request
             $ipAddress = $request->getServerParams()['REMOTE_ADDR'] ?? '127.0.0.1';
-            
+
             // Get user agent from request
             $userAgent = $request->getServerParams()['HTTP_USER_AGENT'] ?? null;
-            
+
             // Start new session
             $session = $this->sessionRepository->startNewAnonymousSession(
                 $data['cookie_token'],
                 $ipAddress,
                 $userAgent
             );
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'message' => 'Session started successfully',
                 'data' => $session
             ]));
-            
+
             return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -79,23 +79,25 @@ class SessionController
     {
         try {
             $data = $request->getParsedBody();
-            
+
             // Validate required fields
-            if (!isset($data['cookie_token']) || empty($data['cookie_token']) || 
-                !isset($data['session_id']) || empty($data['session_id'])) {
+            if (
+                !isset($data['cookie_token']) || empty($data['cookie_token']) ||
+                !isset($data['session_id']) || empty($data['session_id'])
+            ) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
                     'error' => 'cookie_token and session_id are required'
                 ]));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-            
+
             // Retrieve session
             $session = $this->sessionRepository->retrieveSessionByCookieAndSessionId(
                 $data['cookie_token'],
                 $data['session_id']
             );
-            
+
             if (!$session) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -103,15 +105,15 @@ class SessionController
                 ]));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'message' => 'Session verified successfully',
                 'data' => $session
             ]));
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -129,8 +131,8 @@ class SessionController
     public function getCartItems(Request $request, Response $response, array $args): Response
     {
         try {
-            $sessionId = (int)$args['sessionId'];
-            
+            $sessionId = (int) $args['sessionId'];
+
             // Verify session exists
             $session = $this->sessionRepository->find($sessionId);
             if (!$session) {
@@ -140,18 +142,18 @@ class SessionController
                 ]));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            
+
             // Get cart items
             $cartItems = $this->sessionRepository->getCartItemsForSession($sessionId);
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'data' => $cartItems,
                 'count' => count($cartItems)
             ]));
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -166,12 +168,56 @@ class SessionController
      * 
      * @Route POST /api/sessions/{sessionId}/cart/add
      */
+
+    /**
+     * Add product to cart in session
+     * 
+     * @Route POST /api/sessions/{sessionId}/cart/add
+     */
+
     public function addProductToCart(Request $request, Response $response, array $args): Response
     {
         try {
-            $sessionId = (int)$args['sessionId'];
+            // Get session_id from request body instead of route parameter
             $data = $request->getParsedBody();
-            
+            $session_id = $data['session_id'] ?? null;
+
+            // Validate session_id
+            if (empty($session_id)) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'session_id is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // If session_id is a GUID (string), find the session by session_id field
+            // If it's an integer, find by ID
+            if (is_numeric($session_id) && (int) $session_id == $session_id) {
+                $sessionId = (int) $session_id;
+                $session = $this->sessionRepository->find($sessionId);
+            } else {
+                // Find session by session_id field (GUID)
+                $session = $this->sessionRepository->findOneBy(['session_id' => $session_id]);
+                if ($session) {
+                    $sessionId = $session['id']; // Get the numeric ID for further operations
+                } else {
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'error' => 'Session not found'
+                    ]));
+                    return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+                }
+            }
+
+            if (!$session) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Session not found'
+                ]));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+
             // Validate required fields
             if (!isset($data['product_id']) || !isset($data['variant_id'])) {
                 $response->getBody()->write(json_encode([
@@ -180,9 +226,9 @@ class SessionController
                 ]));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $quantity = $data['quantity'] ?? 1;
-            
+
             // Verify product exists
             $product = $this->productRepository->find($data['product_id']);
             if (!$product) {
@@ -192,15 +238,15 @@ class SessionController
                 ]));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            
+
             // Add product to cart
             $cartItem = $this->sessionRepository->addProductToCartInSession(
-                $sessionId,
-                (int)$data['product_id'],
-                (int)$data['variant_id'],
-                (int)$quantity
+                (int) $sessionId, // Use the numeric ID here
+                (int) $data['product_id'],
+                (int) $data['variant_id'],
+                (int) $quantity
             );
-            
+
             if (!$cartItem) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -208,15 +254,15 @@ class SessionController
                 ]));
                 return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'message' => 'Product added to cart successfully',
                 'data' => $cartItem
             ]));
-            
+
             return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -226,6 +272,67 @@ class SessionController
         }
     }
 
+    // public function addProductToCart(Request $request, Response $response, array $args): Response
+    // {
+    //     try {
+    //         $data = $request->getParsedBody();
+    //         var_dump($data);
+    //         $sessionId = (int) $data['sessionId'];
+
+    //         // Validate required fields
+    //         if (!isset($data['product_id']) || !isset($data['variant_id'])) {
+    //             $response->getBody()->write(json_encode([
+    //                 'success' => false,
+    //                 'error' => 'product_id and variant_id are required'
+    //             ]));
+    //             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    //         }
+
+    //         $quantity = $data['quantity'] ?? 1;
+
+    //         // Verify product exists
+    //         $product = $this->productRepository->find($data['product_id']);
+    //         if (!$product) {
+    //             $response->getBody()->write(json_encode([
+    //                 'success' => false,
+    //                 'error' => 'Product not found'
+    //             ]));
+    //             return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+    //         }
+
+    //         // Add product to cart
+    //         $cartItem = $this->sessionRepository->addProductToCartInSession(
+    //             $sessionId,
+    //             (int) $data['product_id'],
+    //             (int) $data['variant_id'],
+    //             (int) $quantity
+    //         );
+
+    //         if (!$cartItem) {
+    //             $response->getBody()->write(json_encode([
+    //                 'success' => false,
+    //                 'error' => 'Failed to add product to cart'
+    //             ]));
+    //             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+    //         }
+
+    //         $response->getBody()->write(json_encode([
+    //             'success' => true,
+    //             'message' => 'Product added to cart successfully',
+    //             'data' => $cartItem
+    //         ]));
+
+    //         return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
+
+    //     } catch (\Exception $e) {
+    //         $response->getBody()->write(json_encode([
+    //             'success' => false,
+    //             'error' => 'Failed to add product to cart: ' . $e->getMessage()
+    //         ]));
+    //         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+    //     }
+    // }
+
     /**
      * Increase product quantity in cart
      * 
@@ -234,9 +341,9 @@ class SessionController
     public function increaseProductQuantity(Request $request, Response $response, array $args): Response
     {
         try {
-            $sessionId = (int)$args['sessionId'];
+            $sessionId = (int) $args['sessionId'];
             $data = $request->getParsedBody();
-            
+
             // Validate required fields
             if (!isset($data['product_id']) || !isset($data['variant_id'])) {
                 $response->getBody()->write(json_encode([
@@ -245,17 +352,17 @@ class SessionController
                 ]));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $increment = $data['increment'] ?? 1;
-            
+
             // Increase quantity
             $cartItem = $this->sessionRepository->increaseProductQuantity(
                 $sessionId,
-                (int)$data['product_id'],
-                (int)$data['variant_id'],
-                (int)$increment
+                (int) $data['product_id'],
+                (int) $data['variant_id'],
+                (int) $increment
             );
-            
+
             if (!$cartItem) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -263,15 +370,15 @@ class SessionController
                 ]));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'message' => 'Product quantity increased successfully',
                 'data' => $cartItem
             ]));
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -289,9 +396,9 @@ class SessionController
     public function decreaseProductQuantity(Request $request, Response $response, array $args): Response
     {
         try {
-            $sessionId = (int)$args['sessionId'];
+            $sessionId = (int) $args['sessionId'];
             $data = $request->getParsedBody();
-            
+
             // Validate required fields
             if (!isset($data['product_id']) || !isset($data['variant_id'])) {
                 $response->getBody()->write(json_encode([
@@ -300,17 +407,17 @@ class SessionController
                 ]));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $decrement = $data['decrement'] ?? 1;
-            
+
             // Decrease quantity
             $cartItem = $this->sessionRepository->decreaseProductQuantity(
                 $sessionId,
-                (int)$data['product_id'],
-                (int)$data['variant_id'],
-                (int)$decrement
+                (int) $data['product_id'],
+                (int) $data['variant_id'],
+                (int) $decrement
             );
-            
+
             if ($cartItem === null) {
                 // Item was removed because quantity reached 0
                 $response->getBody()->write(json_encode([
@@ -325,9 +432,9 @@ class SessionController
                     'data' => $cartItem
                 ]));
             }
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -345,9 +452,9 @@ class SessionController
     public function removeProductFromCart(Request $request, Response $response, array $args): Response
     {
         try {
-            $sessionId = (int)$args['sessionId'];
+            $sessionId = (int) $args['sessionId'];
             $data = $request->getParsedBody();
-            
+
             // Validate required fields
             if (!isset($data['product_id']) || !isset($data['variant_id'])) {
                 $response->getBody()->write(json_encode([
@@ -356,14 +463,14 @@ class SessionController
                 ]));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-            
+
             // Remove product
             $success = $this->sessionRepository->removeProductItem(
                 $sessionId,
-                (int)$data['product_id'],
-                (int)$data['variant_id']
+                (int) $data['product_id'],
+                (int) $data['variant_id']
             );
-            
+
             if (!$success) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -371,14 +478,14 @@ class SessionController
                 ]));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'message' => 'Product removed from cart successfully'
             ]));
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -396,9 +503,9 @@ class SessionController
     public function checkoutSessionCart(Request $request, Response $response, array $args): Response
     {
         try {
-            $sessionId = (int)$args['sessionId'];
+            $sessionId = (int) $args['sessionId'];
             $data = $request->getParsedBody();
-            
+
             // Validate required fields for customer information
             $requiredFields = ['fullname', 'email', 'phone'];
             foreach ($requiredFields as $field) {
@@ -410,12 +517,12 @@ class SessionController
                     return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
                 }
             }
-            
+
             // Optional fields
             $gender = $data['gender'] ?? null;
             $dateOfBirth = $data['date_of_birth'] ?? null;
-            $branchId = isset($data['branch_id']) ? (int)$data['branch_id'] : null;
-            
+            $branchId = isset($data['branch_id']) ? (int) $data['branch_id'] : null;
+
             // Convert session cart to order
             $order = $this->sessionRepository->convertSessionCartToOrderCart(
                 $sessionId,
@@ -426,7 +533,7 @@ class SessionController
                 $dateOfBirth,
                 $branchId
             );
-            
+
             if (!$order) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -434,15 +541,15 @@ class SessionController
                 ]));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'message' => 'Order created successfully',
                 'data' => $order
             ]));
-            
+
             return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -466,12 +573,12 @@ class SessionController
             //     $response->getBody()->write(json_encode(['success' => false, 'error' => 'Unauthorized']));
             //     return $response->withStatus(403)->withHeader('Content-Type', 'application/json');
             // }
-            
+
             // Get optional query parameters
             $queryParams = $request->getQueryParams();
-            $limit = isset($queryParams['limit']) ? (int)$queryParams['limit'] : null;
-            $offset = isset($queryParams['offset']) ? (int)$queryParams['offset'] : null;
-            
+            $limit = isset($queryParams['limit']) ? (int) $queryParams['limit'] : null;
+            $offset = isset($queryParams['offset']) ? (int) $queryParams['offset'] : null;
+
             // Get active sessions
             $sessions = $this->sessionRepository->findBy(
                 ['is_active' => 1],
@@ -479,15 +586,15 @@ class SessionController
                 $limit,
                 $offset
             );
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'data' => $sessions,
                 'count' => count($sessions)
             ]));
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -505,10 +612,10 @@ class SessionController
     public function getSessionById(Request $request, Response $response, array $args): Response
     {
         try {
-            $sessionId = (int)$args['id'];
-            
+            $sessionId = (int) $args['id'];
+
             $session = $this->sessionRepository->find($sessionId);
-            
+
             if (!$session) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -516,14 +623,14 @@ class SessionController
                 ]));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'data' => $session
             ]));
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,

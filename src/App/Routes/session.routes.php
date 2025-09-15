@@ -63,17 +63,21 @@ $app->post('/api/sessions/verify', function ($request, $response) use ($app) {
 });
 
 /**
- * @OA\Get(
- *     path="/api/sessions/{sessionId}/cart",
+ * @OA\Post(
+ *     path="/api/sessions/cart",
  *     summary="Get cart items for session",
  *     description="Retrieves all cart items for a specific session.",
  *     tags={"Sessions"},
- *     @OA\Parameter(
- *         name="sessionId",
- *         in="path",
+ *     @OA\RequestBody(
  *         required=true,
- *         description="Session ID",
- *         @OA\Schema(type="integer")
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="session_id",
+ *                 type="integer",
+ *                 description="Session ID"
+ *             )
+ *         )
  *     ),
  *     @OA\Response(
  *         response=200,
@@ -81,28 +85,38 @@ $app->post('/api/sessions/verify', function ($request, $response) use ($app) {
  *     )
  * )
  */
-$app->get('/api/sessions/{sessionId}/cart', function ($request, $response, $args) use ($app) {
+$app->post('/api/sessions/cart', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
+    $data = $request->getParsedBody();
+    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
+    
+    if ($sessionId <= 0) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'session_id is required and must be a positive integer'
+        ]));
+        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    }
+    
+    $args = ['sessionId' => $sessionId];
     return $controller->getCartItems($request, $response, $args);
 });
 
 /**
  * @OA\Post(
- *     path="/api/sessions/{sessionId}/cart/add",
+ *     path="/api/sessions/cart/add",
  *     summary="Add product to cart",
  *     description="Adds a product to the cart for a specific session.",
  *     tags={"Sessions"},
- *     @OA\Parameter(
- *         name="sessionId",
- *         in="path",
- *         required=true,
- *         description="Session ID",
- *         @OA\Schema(type="integer")
- *     ),
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *             type="object",
+ *             @OA\Property(
+ *                 property="session_id",
+ *                 type="integer",
+ *                 description="Session ID"
+ *             ),
  *             @OA\Property(
  *                 property="product_id",
  *                 type="integer",
@@ -126,28 +140,38 @@ $app->get('/api/sessions/{sessionId}/cart', function ($request, $response, $args
  *     )
  * )
  */
-$app->post('/api/sessions/{sessionId}/cart/add', function ($request, $response, $args) use ($app) {
+$app->post('/api/sessions/cart/add', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
+    $data = $request->getParsedBody();
+    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
+    
+    if ($sessionId <= 0) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'session_id is required and must be a positive integer'
+        ]));
+        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    }
+    
+    $args = ['sessionId' => $sessionId];
     return $controller->addProductToCart($request, $response, $args);
 });
 
 /**
  * @OA\Post(
- *     path="/api/sessions/{sessionId}/cart/increase",
+ *     path="/api/sessions/cart/increase",
  *     summary="Increase product quantity",
  *     description="Increases the quantity of a product in the cart.",
  *     tags={"Sessions"},
- *     @OA\Parameter(
- *         name="sessionId",
- *         in="path",
- *         required=true,
- *         description="Session ID",
- *         @OA\Schema(type="integer")
- *     ),
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *             type="object",
+ *             @OA\Property(
+ *                 property="session_id",
+ *                 type="integer",
+ *                 description="Session ID"
+ *             ),
  *             @OA\Property(
  *                 property="product_id",
  *                 type="integer",
@@ -171,28 +195,38 @@ $app->post('/api/sessions/{sessionId}/cart/add', function ($request, $response, 
  *     )
  * )
  */
-$app->post('/api/sessions/{sessionId}/cart/increase', function ($request, $response, $args) use ($app) {
+$app->post('/api/sessions/cart/increase', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
+    $data = $request->getParsedBody();
+    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
+    
+    if ($sessionId <= 0) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'session_id is required and must be a positive integer'
+        ]));
+        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    }
+    
+    $args = ['sessionId' => $sessionId];
     return $controller->increaseProductQuantity($request, $response, $args);
 });
 
 /**
  * @OA\Post(
- *     path="/api/sessions/{sessionId}/cart/decrease",
+ *     path="/api/sessions/cart/decrease",
  *     summary="Decrease product quantity",
  *     description="Decreases the quantity of a product in the cart.",
  *     tags={"Sessions"},
- *     @OA\Parameter(
- *         name="sessionId",
- *         in="path",
- *         required=true,
- *         description="Session ID",
- *         @OA\Schema(type="integer")
- *     ),
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *             type="object",
+ *             @OA\Property(
+ *                 property="session_id",
+ *                 type="integer",
+ *                 description="Session ID"
+ *             ),
  *             @OA\Property(
  *                 property="product_id",
  *                 type="integer",
@@ -216,28 +250,38 @@ $app->post('/api/sessions/{sessionId}/cart/increase', function ($request, $respo
  *     )
  * )
  */
-$app->post('/api/sessions/{sessionId}/cart/decrease', function ($request, $response, $args) use ($app) {
+$app->post('/api/sessions/cart/decrease', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
+    $data = $request->getParsedBody();
+    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
+    
+    if ($sessionId <= 0) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'session_id is required and must be a positive integer'
+        ]));
+        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    }
+    
+    $args = ['sessionId' => $sessionId];
     return $controller->decreaseProductQuantity($request, $response, $args);
 });
 
 /**
- * @OA\Delete(
- *     path="/api/sessions/{sessionId}/cart/remove",
+ * @OA\Post(
+ *     path="/api/sessions/cart/remove",
  *     summary="Remove product from cart",
  *     description="Removes a product from the cart.",
  *     tags={"Sessions"},
- *     @OA\Parameter(
- *         name="sessionId",
- *         in="path",
- *         required=true,
- *         description="Session ID",
- *         @OA\Schema(type="integer")
- *     ),
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *             type="object",
+ *             @OA\Property(
+ *                 property="session_id",
+ *                 type="integer",
+ *                 description="Session ID"
+ *             ),
  *             @OA\Property(
  *                 property="product_id",
  *                 type="integer",
@@ -256,28 +300,38 @@ $app->post('/api/sessions/{sessionId}/cart/decrease', function ($request, $respo
  *     )
  * )
  */
-$app->delete('/api/sessions/{sessionId}/cart/remove', function ($request, $response, $args) use ($app) {
+$app->post('/api/sessions/cart/remove', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
+    $data = $request->getParsedBody();
+    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
+    
+    if ($sessionId <= 0) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'session_id is required and must be a positive integer'
+        ]));
+        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    }
+    
+    $args = ['sessionId' => $sessionId];
     return $controller->removeProductFromCart($request, $response, $args);
 });
 
 /**
  * @OA\Post(
- *     path="/api/sessions/{sessionId}/checkout",
+ *     path="/api/sessions/checkout",
  *     summary="Checkout session cart",
  *     description="Converts session cart to order with customer information.",
  *     tags={"Sessions"},
- *     @OA\Parameter(
- *         name="sessionId",
- *         in="path",
- *         required=true,
- *         description="Session ID",
- *         @OA\Schema(type="integer")
- *     ),
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
  *             type="object",
+ *             @OA\Property(
+ *                 property="session_id",
+ *                 type="integer",
+ *                 description="Session ID"
+ *             ),
  *             @OA\Property(
  *                 property="fullname",
  *                 type="string",
@@ -319,8 +373,20 @@ $app->delete('/api/sessions/{sessionId}/cart/remove', function ($request, $respo
  *     )
  * )
  */
-$app->post('/api/sessions/{sessionId}/checkout', function ($request, $response, $args) use ($app) {
+$app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
+    $data = $request->getParsedBody();
+    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
+    
+    if ($sessionId <= 0) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'session_id is required and must be a positive integer'
+        ]));
+        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    }
+    
+    $args = ['sessionId' => $sessionId];
     return $controller->checkoutSessionCart($request, $response, $args);
 });
 

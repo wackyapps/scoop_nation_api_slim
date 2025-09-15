@@ -19,7 +19,10 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
         // session routes
         '/api/sessions/start',
         '/api/sessions/verify',
-        
+        '/api/sessions/cart/add',
+        '/api/sessions/cart/remove',
+        '/api/sessions/cart/increase',
+        '/api/sessions/cart/decrease'
     ];
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

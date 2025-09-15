@@ -94,6 +94,7 @@ class SessionRepository extends BaseRepository
      * @param int|null $branchId Optional branch ID for the order
      * @return array|null Order record with order items, or null if failed
      */
+    
     public function convertSessionCartToOrderCart(
         int $sessionId,
         string $fullname,
