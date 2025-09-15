@@ -1,6 +1,3 @@
-Based on the provided MySQL schema, here is the `sql_table_names.php` file. It defines constants for each table found in the schema, following the pattern established in the example code you provided.
-
-```php
 <?php
 // Banner and Campaign Tables
 define("TABLE_BANNER_CAMPAIGN", "banner_campaign");

@@ -2,12 +2,14 @@
 declare(strict_types=1);
 
 namespace App\Repository;
+require_once __DIR__ . '/SQL_Table_Names.php';
+
 
 use DB;
 
 class BannerRepository extends BaseRepository
 {
-    protected $table = 'banner_campaign';
+    protected $table = TABLE_BANNER_CAMPAIGN;
     protected $primaryKey = 'id';
 
     /**
@@ -28,7 +30,7 @@ class BannerRepository extends BaseRepository
             " . ($branchId ? "AND (branch_id = %i OR branch_id IS NULL)" : "") . "
             ORDER BY start_date ASC
         ";
-        
+
         return $branchId ? DB::query($query, $branchId) : DB::query($query);
     }
 
@@ -44,13 +46,13 @@ class BannerRepository extends BaseRepository
             SELECT imageID, type, title, description, alt_text, mime_type, file_size,
                    width, height, is_featured, sort_order, banner_position,
                    banner_url, banner_target, campaign_id, status, image, created_at
-            FROM media
+            FROM " . TABLE_MEDIA . "
             WHERE type = 'banner'
             AND campaign_id = %i
             AND status = 'active'
             ORDER BY sort_order ASC, is_featured DESC
         ";
-        
+
         return DB::query($query, $campaignId);
     }
 
@@ -64,18 +66,18 @@ class BannerRepository extends BaseRepository
     {
         $query = "
             SELECT meta_key, meta_value
-            FROM media_meta
+            FROM " . TABLE_MEDIA_META . "
             WHERE media_id = %i
         ";
-        
+
         $results = DB::query($query, $mediaId);
-        
+
         // Format as associative array: ['key' => 'value']
         $meta = [];
         foreach ($results as $row) {
             $meta[$row['meta_key']] = $row['meta_value'];
         }
-        
+
         return $meta;
     }
 
@@ -89,11 +91,11 @@ class BannerRepository extends BaseRepository
     public function getBannersWithMetaForCampaign(int $campaignId): array
     {
         $banners = $this->getBannersForCampaign($campaignId);
-        
+
         foreach ($banners as &$banner) {
-            $banner['meta'] = $this->getMediaMeta((int)$banner['imageID']); // Cast to int
+            $banner['meta'] = $this->getMediaMeta((int) $banner['imageID']); // Cast to int
         }
-        
+
         return $banners;
     }
 
@@ -108,12 +110,12 @@ class BannerRepository extends BaseRepository
     {
         $campaigns = $this->getActiveBannerCampaigns($branchId);
         $result = [];
-        
+
         foreach ($campaigns as $campaign) {
-            $campaign['banners'] = $this->getBannersWithMetaForCampaign((int)$campaign['id']); // Cast to int
+            $campaign['banners'] = $this->getBannersWithMetaForCampaign((int) $campaign['id']); // Cast to int
             $result[] = $campaign;
         }
-        
+
         return $result;
     }
 
@@ -130,7 +132,7 @@ class BannerRepository extends BaseRepository
         if (!$campaign) {
             return null;
         }
-        
+
         // Check if active and branch matches (if specified)
         $now = date('Y-m-d H:i:s');
         if ($campaign['is_active'] != 1 || $campaign['start_date'] > $now || $campaign['end_date'] < $now) {
@@ -139,7 +141,7 @@ class BannerRepository extends BaseRepository
         if ($branchId && $campaign['branch_id'] !== null && $campaign['branch_id'] != $branchId) {
             return null; // Campaign is branch-specific and doesn't match
         }
-        
+
         $campaign['banners'] = $this->getBannersWithMetaForCampaign($campaignId);
         return $campaign;
     }

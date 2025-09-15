@@ -3,13 +3,22 @@
         'name' => 'wackyapps/scoop-nation-api',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'beff704e463d12acb9cd828fea1efdb11465a8ea',
+        'reference' => 'a3700557591f69e809b6545b0be12d5774c2e7e8',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
+        'brick/math' => array(
+            'pretty_version' => '0.13.1',
+            'version' => '0.13.1.0',
+            'reference' => 'fc7ed316430118cc7836bf45faff18d5dfc8de04',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../brick/math',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'fig/http-message-util' => array(
             'pretty_version' => '1.1.5',
             'version' => '1.1.5.0',
@@ -172,6 +181,30 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'ramsey/collection' => array(
+            'pretty_version' => '2.1.1',
+            'version' => '2.1.1.0',
+            'reference' => '344572933ad0181accbf4ba763e85a0306a8c5e2',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../ramsey/collection',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'ramsey/uuid' => array(
+            'pretty_version' => '4.9.1',
+            'version' => '4.9.1.0',
+            'reference' => '81f941f6f729b1e3ceea61d9d014f8b6c6800440',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../ramsey/uuid',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'rhumsaa/uuid' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => '4.9.1',
+            ),
+        ),
         'slim/psr7' => array(
             'pretty_version' => '1.7.1',
             'version' => '1.7.1.0',
@@ -247,7 +280,7 @@
         'wackyapps/scoop-nation-api' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'beff704e463d12acb9cd828fea1efdb11465a8ea',
+            'reference' => 'a3700557591f69e809b6545b0be12d5774c2e7e8',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
