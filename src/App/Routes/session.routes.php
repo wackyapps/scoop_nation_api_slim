@@ -1,6 +1,7 @@
 <?php
 // Session routes
 
+
 /**
  * @OA\Post(
  *     path="/api/sessions/start",
@@ -24,6 +25,7 @@
  *     )
  * )
  */
+
 $app->post('/api/sessions/start', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     return $controller->startNewSession($request, $response);
@@ -57,6 +59,7 @@ $app->post('/api/sessions/start', function ($request, $response) use ($app) {
  *     )
  * )
  */
+
 $app->post('/api/sessions/verify', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     return $controller->verifySession($request, $response);
@@ -85,6 +88,7 @@ $app->post('/api/sessions/verify', function ($request, $response) use ($app) {
  *     )
  * )
  */
+
 $app->post('/api/sessions/cart', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
@@ -140,6 +144,7 @@ $app->post('/api/sessions/cart', function ($request, $response) use ($app) {
  *     )
  * )
  */
+
 $app->post('/api/sessions/cart/add', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
@@ -195,6 +200,7 @@ $app->post('/api/sessions/cart/add', function ($request, $response) use ($app) {
  *     )
  * )
  */
+
 $app->post('/api/sessions/cart/increase', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
@@ -250,6 +256,7 @@ $app->post('/api/sessions/cart/increase', function ($request, $response) use ($a
  *     )
  * )
  */
+
 $app->post('/api/sessions/cart/decrease', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
@@ -300,6 +307,7 @@ $app->post('/api/sessions/cart/decrease', function ($request, $response) use ($a
  *     )
  * )
  */
+
 $app->post('/api/sessions/cart/remove', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
@@ -373,6 +381,7 @@ $app->post('/api/sessions/cart/remove', function ($request, $response) use ($app
  *     )
  * )
  */
+
 $app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
@@ -388,6 +397,33 @@ $app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
     
     $args = ['sessionId' => $sessionId];
     return $controller->checkoutSessionCart($request, $response, $args);
+});
+
+/**
+ * @OA\Get(
+ *     path="/api/sessions/{id}",
+ *     summary="Get session by ID",
+ *     description="Retrieves a session by its ID.",
+ *     tags={"Sessions"},
+ *     @OA\Parameter(
+ *         name="id",
+ *         in="path",
+ *         required=true,
+ *         description="Session ID",
+ *         @OA\Schema(type="integer")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     security={{"bearerAuth": {}}}
+ * )
+ */
+
+$app->post('/api/sessions', function ($request, $response) use ($app) {
+    // var_dump($args);
+    $controller = $app->getContainer()->get(App\Controller\SessionController::class);
+    return $controller->getSessionById($request, $response);
 });
 
 /**
@@ -417,32 +453,8 @@ $app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
  *     security={{"bearerAuth": {}}}
  * )
  */
+
 $app->get('/api/sessions/active', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     return $controller->getActiveSessions($request, $response);
-});
-
-/**
- * @OA\Get(
- *     path="/api/sessions/{id}",
- *     summary="Get session by ID",
- *     description="Retrieves a session by its ID.",
- *     tags={"Sessions"},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="Session ID",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Successful operation"
- *     ),
- *     security={{"bearerAuth": {}}}
- * )
- */
-$app->get('/api/sessions/{id}', function ($request, $response, $args) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\SessionController::class);
-    return $controller->getSessionById($request, $response, $args);
 });

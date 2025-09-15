@@ -23,7 +23,8 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
         '/api/sessions/cart/add',
         '/api/sessions/cart/remove',
         '/api/sessions/cart/increase',
-        '/api/sessions/cart/decrease'
+        '/api/sessions/cart/decrease',
+        '/api/sessions', // this url is not accessible in public APIs
     ];
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

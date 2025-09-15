@@ -123,11 +123,6 @@ class SessionController
         }
     }
 
-    /**
-     * Get cart items for current session
-     * 
-     * @Route GET /api/sessions/{sessionId}/cart
-     */
 
     /**
      * Get cart items for current session
@@ -194,12 +189,6 @@ class SessionController
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
     }
-
-    /**
-     * Add product to cart in session
-     * 
-     * @Route POST /api/sessions/{sessionId}/cart/add
-     */
 
     /**
      * Add product to cart in session
@@ -403,6 +392,7 @@ class SessionController
      * 
      * @Route POST /api/sessions/{sessionId}/cart/decrease
      */
+
     public function decreaseProductQuantity(Request $request, Response $response, array $args): Response
     {
         try {
@@ -580,58 +570,6 @@ class SessionController
         }
     }
 
-    // public function removeProductFromCart(Request $request, Response $response, array $args): Response
-    // {
-    //     try {
-    //         $sessionId = (int) $args['sessionId'];
-    //         $data = $request->getParsedBody();
-
-    //         // Validate required fields
-    //         if (!isset($data['product_id']) || !isset($data['variant_id'])) {
-    //             $response->getBody()->write(json_encode([
-    //                 'success' => false,
-    //                 'error' => 'product_id and variant_id are required'
-    //             ]));
-    //             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
-    //         }
-
-    //         // Remove product
-    //         $success = $this->sessionRepository->removeProductFromCartInSession(
-    //             (int) $sessionId,
-    //             (int) $data['product_id'],
-    //             (int) $data['variant_id']
-    //         );
-
-    //         if (!$success) {
-    //             $response->getBody()->write(json_encode([
-    //                 'success' => false,
-    //                 'error' => 'Product not found in cart'
-    //             ]));
-    //             return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
-    //         }
-
-    //         $response->getBody()->write(json_encode([
-    //             'success' => true,
-    //             'message' => 'Product removed from cart successfully'
-    //         ]));
-
-    //         return $response->withHeader('Content-Type', 'application/json');
-
-    //     } catch (\Exception $e) {
-    //         $response->getBody()->write(json_encode([
-    //             'success' => false,
-    //             'error' => 'Failed to remove product from cart: ' . $e->getMessage()
-    //         ]));
-    //         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-    //     }
-    // }
-
-    /**
-     * Convert session cart to order
-     * 
-     * @Route POST /api/sessions/{sessionId}/checkout
-     */
-
     /**
      * Convert session cart to order
      * 
@@ -734,65 +672,6 @@ class SessionController
         }
     }
 
-    // public function checkoutSessionCart(Request $request, Response $response, array $args): Response
-    // {
-    //     try {
-    //         $sessionId = (int) $args['sessionId'];
-    //         $data = $request->getParsedBody();
-
-    //         // Validate required fields for customer information
-    //         $requiredFields = ['fullname', 'email', 'phone'];
-    //         foreach ($requiredFields as $field) {
-    //             if (!isset($data[$field]) || empty($data[$field])) {
-    //                 $response->getBody()->write(json_encode([
-    //                     'success' => false,
-    //                     'error' => "{$field} is required"
-    //                 ]));
-    //                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
-    //             }
-    //         }
-
-    //         // Optional fields
-    //         $gender = $data['gender'] ?? null;
-    //         $dateOfBirth = $data['date_of_birth'] ?? null;
-    //         $branchId = isset($data['branch_id']) ? (int) $data['branch_id'] : null;
-
-    //         // Convert session cart to order
-    //         $order = $this->sessionRepository->convertSessionCartToOrderCart(
-    //             $sessionId,
-    //             $data['fullname'],
-    //             $data['email'],
-    //             $data['phone'],
-    //             $gender,
-    //             $dateOfBirth,
-    //             $branchId
-    //         );
-
-    //         if (!$order) {
-    //             $response->getBody()->write(json_encode([
-    //                 'success' => false,
-    //                 'error' => 'Failed to create order. Cart may be empty or session invalid.'
-    //             ]));
-    //             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
-    //         }
-
-    //         $response->getBody()->write(json_encode([
-    //             'success' => true,
-    //             'message' => 'Order created successfully',
-    //             'data' => $order
-    //         ]));
-
-    //         return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
-
-    //     } catch (\Exception $e) {
-    //         $response->getBody()->write(json_encode([
-    //             'success' => false,
-    //             'error' => 'Failed to process checkout: ' . $e->getMessage()
-    //         ]));
-    //         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-    //     }
-    // }
-
     /**
      * Get active sessions (admin only)
      * 
@@ -841,14 +720,30 @@ class SessionController
     /**
      * Get session by ID
      * 
-     * @Route GET /api/sessions/{id}
+     * @Route POST /api/sessions
      */
-    public function getSessionById(Request $request, Response $response, array $args): Response
+    public function getSessionById(Request $request, Response $response): Response
     {
         try {
-            $sessionId = (int) $args['id'];
+            $data = $request->getParsedBody();
+            $session_id = $data['session_id'] ?? null;
 
-            $session = $this->sessionRepository->find($sessionId);
+            if (empty($session_id)) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'session_id is required in request body'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Handle both numeric ID and GUID
+            if (is_numeric($session_id) && (int) $session_id == $session_id) {
+                $sessionId = (int) $session_id;
+                $session = $this->sessionRepository->find($sessionId);
+            } else {
+                // Find by session_id field (GUID)
+                $session = $this->sessionRepository->findOneBy(['session_id' => $session_id]);
+            }
 
             if (!$session) {
                 $response->getBody()->write(json_encode([
