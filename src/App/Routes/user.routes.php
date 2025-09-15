@@ -335,25 +335,28 @@ $app->post('/api/users/add-address', function ($request, $response) use ($app) {
     return $controller->addNewAddress($request, $response);
 });
 
+
 /**
- * @OA\Delete(
- *     path="/api/users/{userId}/remove-address/{addressId}",
+ * @OA\Post(
+ *     path="/api/users/remove-address",
  *     summary="Remove address",
  *     description="Remove an address from a user.",
  *     tags={"Users"},
- *     @OA\Parameter(
- *         name="userId",
- *         in="path",
+ *     @OA\RequestBody(
  *         required=true,
- *         description="User ID.",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Parameter(
- *         name="addressId",
- *         in="path",
- *         required=true,
- *         description="Address ID.",
- *         @OA\Schema(type="integer")
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="user_id",
+ *                 type="integer",
+ *                 description="User ID"
+ *             ),
+ *             @OA\Property(
+ *                 property="id",
+ *                 type="integer",
+ *                 description="Address ID"
+ *             )
+ *         )
  *     ),
  *     @OA\Response(
  *         response=200,
@@ -362,9 +365,9 @@ $app->post('/api/users/add-address', function ($request, $response) use ($app) {
  *     security={{"bearerAuth": {}}}
  * )
  */
-$app->delete('/api/users/{userId}/remove-address/{addressId}', function ($request, $response, $args) use ($app) {
+$app->post('/api/users/remove-address', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->removeAddress($request, $response, $args);
+    return $controller->removeAddress($request, $response);
 });
 
 /**

@@ -442,23 +442,50 @@ class UserController
     /**
      * Remove address for user
      * 
-     * @Route DELETE /api/users/{userId}/remove-address/{addressId}
+     * @Route POST /api/users/remove-address
      */
-    public function removeAddress(Request $request, Response $response, array $args): Response
+    public function removeAddress(Request $request, Response $response): Response
     {
         try {
-            $userId = (int) $args['userId'];
-            $addressId = (int) $args['addressId'];
+            $data = $request->getParsedBody();
+
+            // Validate required fields
+            if (!isset($data['user_id']) || empty($data['user_id'])) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'user_id is required']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            if (!isset($data['id']) || empty($data['id'])) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'id (address ID) is required']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            $userId = (int) $data['user_id'];
+            $addressId = (int) $data['id'];
 
             // Get customer ID for the user
             $user = $this->userRepository->findUserWithCustomerProfile($userId);
-            if (!$user || !$user->customer_id) {
+
+
+            // Check if user exists and has customer_id (as array, not object)
+            if (!$user || !isset($user['id']) || empty($user['id'])) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Customer profile not found for user']));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
 
             $addressRepository = new AddressRepository();
-            $address = $addressRepository->findOneBy(['id' => $addressId, 'customer_id' => $user->customer_id]);
+
+            // Check the actual column name in your address table
+            // Common alternatives: 'customer_id', 'customerId', 'user_id', 'userId'
+            $customerId = $user['id'];
+
+            // Try to find the address with the correct column name
+            // Replace 'customer_id' with the actual column name from your table
+            $address = $addressRepository->findOneBy([
+                'id' => $addressId,
+                'user_id' => $customerId  // Change this to match your actual column name
+            ]);
+
             if (!$address) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Address not found or does not belong to user']));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
