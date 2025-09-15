@@ -290,7 +290,6 @@ class UserController
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to login: ' . $e->getMessage()]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-            
         }
     }
 

@@ -24,7 +24,7 @@ class SessionRepository extends BaseRepository
     public function startNewAnonymousSession(string $cookieToken, string $ipAddress, ?string $userAgent = null): array
     {
         $sessionId = Uuid::uuid4()->toString();
-        
+
         $data = [
             'session_id' => $sessionId,
             'cookie_token' => $cookieToken,
@@ -35,10 +35,10 @@ class SessionRepository extends BaseRepository
             'created_at' => date('Y-m-d H:i:s.u'),
             // cart_id will be set when first item is added to cart
         ];
-        
+
         $sessionIdInserted = DB::insert($this->table, $data);
         $insertedId = DB::insertId();
-        
+
         // Return the complete session record
         return $this->find($insertedId);
     }
@@ -58,17 +58,17 @@ class SessionRepository extends BaseRepository
             AND session_id = %s 
             AND is_active = 1
         ";
-        
+
         $session = $this->executeQueryFirstRow($query, [$cookieToken, $sessionId]);
-        
+
         if ($session) {
             // Update last_activity timestamp
             $this->updateLastActivity($session['id']);
         }
-        
+
         return $session ?: null;
     }
-    
+
     /**
      * Helper method to update last_activity timestamp
      * 
@@ -95,11 +95,11 @@ class SessionRepository extends BaseRepository
      * @return array|null Order record with order items, or null if failed
      */
     public function convertSessionCartToOrderCart(
-        int $sessionId, 
-        string $fullname, 
-        string $email, 
-        string $phone, 
-        ?string $gender = null, 
+        int $sessionId,
+        string $fullname,
+        string $email,
+        string $phone,
+        ?string $gender = null,
         ?string $dateOfBirth = null,
         ?int $branchId = null
     ): ?array {
@@ -108,16 +108,16 @@ class SessionRepository extends BaseRepository
         if (!$session || !$session['cart_id']) {
             return null;
         }
-        
+
         $cartId = $session['cart_id'];
-        
+
         // Check if user already exists by email or phone
         $existingUser = DB::queryFirstRow(
-            "SELECT id FROM " . TABLE_USER . " WHERE email = %s OR phone = %s", 
-            $email, 
+            "SELECT id FROM " . TABLE_USER . " WHERE email = %s OR phone = %s",
+            $email,
             $phone
         );
-        
+
         $userId = null;
         if ($existingUser) {
             $userId = $existingUser['id'];
@@ -131,30 +131,30 @@ class SessionRepository extends BaseRepository
                 'phone_verified' => 0,
                 'createdAt' => date('Y-m-d H:i:s')
             ];
-            
+
             DB::insert(TABLE_USER, $userData);
             $userId = DB::insertId();
         }
-        
+
         // Create or update customer record
         $existingCustomer = DB::queryFirstRow(
-            "SELECT id FROM " . TABLE_CUSTOMER . " WHERE user_id = %i", 
+            "SELECT id FROM " . TABLE_CUSTOMER . " WHERE user_id = %i",
             $userId
         );
-        
+
         $customerId = null;
         if ($existingCustomer) {
             $customerId = $existingCustomer['id'];
             // Update existing customer
             DB::update(
-                TABLE_CUSTOMER, 
+                TABLE_CUSTOMER,
                 [
                     'fullname' => $fullname,
                     'gender' => $gender,
                     'date_of_birth' => $dateOfBirth,
                     'updatedAt' => date('Y-m-d H:i:s')
-                ], 
-                "id = %i", 
+                ],
+                "id = %i",
                 $customerId
             );
         } else {
@@ -167,30 +167,30 @@ class SessionRepository extends BaseRepository
                 'createdAt' => date('Y-m-d H:i:s'),
                 'updatedAt' => date('Y-m-d H:i:s')
             ];
-            
+
             DB::insert(TABLE_CUSTOMER, $customerData);
             $customerId = DB::insertId();
         }
-        
+
         // Get cart items
         $cartItems = DB::query(
             "SELECT ci.id, ci.productId, ci.variantId, ci.quantity, p.price 
              FROM " . TABLE_CART_ITEM . " ci 
              JOIN " . TABLE_PRODUCT . " p ON ci.productId = p.id 
-             WHERE ci.cartId = %i", 
+             WHERE ci.cartId = %i",
             $cartId
         );
-        
+
         if (empty($cartItems)) {
             return null; // No items in cart
         }
-        
+
         // Calculate total
         $total = 0;
         foreach ($cartItems as $item) {
             $total += $item['price'] * $item['quantity'];
         }
-        
+
         // Create order
         $orderData = [
             'customer_id' => $customerId,
@@ -200,10 +200,10 @@ class SessionRepository extends BaseRepository
             'total' => $total,
             'orderNotice' => null
         ];
-        
+
         DB::insert(TABLE_ORDER, $orderData);
         $orderId = DB::insertId();
-        
+
         // Create order items
         foreach ($cartItems as $item) {
             $orderItemData = [
@@ -212,17 +212,17 @@ class SessionRepository extends BaseRepository
                 'variantId' => $item['variantId'],
                 'quantity' => $item['quantity']
             ];
-            
+
             DB::insert(TABLE_ORDER_ITEM, $orderItemData);
         }
-        
+
         // Update session to link with user
         DB::update($this->table, ['user_id' => $userId], "id = %i", $sessionId);
-        
+
         // Return the created order with items
         $order = DB::queryFirstRow("SELECT * FROM " . TABLE_ORDER . " WHERE id = %i", $orderId);
         $orderItems = DB::query("SELECT * FROM " . TABLE_ORDER_ITEM . " WHERE customerOrderId = %i", $orderId);
-        
+
         $order['items'] = $orderItems;
         return $order;
     }
@@ -244,9 +244,9 @@ class SessionRepository extends BaseRepository
         if (!$session) {
             return null;
         }
-        
+
         $cartId = $session['cart_id'];
-        
+
         // If no cart exists, create one
         if (!$cartId) {
             $cartData = [
@@ -254,35 +254,35 @@ class SessionRepository extends BaseRepository
                 'createdAt' => date('Y-m-d H:i:s.u'),
                 'updatedAt' => date('Y-m-d H:i:s.u')
             ];
-            
+
             DB::insert(TABLE_CART, $cartData);
             $cartId = DB::insertId();
-            
+
             // Update session with cart_id
             DB::update($this->table, ['cart_id' => $cartId], "id = %i", $sessionId);
         }
-        
+
         // Check if product/variant already exists in cart
         $existingCartItem = DB::queryFirstRow(
             "SELECT id, quantity FROM " . TABLE_CART_ITEM . " 
-             WHERE cartId = %i AND productId = %i AND variantId = %i", 
-            $cartId, 
-            $productId, 
+             WHERE cartId = %i AND productId = %i AND variantId = %i",
+            $cartId,
+            $productId,
             $variantId
         );
-        
+
         if ($existingCartItem) {
             // Update existing cart item
             $newQuantity = $existingCartItem['quantity'] + $quantity;
             DB::update(
-                TABLE_CART_ITEM, 
-                ['quantity' => $newQuantity, 'updatedAt' => date('Y-m-d H:i:s.u')], 
-                "id = %i", 
+                TABLE_CART_ITEM,
+                ['quantity' => $newQuantity, 'updatedAt' => date('Y-m-d H:i:s.u')],
+                "id = %i",
                 $existingCartItem['id']
             );
-            
+
             return DB::queryFirstRow(
-                "SELECT * FROM " . TABLE_CART_ITEM . " WHERE id = %i", 
+                "SELECT * FROM " . TABLE_CART_ITEM . " WHERE id = %i",
                 $existingCartItem['id']
             );
         } else {
@@ -295,12 +295,12 @@ class SessionRepository extends BaseRepository
                 'createdAt' => date('Y-m-d H:i:s.u'),
                 'updatedAt' => date('Y-m-d H:i:s.u')
             ];
-            
+
             DB::insert(TABLE_CART_ITEM, $cartItemData);
             $cartItemId = DB::insertId();
-            
+
             return DB::queryFirstRow(
-                "SELECT * FROM " . TABLE_CART_ITEM . " WHERE id = %i", 
+                "SELECT * FROM " . TABLE_CART_ITEM . " WHERE id = %i",
                 $cartItemId
             );
         }
@@ -321,34 +321,34 @@ class SessionRepository extends BaseRepository
         if (!$session || !$session['cart_id']) {
             return null;
         }
-        
+
         $cartId = $session['cart_id'];
-        
+
         // Get current cart item
         $cartItem = DB::queryFirstRow(
             "SELECT id, quantity FROM " . TABLE_CART_ITEM . " 
-             WHERE cartId = %i AND productId = %i AND variantId = %i", 
-            $cartId, 
-            $productId, 
+             WHERE cartId = %i AND productId = %i AND variantId = %i",
+            $cartId,
+            $productId,
             $variantId
         );
-        
+
         if (!$cartItem) {
             return null;
         }
-        
+
         // Update quantity
         $newQuantity = $cartItem['quantity'] + $increment;
         DB::update(
-            TABLE_CART_ITEM, 
-            ['quantity' => $newQuantity, 'updatedAt' => date('Y-m-d H:i:s.u')], 
-            "id = %i", 
+            TABLE_CART_ITEM,
+            ['quantity' => $newQuantity, 'updatedAt' => date('Y-m-d H:i:s.u')],
+            "id = %i",
             $cartItem['id']
         );
-        
+
         // Return updated cart item
         return DB::queryFirstRow(
-            "SELECT * FROM " . TABLE_CART_ITEM . " WHERE id = %i", 
+            "SELECT * FROM " . TABLE_CART_ITEM . " WHERE id = %i",
             $cartItem['id']
         );
     }
@@ -369,24 +369,24 @@ class SessionRepository extends BaseRepository
         if (!$session || !$session['cart_id']) {
             return null;
         }
-        
+
         $cartId = $session['cart_id'];
-        
+
         // Get current cart item
         $cartItem = DB::queryFirstRow(
             "SELECT id, quantity FROM " . TABLE_CART_ITEM . " 
-             WHERE cartId = %i AND productId = %i AND variantId = %i", 
-            $cartId, 
-            $productId, 
+             WHERE cartId = %i AND productId = %i AND variantId = %i",
+            $cartId,
+            $productId,
             $variantId
         );
-        
+
         if (!$cartItem) {
             return null;
         }
-        
+
         $newQuantity = $cartItem['quantity'] - $decrement;
-        
+
         if ($newQuantity <= 0) {
             // Remove the item
             DB::delete(TABLE_CART_ITEM, "id = %i", $cartItem['id']);
@@ -394,15 +394,15 @@ class SessionRepository extends BaseRepository
         } else {
             // Update quantity
             DB::update(
-                TABLE_CART_ITEM, 
-                ['quantity' => $newQuantity, 'updatedAt' => date('Y-m-d H:i:s.u')], 
-                "id = %i", 
+                TABLE_CART_ITEM,
+                ['quantity' => $newQuantity, 'updatedAt' => date('Y-m-d H:i:s.u')],
+                "id = %i",
                 $cartItem['id']
             );
-            
+
             // Return updated cart item
             return DB::queryFirstRow(
-                "SELECT * FROM " . TABLE_CART_ITEM . " WHERE id = %i", 
+                "SELECT * FROM " . TABLE_CART_ITEM . " WHERE id = %i",
                 $cartItem['id']
             );
         }
@@ -416,33 +416,33 @@ class SessionRepository extends BaseRepository
      * @param int $variantId Variant ID
      * @return bool True if item was removed, false if not found
      */
-    public function removeProductItem(int $sessionId, int $productId, int $variantId): bool
+    public function removeProductFromCartInSession(int $sessionId, int $productId, int $variantId): bool
     {
         $session = $this->find($sessionId);
         if (!$session || !$session['cart_id']) {
             return false;
         }
-        
+
         $cartId = $session['cart_id'];
-        
+
         // Get cart item ID
         $cartItem = DB::queryFirstRow(
             "SELECT id FROM " . TABLE_CART_ITEM . " 
-             WHERE cartId = %i AND productId = %i AND variantId = %i", 
-            $cartId, 
-            $productId, 
+             WHERE cartId = %i AND productId = %i AND variantId = %i",
+            $cartId,
+            $productId,
             $variantId
         );
-        
+
         if (!$cartItem) {
             return false;
         }
-        
+
         // Delete the item
         $affectedRows = DB::delete(TABLE_CART_ITEM, "id = %i", $cartItem['id']);
         return $affectedRows > 0;
     }
-    
+
     /**
      * Get cart items for a session
      * 
@@ -455,7 +455,7 @@ class SessionRepository extends BaseRepository
         if (!$session || !$session['cart_id']) {
             return [];
         }
-        
+
         $query = "
             SELECT 
                 ci.id as cart_item_id,
@@ -474,7 +474,7 @@ class SessionRepository extends BaseRepository
             WHERE ci.cartId = %i
             ORDER BY ci.createdAt ASC
         ";
-        
+
         return DB::query($query, $session['cart_id']);
     }
 }
