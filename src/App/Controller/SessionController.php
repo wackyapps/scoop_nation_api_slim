@@ -722,6 +722,7 @@ class SessionController
      * 
      * @Route POST /api/sessions
      */
+    
     public function getSessionById(Request $request, Response $response): Response
     {
         try {

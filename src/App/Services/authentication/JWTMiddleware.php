@@ -17,14 +17,15 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
         '/api/users/login-customer',
         '/api/users/register-customer',
         // session routes
-        '/api/sessions/cart',
-        '/api/sessions/start',
-        '/api/sessions/verify',
-        '/api/sessions/cart/add',
-        '/api/sessions/cart/remove',
-        '/api/sessions/cart/increase',
-        '/api/sessions/cart/decrease',
-        '/api/sessions', // this url is not accessible in public APIs
+        '/api/sessions/start', // start new session http_method: POST
+        '/api/sessions/cart', // get session cart items http_method: POST
+        '/api/sessions/verify', // verify session http_method: POST
+        '/api/sessions/cart/add', // add product to cart http_method: POST
+        '/api/sessions/cart/remove', // remove product from cart http_method: POST
+        '/api/sessions/cart/increase', // increase product quantity http_method: POST
+        '/api/sessions/cart/decrease', // decrease product quantity http_method: POST
+        '/api/sessions', // get session by id http_method: POST
+        '/api/sessions/active' // todo: later make it authorized only for admin
     ];
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
