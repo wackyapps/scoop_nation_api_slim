@@ -2,12 +2,14 @@
 declare(strict_types=1);
 
 namespace App\Repository;
+require_once __DIR__ . '/SQL_Table_Names.php';
 
 use DB;
 
 class AddressRepository extends BaseRepository
 {
-    protected $table = 'addresses';
+    // protected $table = 'addresses';
+    protected $table = TABLE_ADDRESSES;
     protected $primaryKey = 'id';
 
     /**

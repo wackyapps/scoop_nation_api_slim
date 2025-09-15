@@ -39,6 +39,10 @@ define('IMAGE_SERVER_BASE_PATH', 'https://idiaz.zaidis.com.pk');
 // 60 minutes expiration in seconds 3600
 define('JWT_EXP', 86400);
 define('IMAGE_SIGNATURE_EXPIRY_MINUTES', 1);
+define('JWT_AUD', "localhost");
+define('JWT_ISS', "jwt.local");
+define('JWT_SECRET', "thisIsASecret");
+
 
 
 

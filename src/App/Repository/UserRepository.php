@@ -2,13 +2,15 @@
 declare(strict_types=1);
 
 namespace App\Repository;
+require_once __DIR__ . '/SQL_Table_Names.php';
+
 
 use DB;
 use App\Services\EmailService;
 
 class UserRepository extends BaseRepository
 {
-    protected $table = 'user';
+    protected $table = TABLE_USER;
     protected $primaryKey = 'id';
 
     public function findByEmail(string $email)
@@ -43,11 +45,11 @@ class UserRepository extends BaseRepository
                 c.country,
                 c.createdAt as customer_created,
                 c.updatedAt as customer_updated
-            FROM `user` u
-            LEFT JOIN `customer` c ON u.id = c.user_id
+            FROM " . TABLE_USER . " u
+            LEFT JOIN " . TABLE_CUSTOMER . " c ON u.id = c.user_id
             WHERE u.id = %i
         ";
-        
+
         return DB::queryFirstRow($sql, $userId);
     }
 
@@ -64,18 +66,20 @@ class UserRepository extends BaseRepository
                 u.role,
                 u.phone_verified,
                 u.email_verified,
+                u.phone,
                 u.createdAt as user_created,
                 c.id as customer_id,
                 c.fullname,
                 c.gender,
-                c.date_of_birth,
-                c.createdAt as customer_created,
-                c.updatedAt as customer_updated
-            FROM `user` u
-            LEFT JOIN `customer` c ON u.id = c.user_id
+                c.date_of_birth
+                #,
+                #c.createdAt as customer_created,
+                #c.updatedAt as customer_updated
+            FROM " . TABLE_USER . " u
+            LEFT JOIN " . TABLE_CUSTOMER . " c ON u.id = c.user_id
             WHERE u.email = %s
         ";
-        
+
         return DB::queryFirstRow($sql, $email);
     }
 
@@ -88,11 +92,11 @@ class UserRepository extends BaseRepository
         try {
             $userData['role'] = 'customer';
             $userId = $this->save($userData);
-            
+
             $customerData['user_id'] = $userId;
             $customerRepository = new CustomerRepository();
             $customerRepository->save($customerData);
-            
+
             DB::commit();
             return $userId;
         } catch (\Exception $e) {
@@ -107,8 +111,10 @@ class UserRepository extends BaseRepository
     public function loginCustomerUser(string $email, string $password): ?array
     {
         $user = $this->findByEmailWithProfile($email);
-        var_dump($user["password"]); // Debug line to check the fetched user data
+        // var_dump($user["password"]); // Debug line to check the fetched user data
         if ($user && $user["role"] === 'customer' && password_verify($password, $user["password"])) {
+            // remove password field from $user
+            unset($user['password']);
             return $user;
         }
         return null;
@@ -135,12 +141,12 @@ class UserRepository extends BaseRepository
         if (!$user) {
             return false;
         }
-        
+
         // Generate OTP (assuming you have an OtpService)
         $otpService = new OtpService();
         $otp = $otpService->generateOtp();
         $otpService->saveOtp($user->id, $otp);
-        
+
         // Send email (assuming EmailService exists)
         $emailService = new EmailService();
         return $emailService->sendOtp($email, $otp);
@@ -154,7 +160,7 @@ class UserRepository extends BaseRepository
         DB::startTransaction();
         try {
             $this->update($userId, $userData);
-            
+
             $customerRepository = new CustomerRepository();
             $customer = $customerRepository->findOneBy(['user_id' => $userId]);
             if ($customer) {
@@ -163,7 +169,7 @@ class UserRepository extends BaseRepository
                 $customerData['user_id'] = $userId;
                 $customerRepository->save($customerData);
             }
-            
+
             DB::commit();
             return true;
         } catch (\Exception $e) {
@@ -191,10 +197,10 @@ class UserRepository extends BaseRepository
                 c.postalCode,
                 c.city,
                 c.country
-            FROM `user` u
-            LEFT JOIN `customer` c ON u.id = c.user_id
+            FROM " . TABLE_USER . " u
+            LEFT JOIN " . TABLE_CUSTOMER . " c ON u.id = c.user_id
         ";
-        
+
         if ($orderBy) {
             $sql .= " ORDER BY ";
             $orders = [];
@@ -203,14 +209,14 @@ class UserRepository extends BaseRepository
             }
             $sql .= implode(', ', $orders);
         }
-        
+
         if ($limit) {
             $sql .= " LIMIT %i";
             if ($offset) {
                 $sql .= " OFFSET %i";
             }
         }
-        
+
         return DB::query($sql, $limit ? ($offset ? [$limit, $offset] : [$limit]) : []);
     }
 
