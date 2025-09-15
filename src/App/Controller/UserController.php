@@ -183,15 +183,15 @@ class UserController
     {
         try {
             $guestCustomers = $this->userRepository->findGuestCustomers();
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'data' => $guestCustomers,
                 'count' => count($guestCustomers)
             ]));
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -199,9 +199,7 @@ class UserController
             ]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
-    }
-
-    
+    }    
 
     /**
      * Register a new customer user
