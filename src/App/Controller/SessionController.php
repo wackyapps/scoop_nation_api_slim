@@ -128,13 +128,45 @@ class SessionController
      * 
      * @Route GET /api/sessions/{sessionId}/cart
      */
+
+    /**
+     * Get cart items for current session
+     * 
+     * @Route GET /api/sessions/{sessionId}/cart
+     */
+
     public function getCartItems(Request $request, Response $response, array $args): Response
     {
         try {
-            $sessionId = (int) $args['sessionId'];
+            // Get session_id from request body
+            $data = $request->getParsedBody();
+            $session_id = $data['session_id'] ?? null;
 
-            // Verify session exists
-            $session = $this->sessionRepository->find($sessionId);
+            if (empty($session_id)) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'session_id is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Find session by session_id (GUID) or ID
+            if (is_numeric($session_id) && (int) $session_id == $session_id) {
+                $sessionId = (int) $session_id;
+                $session = $this->sessionRepository->find($sessionId);
+            } else {
+                $session = $this->sessionRepository->findOneBy(['session_id' => $session_id]);
+                if ($session) {
+                    $sessionId = $session['id'];
+                } else {
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'error' => 'Session not found'
+                    ]));
+                    return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+                }
+            }
+
             if (!$session) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -144,7 +176,7 @@ class SessionController
             }
 
             // Get cart items
-            $cartItems = $this->sessionRepository->getCartItemsForSession($sessionId);
+            $cartItems = $this->sessionRepository->getCartItemsForSession((int) $sessionId);
 
             $response->getBody()->write(json_encode([
                 'success' => true,
@@ -272,66 +304,7 @@ class SessionController
         }
     }
 
-    // public function addProductToCart(Request $request, Response $response, array $args): Response
-    // {
-    //     try {
-    //         $data = $request->getParsedBody();
-    //         var_dump($data);
-    //         $sessionId = (int) $data['sessionId'];
 
-    //         // Validate required fields
-    //         if (!isset($data['product_id']) || !isset($data['variant_id'])) {
-    //             $response->getBody()->write(json_encode([
-    //                 'success' => false,
-    //                 'error' => 'product_id and variant_id are required'
-    //             ]));
-    //             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
-    //         }
-
-    //         $quantity = $data['quantity'] ?? 1;
-
-    //         // Verify product exists
-    //         $product = $this->productRepository->find($data['product_id']);
-    //         if (!$product) {
-    //             $response->getBody()->write(json_encode([
-    //                 'success' => false,
-    //                 'error' => 'Product not found'
-    //             ]));
-    //             return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
-    //         }
-
-    //         // Add product to cart
-    //         $cartItem = $this->sessionRepository->addProductToCartInSession(
-    //             $sessionId,
-    //             (int) $data['product_id'],
-    //             (int) $data['variant_id'],
-    //             (int) $quantity
-    //         );
-
-    //         if (!$cartItem) {
-    //             $response->getBody()->write(json_encode([
-    //                 'success' => false,
-    //                 'error' => 'Failed to add product to cart'
-    //             ]));
-    //             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-    //         }
-
-    //         $response->getBody()->write(json_encode([
-    //             'success' => true,
-    //             'message' => 'Product added to cart successfully',
-    //             'data' => $cartItem
-    //         ]));
-
-    //         return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
-
-    //     } catch (\Exception $e) {
-    //         $response->getBody()->write(json_encode([
-    //             'success' => false,
-    //             'error' => 'Failed to add product to cart: ' . $e->getMessage()
-    //         ]));
-    //         return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-    //     }
-    // }
 
     /**
      * Increase product quantity in cart
