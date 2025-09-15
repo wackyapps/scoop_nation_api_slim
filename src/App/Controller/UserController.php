@@ -387,7 +387,7 @@ class UserController
      */
     public function addNewAddress(Request $request, Response $response): Response
     {
-        // try {
+        try {
             $data = $request->getParsedBody();
 
             // Get user_id from request body
@@ -433,10 +433,10 @@ class UserController
             $response->getBody()->write(json_encode(['success' => true, 'message' => 'Address added successfully', 'address_id' => $addressId]));
             return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
 
-        // } catch (\Exception $e) {
-        //     $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to add address: ' . $e->getMessage()]));
-        //     return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-        // }
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to add address: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
     }
 
     /**
