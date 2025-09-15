@@ -102,6 +102,8 @@ require __DIR__ . '/../src/App/Routes/bundles.routes.php';
 require __DIR__ . '/../src/App/Routes/user.routes.php';
 require __DIR__ . '/../src/App/Routes/customer.routes.php';
 require __DIR__ . '/../src/App/Routes/banner.routes.php';
+require __DIR__ . '/../src/App/Routes/session.routes.php';
+
 
 // Run the application
 $app->run();

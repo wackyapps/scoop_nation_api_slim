@@ -42,6 +42,7 @@ define("TABLE_RIDER", "rider");
 
 // Promotions and Pricing
 define("TABLE_PROMOCODE", "promocode");
+define("TABLE_SESSIONS", "sessions");
 
 // System and Location Tables
 define("TABLE_CITIES", "cities");
