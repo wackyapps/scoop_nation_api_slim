@@ -243,13 +243,6 @@ class UserController
                 'fullname' => $data['fullname'],
                 'gender' => $data['gender'] ?? null,
                 'date_of_birth' => $data['date_of_birth'] ?? null,
-                'phone' => $data['phone'],
-                'company' => $data['company'] ?? null,
-                'address' => $data['address'] ?? null,
-                'apartment' => $data['apartment'] ?? null,
-                'postalCode' => $data['postalCode'] ?? null,
-                'city' => $data['city'] ?? null,
-                'country' => $data['country'] ?? null
             ];
             
             $userId = $this->userRepository->registerCustomerUser($userData, $customerData);
@@ -277,9 +270,8 @@ class UserController
             if (!isset($data['email']) || !isset($data['password'])) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Email and password are required']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
-                
             }
-            
+
             $user = $this->userRepository->loginCustomerUser($data['email'], $data['password']);
             
             if (!$user) {
