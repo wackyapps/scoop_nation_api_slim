@@ -36,13 +36,6 @@ class UserRepository extends BaseRepository
                 c.fullname,
                 c.gender,
                 c.date_of_birth,
-                c.phone,
-                c.company,
-                c.address,
-                c.apartment,
-                c.postalCode,
-                c.city,
-                c.country,
                 c.createdAt as customer_created,
                 c.updatedAt as customer_updated
             FROM " . TABLE_USER . " u
@@ -50,7 +43,9 @@ class UserRepository extends BaseRepository
             WHERE u.id = %i
         ";
 
-        return DB::queryFirstRow($sql, $userId);
+        $user = DB::queryFirstRow($sql, $userId);
+        // var_dump($user);
+        return $user;
     }
 
     /**

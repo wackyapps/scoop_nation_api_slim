@@ -273,21 +273,54 @@ $app->post('/api/users/forgot-password', function ($request, $response) use ($ap
 
 /**
  * @OA\Post(
- *     path="/api/users/{userId}/add-address",
+ *     path="/api/users/add-address",
  *     summary="Add new address",
  *     description="Add a new address for a user.",
  *     tags={"Users"},
- *     @OA\Parameter(
- *         name="userId",
- *         in="path",
- *         required=true,
- *         description="User ID.",
- *         @OA\Schema(type="integer")
- *     ),
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(
- *             ref="#/components/schemas/Address"
+ *             type="object",
+ *             @OA\Property(
+ *                 property="user_id",
+ *                 type="integer",
+ *                 description="User ID"
+ *             ),
+ *             @OA\Property(
+ *                 property="address_type",
+ *                 type="string",
+ *                 description="Address type (home, work, etc.)"
+ *             ),
+ *             @OA\Property(
+ *                 property="street_address",
+ *                 type="string",
+ *                 description="Street address"
+ *             ),
+ *             @OA\Property(
+ *                 property="city",
+ *                 type="string",
+ *                 description="City"
+ *             ),
+ *             @OA\Property(
+ *                 property="state",
+ *                 type="string",
+ *                 description="State"
+ *             ),
+ *             @OA\Property(
+ *                 property="postal_code",
+ *                 type="string",
+ *                 description="Postal code"
+ *             ),
+ *             @OA\Property(
+ *                 property="country",
+ *                 type="string",
+ *                 description="Country"
+ *             ),
+ *             @OA\Property(
+ *                 property="is_default",
+ *                 type="boolean",
+ *                 description="Is this the default address?"
+ *             )
  *         )
  *     ),
  *     @OA\Response(
@@ -297,9 +330,9 @@ $app->post('/api/users/forgot-password', function ($request, $response) use ($ap
  *     security={{"bearerAuth": {}}}
  * )
  */
-$app->post('/api/users/{userId}/add-address', function ($request, $response, $args) use ($app) {
+$app->post('/api/users/add-address', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->addNewAddress($request, $response, $args);
+    return $controller->addNewAddress($request, $response);
 });
 
 /**

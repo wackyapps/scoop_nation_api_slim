@@ -22,7 +22,7 @@ class UserController
 
     public function __construct(
         UserRepository $userRepository,
-        WishlistRepository $wishlistRepository, 
+        WishlistRepository $wishlistRepository,
         AddressRepository $addressRepository,
         EmailService $emailService,
         OtpService $otpService
@@ -45,19 +45,19 @@ class UserController
             // Get optional query parameters for pagination and sorting
             $queryParams = $request->getQueryParams();
             $orderBy = isset($queryParams['sort']) ? [$queryParams['sort'] => $queryParams['order'] ?? 'ASC'] : null;
-            $limit = isset($queryParams['limit']) ? (int)$queryParams['limit'] : null;
-            $offset = isset($queryParams['offset']) ? (int)$queryParams['offset'] : null;
+            $limit = isset($queryParams['limit']) ? (int) $queryParams['limit'] : null;
+            $offset = isset($queryParams['offset']) ? (int) $queryParams['offset'] : null;
 
             $users = $this->userRepository->findAllWithProfiles($orderBy, $limit, $offset);
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'data' => $users,
                 'count' => count($users)
             ]));
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -75,10 +75,10 @@ class UserController
     public function getUserById(Request $request, Response $response, array $args): Response
     {
         try {
-            $userId = (int)$args['id'];
-            
+            $userId = (int) $args['id'];
+
             $user = $this->userRepository->findUserWithCustomerProfile($userId);
-            
+
             if (!$user) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -86,14 +86,14 @@ class UserController
                 ]));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'data' => $user
             ]));
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -112,9 +112,9 @@ class UserController
     {
         try {
             $email = urldecode($args['email']);
-            
+
             $user = $this->userRepository->findByEmailWithProfile($email);
-            
+
             if (!$user) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -122,14 +122,14 @@ class UserController
                 ]));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'data' => $user
             ]));
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -148,23 +148,23 @@ class UserController
     {
         try {
             $role = $args['role'];
-            
+
             // Get optional query parameters
             $queryParams = $request->getQueryParams();
             $orderBy = isset($queryParams['sort']) ? [$queryParams['sort'] => $queryParams['order'] ?? 'ASC'] : null;
-            $limit = isset($queryParams['limit']) ? (int)$queryParams['limit'] : null;
-            $offset = isset($queryParams['offset']) ? (int)$queryParams['offset'] : null;
+            $limit = isset($queryParams['limit']) ? (int) $queryParams['limit'] : null;
+            $offset = isset($queryParams['offset']) ? (int) $queryParams['offset'] : null;
 
             $users = $this->userRepository->findByRole($role, $orderBy, $limit, $offset);
-            
+
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'data' => $users,
                 'count' => count($users)
             ]));
-            
+
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
@@ -199,7 +199,7 @@ class UserController
             ]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
-    }    
+    }
 
     /**
      * Register a new customer user
@@ -210,7 +210,7 @@ class UserController
     {
         try {
             $data = $request->getParsedBody();
-            
+
             // Validate required fields for user and customer
             $requiredUser = ['email', 'password'];
             $requiredCustomer = ['fullname', 'phone'];
@@ -220,14 +220,14 @@ class UserController
                     return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
                 }
             }
-            
+
             // Check if user already exists
             if ($this->userRepository->findByEmail($data['email'])) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'User with this email already exists']));
                 return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
-                
+
             }
-            
+
             // Prepare user data
             $userData = [
                 'email' => $data['email'],
@@ -235,23 +235,23 @@ class UserController
                 'phone' => $data['phone'] ?? null,
                 'role' => 'customer' // Automatically set to customer
             ];
-            
+
             // Prepare customer data
             $customerData = [
                 'fullname' => $data['fullname'],
                 'gender' => $data['gender'] ?? null,
                 'date_of_birth' => $data['date_of_birth'] ?? null,
             ];
-            
+
             $userId = $this->userRepository->registerCustomerUser($userData, $customerData);
-            
+
             $response->getBody()->write(json_encode(['success' => true, 'message' => 'Customer user registered successfully', 'user_id' => $userId]));
             return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to register customer user: ' . $e->getMessage()]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-            
+
         }
     }
 
@@ -264,27 +264,27 @@ class UserController
     {
         try {
             $data = $request->getParsedBody();
-            
+
             if (!isset($data['email']) || !isset($data['password'])) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Email and password are required']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
 
             $user = $this->userRepository->loginCustomerUser($data['email'], $data['password']);
-            
+
             if (!$user) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid email or password']));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
-            
+
             // Generate token (assuming you have a method for this)
             $jwt = new JWT();
             $token = $jwt->generate($user);
-            
+
             $response->getBody()->write(json_encode(['success' => true, 'token' => $token, 'user' => $user]));
             return $response->withHeader('Content-Type', 'application/json');
-            
-            
+
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to login: ' . $e->getMessage()]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
@@ -305,9 +305,9 @@ class UserController
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Unauthorized']));
                 return $response->withStatus(403)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $data = $request->getParsedBody();
-            
+
             // Validate required fields
             $required = ['email', 'password', 'role'];
             foreach ($required as $field) {
@@ -316,18 +316,18 @@ class UserController
                     return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
                 }
             }
-            
+
             if (!in_array($data['role'], ['admin', 'rider'])) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid role']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-            
+
             // Check if user already exists
             if ($this->userRepository->findByEmail($data['email'])) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'User with this email already exists']));
                 return $response->withStatus(409)->withHeader('Content-Type', 'application/json');
             }
-            
+
             // Prepare user data
             $userData = [
                 'email' => $data['email'],
@@ -335,12 +335,12 @@ class UserController
                 'phone' => $data['phone'] ?? null,
                 'role' => $data['role']
             ];
-            
+
             $userId = $this->userRepository->registerUserWithRole($userData, $data['role']);
-            
+
             $response->getBody()->write(json_encode(['success' => true, 'message' => 'User registered successfully', 'user_id' => $userId]));
             return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to register user: ' . $e->getMessage()]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
@@ -356,19 +356,19 @@ class UserController
     {
         try {
             $data = $request->getParsedBody();
-            
+
             if (!isset($data['email']) || empty($data['email'])) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Email is required']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
-                
+
             }
-            
+
             $success = $this->userRepository->forgotUserPassword($data['email']);
-            
+
             if (!$success) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'User not found']));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
-                
+
             }
 
             $response->getBody()->write(json_encode(['success' => true, 'message' => 'OTP sent to your email']));
@@ -383,33 +383,40 @@ class UserController
     /**
      * Add new address for user
      * 
-     * @Route POST /api/users/{userId}/add-address
+     * @Route POST /api/users/add-address
      */
-    public function addNewAddress(Request $request, Response $response, array $args): Response
+    public function addNewAddress(Request $request, Response $response): Response
     {
-        try {
-            $userId = (int)$args['userId'];
+        // try {
             $data = $request->getParsedBody();
-            
+
+            // Get user_id from request body
+            if (!isset($data['user_id']) || empty($data['user_id'])) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'user_id is required']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            $userId = (int) $data['user_id'];
+
             // Validate required fields
-            $required = ['address_type', 'street_address', 'city', 'state', 'country', 'postal_code'];
+            $required = ['street_address', 'city', 'state', 'country', 'postal_code'];
             foreach ($required as $field) {
                 if (!isset($data[$field]) || empty($data[$field])) {
                     $response->getBody()->write(json_encode(['success' => false, 'error' => "Field {$field} is required"]));
                     return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
                 }
             }
-            
+
             // Get customer ID for the user
             $user = $this->userRepository->findUserWithCustomerProfile($userId);
-            if (!$user || !$user->customer_id) {
+            if (!$user || !$user["id"]) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Customer profile not found for user']));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $addressData = [
-                'customer_id' => $user->customer_id,
-                'address_type' => $data['address_type'],
+                'user_id' => (int) $user["id"],
+                'address_type' => $data['address_type'] ?? 'home',
                 'street_address' => $data['street_address'],
                 'city' => $data['city'],
                 'state' => $data['state'] ?? null,
@@ -417,17 +424,19 @@ class UserController
                 'country' => $data['country'],
                 'is_default' => $data['is_default'] ?? false
             ];
-            
+
+            // var_dump($addressData);
+
             $addressRepository = new AddressRepository();
             $addressId = $addressRepository->save($addressData);
-            
+
             $response->getBody()->write(json_encode(['success' => true, 'message' => 'Address added successfully', 'address_id' => $addressId]));
             return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
-            
-        } catch (\Exception $e) {
-            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to add address: ' . $e->getMessage()]));
-            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
-        }
+
+        // } catch (\Exception $e) {
+        //     $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to add address: ' . $e->getMessage()]));
+        //     return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        // }
     }
 
     /**
@@ -438,28 +447,28 @@ class UserController
     public function removeAddress(Request $request, Response $response, array $args): Response
     {
         try {
-            $userId = (int)$args['userId'];
-            $addressId = (int)$args['addressId'];
-            
+            $userId = (int) $args['userId'];
+            $addressId = (int) $args['addressId'];
+
             // Get customer ID for the user
             $user = $this->userRepository->findUserWithCustomerProfile($userId);
             if (!$user || !$user->customer_id) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Customer profile not found for user']));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $addressRepository = new AddressRepository();
             $address = $addressRepository->findOneBy(['id' => $addressId, 'customer_id' => $user->customer_id]);
             if (!$address) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Address not found or does not belong to user']));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            
+
             $success = $addressRepository->delete($addressId);
-            
+
             $response->getBody()->write(json_encode(['success' => $success, 'message' => $success ? 'Address removed successfully' : 'Failed to remove address']));
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to remove address: ' . $e->getMessage()]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
@@ -474,12 +483,12 @@ class UserController
     public function addProductToFavorite(Request $request, Response $response, array $args): Response
     {
         try {
-            $userId = (int)$args['userId'];
-            $productId = (int)$args['productId'];
-            
+            $userId = (int) $args['userId'];
+            $productId = (int) $args['productId'];
+
             $wishlistRepository = new WishlistRepository();
             $favoriteId = $wishlistRepository->addProductToFavorite($userId, $productId);
-            
+
             $response->getBody()->write(json_encode(['success' => true, 'message' => 'Product added to favorites', 'favorite_id' => $favoriteId]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
 
@@ -498,15 +507,15 @@ class UserController
     public function removeProductFromFavorite(Request $request, Response $response, array $args): Response
     {
         try {
-            $userId = (int)$args['userId'];
-            $productId = (int)$args['productId'];
-            
+            $userId = (int) $args['userId'];
+            $productId = (int) $args['productId'];
+
             $wishlistRepository = new WishlistRepository();
             $success = $wishlistRepository->removeProductFromFavorite($userId, $productId);
-            
+
             $response->getBody()->write(json_encode(['success' => $success, 'message' => $success ? 'Product removed from favorites' : 'Failed to remove product from favorites']));
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to remove favorite: ' . $e->getMessage()]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
@@ -521,20 +530,20 @@ class UserController
     public function saveProfile(Request $request, Response $response, array $args): Response
     {
         try {
-            $userId = (int)$args['id'];
+            $userId = (int) $args['id'];
             $data = $request->getParsedBody();
-            
+
             // Prepare user data
             $userData = array_intersect_key($data, array_flip(['email', 'phone']));
-            
+
             // Prepare customer data
             $customerData = array_intersect_key($data, array_flip(['fullname', 'gender', 'date_of_birth']));
-            
+
             $success = $this->userRepository->saveProfile($userId, $userData, $customerData);
-            
+
             $response->getBody()->write(json_encode(['success' => $success, 'message' => $success ? 'Profile updated successfully' : 'No changes made']));
             return $response->withHeader('Content-Type', 'application/json');
-            
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to update profile: ' . $e->getMessage()]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
