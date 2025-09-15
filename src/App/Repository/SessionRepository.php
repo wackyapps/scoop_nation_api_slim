@@ -63,7 +63,7 @@ class SessionRepository extends BaseRepository
 
         if ($session) {
             // Update last_activity timestamp
-            $this->updateLastActivity($session['id']);
+            $this->updateLastActivity((int) $session['id']);
         }
 
         return $session ?: null;
