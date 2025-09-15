@@ -314,8 +314,45 @@ class SessionController
     public function increaseProductQuantity(Request $request, Response $response, array $args): Response
     {
         try {
-            $sessionId = (int) $args['sessionId'];
+            // Get session_id from request body instead of route parameter
             $data = $request->getParsedBody();
+            $session_id = $data['session_id'] ?? null;
+
+            // Validate session_id
+            if (empty($session_id)) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'session_id is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // If session_id is a GUID (string), find the session by session_id field
+            // If it's an integer, find by ID
+            if (is_numeric($session_id) && (int) $session_id == $session_id) {
+                $sessionId = (int) $session_id;
+                $session = $this->sessionRepository->find($sessionId);
+            } else {
+                // Find session by session_id field (GUID)
+                $session = $this->sessionRepository->findOneBy(['session_id' => $session_id]);
+                if ($session) {
+                    $sessionId = $session['id']; // Get the numeric ID for further operations
+                } else {
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'error' => 'Session not found'
+                    ]));
+                    return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+                }
+            }
+
+            if (!$session) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Session not found'
+                ]));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
 
             // Validate required fields
             if (!isset($data['product_id']) || !isset($data['variant_id'])) {
@@ -369,8 +406,45 @@ class SessionController
     public function decreaseProductQuantity(Request $request, Response $response, array $args): Response
     {
         try {
-            $sessionId = (int) $args['sessionId'];
+            // Get session_id from request body instead of route parameter
             $data = $request->getParsedBody();
+            $session_id = $data['session_id'] ?? null;
+
+            // Validate session_id
+            if (empty($session_id)) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'session_id is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // If session_id is a GUID (string), find the session by session_id field
+            // If it's an integer, find by ID
+            if (is_numeric($session_id) && (int) $session_id == $session_id) {
+                $sessionId = (int) $session_id;
+                $session = $this->sessionRepository->find($sessionId);
+            } else {
+                // Find session by session_id field (GUID)
+                $session = $this->sessionRepository->findOneBy(['session_id' => $session_id]);
+                if ($session) {
+                    $sessionId = $session['id']; // Get the numeric ID for further operations
+                } else {
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'error' => 'Session not found'
+                    ]));
+                    return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+                }
+            }
+
+            if (!$session) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Session not found'
+                ]));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
 
             // Validate required fields
             if (!isset($data['product_id']) || !isset($data['variant_id'])) {
