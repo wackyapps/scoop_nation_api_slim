@@ -507,11 +507,14 @@ class UserController
      * 
      * @Route POST /api/users/{userId}/favorites/add/{productId}
      */
-    public function addProductToFavorite(Request $request, Response $response, array $args): Response
+    public function addProductToFavorite(Request $request, Response $response): Response
     {
         try {
-            $userId = (int) $args['userId'];
-            $productId = (int) $args['productId'];
+
+            $data = $request->getParsedBody();
+
+            $userId = (int) $data['user_id'];
+            $productId = (int) $data['product_id'];
 
             $wishlistRepository = new WishlistRepository();
             $favoriteId = $wishlistRepository->addProductToFavorite($userId, $productId);
@@ -529,22 +532,39 @@ class UserController
     /**
      * Remove product from favorite
      * 
-     * @Route DELETE /api/users/{userId}/favorites/remove/{productId}
+     * @Route POST /api/users/favorites/remove
      */
-    public function removeProductFromFavorite(Request $request, Response $response, array $args): Response
+    public function removeProductFromFavorite(Request $request, Response $response): Response
     {
         try {
-            $userId = (int) $args['userId'];
-            $productId = (int) $args['productId'];
+            $data = $request->getParsedBody();
+
+            // Validate required fields
+            if (!isset($data['user_id']) || !isset($data['product_id'])) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'user_id and product_id are required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            $userId = (int) $data['user_id'];
+            $productId = (int) $data['product_id'];
 
             $wishlistRepository = new WishlistRepository();
             $success = $wishlistRepository->removeProductFromFavorite($userId, $productId);
 
-            $response->getBody()->write(json_encode(['success' => $success, 'message' => $success ? 'Product removed from favorites' : 'Failed to remove product from favorites']));
+            $response->getBody()->write(json_encode([
+                'success' => $success,
+                'message' => $success ? 'Product removed from favorites' : 'Failed to remove product from favorites'
+            ]));
             return $response->withHeader('Content-Type', 'application/json');
 
         } catch (\Exception $e) {
-            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to remove favorite: ' . $e->getMessage()]));
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'Failed to remove favorite: ' . $e->getMessage()
+            ]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
     }

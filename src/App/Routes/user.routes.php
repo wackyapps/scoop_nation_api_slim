@@ -88,7 +88,8 @@ $app->get('/api/users', function ($request, $response) use ($app) {
     return $controller->getAllUsers($request, $response);
 });
 
-// PARAMETERIZED ROUTES SHOULD COME AFTER SPECIFIC ROUTES
+/* PARAMETERIZED ROUTES SHOULD COME AFTER SPECIFIC ROUTE */
+
 
 /**
  * @OA\Get(
@@ -110,6 +111,7 @@ $app->get('/api/users', function ($request, $response) use ($app) {
  *     security={{"bearerAuth": {}}}
  * )
  */
+
 $app->get('/api/users/{id}', function ($request, $response, $args) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
     return $controller->getUserById($request, $response, $args);
@@ -134,6 +136,7 @@ $app->get('/api/users/{id}', function ($request, $response, $args) use ($app) {
  *     security={{"bearerAuth": {}}}
  * )
  */
+
 $app->post('/api/users', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
     return $controller->createUser($request, $response);
@@ -166,12 +169,12 @@ $app->post('/api/users', function ($request, $response) use ($app) {
  *     security={{"bearerAuth": {}}}
  * )
  */
+
 $app->post('/api/users/{id}/link-customer/{customerId}', function ($request, $response, $args) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
     return $controller->linkCustomerToUser($request, $response, $args);
 });
 
-// New routes for added methods
 
 /**
  * @OA\Post(
@@ -191,6 +194,7 @@ $app->post('/api/users/{id}/link-customer/{customerId}', function ($request, $re
  *     )
  * )
  */
+
 $app->post('/api/users/register-customer', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
     return $controller->registerCustomerUser($request, $response);
@@ -397,9 +401,9 @@ $app->post('/api/users/remove-address', function ($request, $response) use ($app
  *     security={{"bearerAuth": {}}}
  * )
  */
-$app->post('/api/users/{userId}/favorites/add/{productId}', function ($request, $response, $args) use ($app) {
+$app->post('/api/users/favorites/add', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->addProductToFavorite($request, $response, $args);
+    return $controller->addProductToFavorite($request, $response);
 });
 
 /**
@@ -429,9 +433,9 @@ $app->post('/api/users/{userId}/favorites/add/{productId}', function ($request, 
  *     security={{"bearerAuth": {}}}
  * )
  */
-$app->delete('/api/users/{userId}/favorites/remove/{productId}', function ($request, $response, $args) use ($app) {
+$app->post('/api/users/favorites/remove', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->removeProductFromFavorite($request, $response, $args);
+    return $controller->removeProductFromFavorite($request, $response);
 });
 
 /**

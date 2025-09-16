@@ -20,8 +20,8 @@ class WishlistRepository extends BaseRepository
         if ($existing) {
             return $existing['id'];
         }
-        
-        return $this->save(['userId' => $userId, 'productId' => $productId]);
+
+        return (int) $this->save(['userId' => $userId, 'productId' => $productId]);
     }
 
     /**
@@ -33,7 +33,7 @@ class WishlistRepository extends BaseRepository
         if (!$wishlistItem) {
             return false;
         }
-        
+
         $this->delete($wishlistItem['id']);
         return true;
     }
