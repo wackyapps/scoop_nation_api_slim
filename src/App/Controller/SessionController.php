@@ -576,7 +576,7 @@ class SessionController
      * @Route POST /api/sessions/{sessionId}/checkout
      */
 
-    public function checkoutSessionCart(Request $request, Response $response, array $args): Response
+    public function checkoutSessionCart(Request $request, Response $response): Response
     {
         try {
             // Get session_id from request body instead of route parameter

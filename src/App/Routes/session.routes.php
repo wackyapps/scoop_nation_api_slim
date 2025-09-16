@@ -1,6 +1,7 @@
 <?php
-// Session routes
 
+use Slim\Http\Request;
+use Slim\Http\Response;
 
 /**
  * @OA\Post(
@@ -92,8 +93,8 @@ $app->post('/api/sessions/verify', function ($request, $response) use ($app) {
 $app->post('/api/sessions/cart', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
-    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
-    
+    $sessionId = isset($data['session_id']) ? (int) $data['session_id'] : 0;
+
     if ($sessionId <= 0) {
         $response->getBody()->write(json_encode([
             'success' => false,
@@ -101,7 +102,7 @@ $app->post('/api/sessions/cart', function ($request, $response) use ($app) {
         ]));
         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
     }
-    
+
     $args = ['sessionId' => $sessionId];
     return $controller->getCartItems($request, $response, $args);
 });
@@ -148,8 +149,8 @@ $app->post('/api/sessions/cart', function ($request, $response) use ($app) {
 $app->post('/api/sessions/cart/add', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
-    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
-    
+    $sessionId = isset($data['session_id']) ? (int) $data['session_id'] : 0;
+
     if ($sessionId <= 0) {
         $response->getBody()->write(json_encode([
             'success' => false,
@@ -157,7 +158,7 @@ $app->post('/api/sessions/cart/add', function ($request, $response) use ($app) {
         ]));
         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
     }
-    
+
     $args = ['sessionId' => $sessionId];
     return $controller->addProductToCart($request, $response, $args);
 });
@@ -204,8 +205,8 @@ $app->post('/api/sessions/cart/add', function ($request, $response) use ($app) {
 $app->post('/api/sessions/cart/increase', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
-    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
-    
+    $sessionId = isset($data['session_id']) ? (int) $data['session_id'] : 0;
+
     if ($sessionId <= 0) {
         $response->getBody()->write(json_encode([
             'success' => false,
@@ -213,7 +214,7 @@ $app->post('/api/sessions/cart/increase', function ($request, $response) use ($a
         ]));
         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
     }
-    
+
     $args = ['sessionId' => $sessionId];
     return $controller->increaseProductQuantity($request, $response, $args);
 });
@@ -260,8 +261,8 @@ $app->post('/api/sessions/cart/increase', function ($request, $response) use ($a
 $app->post('/api/sessions/cart/decrease', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
-    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
-    
+    $sessionId = isset($data['session_id']) ? (int) $data['session_id'] : 0;
+
     if ($sessionId <= 0) {
         $response->getBody()->write(json_encode([
             'success' => false,
@@ -269,7 +270,7 @@ $app->post('/api/sessions/cart/decrease', function ($request, $response) use ($a
         ]));
         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
     }
-    
+
     $args = ['sessionId' => $sessionId];
     return $controller->decreaseProductQuantity($request, $response, $args);
 });
@@ -311,8 +312,8 @@ $app->post('/api/sessions/cart/decrease', function ($request, $response) use ($a
 $app->post('/api/sessions/cart/remove', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
-    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
-    
+    $sessionId = isset($data['session_id']) ? (int) $data['session_id'] : 0;
+
     if ($sessionId <= 0) {
         $response->getBody()->write(json_encode([
             'success' => false,
@@ -320,7 +321,7 @@ $app->post('/api/sessions/cart/remove', function ($request, $response) use ($app
         ]));
         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
     }
-    
+
     $args = ['sessionId' => $sessionId];
     return $controller->removeProductFromCart($request, $response, $args);
 });
@@ -385,8 +386,21 @@ $app->post('/api/sessions/cart/remove', function ($request, $response) use ($app
 $app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
-    $sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
-    
+    $sessionId = isset($data['session_id']) ? (int) $data['session_id'] : 0;
+    // check branch_id from request
+    $branchId = isset($data['branch_id']) ? (int) $data['branch_id'] : 0;
+
+    // validate required fields
+    if (empty($data['fullname']) || empty($data['email']) || empty($data['phone'])) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'fullname, email, and phone are required'
+        ]));
+        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    }
+
+
+    // validate session_id
     if ($sessionId <= 0) {
         $response->getBody()->write(json_encode([
             'success' => false,
@@ -394,9 +408,18 @@ $app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
         ]));
         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
     }
-    
-    $args = ['sessionId' => $sessionId];
-    return $controller->checkoutSessionCart($request, $response, $args);
+
+    // validate branch_id
+    if ($branchId <= 0) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'branch_id is required and must be a positive integer'
+        ]));
+        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    }
+
+
+    return $controller->checkoutSessionCart($request, $response);
 });
 
 /**
