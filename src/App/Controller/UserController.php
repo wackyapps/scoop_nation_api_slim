@@ -301,6 +301,7 @@ class UserController
         try {
             // Verify if the current user is admin (assuming auth middleware sets 'user')
             $currentUser = $request->getAttribute('user');
+            var_dump($currentUser);
             if ($currentUser['role'] !== 'admin') {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Unauthorized']));
                 return $response->withStatus(403)->withHeader('Content-Type', 'application/json');

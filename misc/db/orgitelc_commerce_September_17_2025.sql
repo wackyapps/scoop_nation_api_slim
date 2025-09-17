@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 13, 2025 at 06:33 PM
+-- Generation Time: Sep 17, 2025 at 05:25 PM
 -- Server version: 10.4.25-MariaDB
 -- PHP Version: 8.1.10
 
@@ -66,11 +66,11 @@ CREATE TABLE `banner_campaign` (
 --
 
 INSERT INTO `banner_campaign` (`id`, `name`, `description`, `start_date`, `end_date`, `is_active`, `created_by`, `updated_by`, `branch_id`, `created_at`, `updated_at`) VALUES
-(1, 'Summer Ice Cream Festival 2025', 'Annual summer ice cream promotion with special discounts and new flavors', '2025-06-01 00:00:00', '2025-08-31 23:59:59', 1, 1, NULL, NULL, '2025-05-15 10:00:00.000', '2025-09-09 01:54:17.034'),
-(2, 'Summer Ice Cream Festival 2025', 'Annual summer ice cream promotion with special discounts and new flavors', '2025-06-01 00:00:00', '2025-08-31 23:59:59', 1, 1, NULL, NULL, '2025-05-15 10:00:00.000', '2025-09-09 01:36:58.760'),
-(3, 'Back to School Specials', 'School season promotions on family packs and lunchbox treats', '2025-08-15 00:00:00', '2025-09-15 23:59:59', 1, 1, NULL, NULL, '2025-07-20 14:30:00.000', '2025-09-09 01:36:58.760'),
-(4, 'Winter Warm-up Campaign', 'Hot chocolate and warm dessert promotions for winter season', '2025-12-01 00:00:00', '2025-02-28 23:59:59', 1, 1, NULL, NULL, '2025-11-10 09:15:00.000', '2025-09-09 01:36:58.760'),
-(5, 'Spring Refresh Launch', 'Introduction of new spring flavors and seasonal products', '2025-03-01 00:00:00', '2025-05-31 23:59:59', 1, 1, NULL, NULL, '2025-02-15 11:45:00.000', '2025-09-09 01:36:58.760');
+(1, 'Summer Ice Cream Festival 2025', 'Annual summer ice cream promotion with special discounts and new flavors', '2025-06-01 00:00:00', '2025-08-31 23:59:59', 1, NULL, NULL, NULL, '2025-05-15 10:00:00.000', '2025-09-09 01:54:17.034'),
+(2, 'Summer Ice Cream Festival 2025', 'Annual summer ice cream promotion with special discounts and new flavors', '2025-06-01 00:00:00', '2025-08-31 23:59:59', 1, NULL, NULL, NULL, '2025-05-15 10:00:00.000', '2025-09-09 01:36:58.760'),
+(3, 'Back to School Specials', 'School season promotions on family packs and lunchbox treats', '2025-08-15 00:00:00', '2025-09-15 23:59:59', 1, NULL, NULL, NULL, '2025-07-20 14:30:00.000', '2025-09-09 01:36:58.760'),
+(4, 'Winter Warm-up Campaign', 'Hot chocolate and warm dessert promotions for winter season', '2025-12-01 00:00:00', '2025-02-28 23:59:59', 1, NULL, NULL, NULL, '2025-11-10 09:15:00.000', '2025-09-09 01:36:58.760'),
+(5, 'Spring Refresh Launch', 'Introduction of new spring flavors and seasonal products', '2025-03-01 00:00:00', '2025-05-31 23:59:59', 1, NULL, NULL, NULL, '2025-02-15 11:45:00.000', '2025-09-09 01:36:58.760');
 
 -- --------------------------------------------------------
 
@@ -103,14 +103,6 @@ CREATE TABLE `branch` (
   `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `branch`
---
-
-INSERT INTO `branch` (`id`, `business_id`, `name`, `city`, `address`, `apartment`, `area`, `country`, `postal_code`, `latitude`, `longitude`, `is_physical`, `pickup_instructions`, `delivery_status`, `customer_support_email`, `contact_number`, `delivery_module`, `is_active`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES
-(1, 1, 'The Downtown Outlet', 'Lahore', 'Main Street, Downtown', NULL, '', '', '55110', '31.20000000', '74.45000000', 1, 'Pickup from front counter', 1, '', '', 1, 1, 1, NULL, '2025-09-10 00:35:37.000', '2025-09-10 00:48:35.943'),
-(2, 1, 'Online Delivery Hub - Lahore', 'Lahore', 'Virtual Hub for Lahore Deliveries', NULL, '', '', '54000', '31.52000000', '74.35870000', 0, 'Riders coordinate via app for bulk pickup', 1, '', '', 1, 1, 1, NULL, '2025-09-10 00:35:37.000', '2025-09-10 00:35:37.000');
-
 -- --------------------------------------------------------
 
 --
@@ -130,13 +122,6 @@ CREATE TABLE `branch_product` (
   `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `branch_product`
---
-
-INSERT INTO `branch_product` (`id`, `branch_id`, `product_id`, `variant_id`, `is_available`, `branch_price`, `min_order_quantity`, `max_order_quantity`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, NULL, 1, NULL, 1, NULL, '2025-09-10 00:35:37.000', '2025-09-10 00:35:37.000');
-
 -- --------------------------------------------------------
 
 --
@@ -155,17 +140,6 @@ CREATE TABLE `branch_special_days` (
   `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `branch_special_days`
---
-
-INSERT INTO `branch_special_days` (`id`, `branch_id`, `date`, `description`, `open_time`, `close_time`, `is_closed`, `created_at`, `updated_at`) VALUES
-(1, 1, '2025-12-25', 'Christmas Day - Closed', NULL, NULL, 1, '2025-09-11 18:40:30.967', '2025-09-11 18:40:30.967'),
-(2, 2, '2025-12-25', 'Christmas Day - Closed', NULL, NULL, 1, '2025-09-11 18:40:30.967', '2025-09-11 18:40:30.967'),
-(3, 1, '2025-12-31', 'New Year\'s Eve - Extended Hours', '10:00:00', '02:00:00', 0, '2025-09-11 18:40:30.967', '2025-09-11 18:40:30.967'),
-(4, 2, '2025-12-31', 'New Year\'s Eve - Extended Hours', '10:00:00', '02:00:00', 0, '2025-09-11 18:40:30.967', '2025-09-11 18:40:30.967'),
-(5, 1, '2025-09-15', 'Staff Training - Early Closing', '12:00:00', '18:00:00', 0, '2025-09-11 18:40:30.967', '2025-09-11 18:40:30.967');
-
 -- --------------------------------------------------------
 
 --
@@ -182,26 +156,6 @@ CREATE TABLE `branch_timings` (
   `created_at` datetime(3) DEFAULT current_timestamp(3),
   `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `branch_timings`
---
-
-INSERT INTO `branch_timings` (`id`, `branch_id`, `day_of_week`, `open_time`, `close_time`, `is_closed`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(2, 1, 2, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(3, 1, 3, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(4, 1, 4, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(5, 1, 5, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(6, 1, 6, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(7, 1, 7, NULL, NULL, 1, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(8, 2, 1, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(9, 2, 2, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(10, 2, 3, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(11, 2, 4, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(12, 2, 5, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(13, 2, 6, '12:00:00', '00:00:00', 0, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942'),
-(14, 2, 7, NULL, NULL, 1, '2025-09-11 18:40:30.942', '2025-09-11 18:40:30.942');
 
 -- --------------------------------------------------------
 
@@ -254,13 +208,6 @@ CREATE TABLE `business` (
   `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `business`
---
-
-INSERT INTO `business` (`id`, `name`, `description`, `logo`, `loyality_points`, `promo_codde`, `auto_order_accept`, `timezone`, `owner_user_id`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'ScoopNation Ice Cream', 'Leading ice cream chain with multiple outlets and online delivery', 'logo.png', 0, 0, 0, '', 1, 1, '2025-09-10 00:35:37.000', '2025-09-10 00:35:37.000');
-
 -- --------------------------------------------------------
 
 --
@@ -274,6 +221,13 @@ CREATE TABLE `cart` (
   `createdAt` datetime(3) NOT NULL DEFAULT current_timestamp(3),
   `updatedAt` datetime(3) NOT NULL DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `cart`
+--
+
+INSERT INTO `cart` (`id`, `userId`, `sessionId`, `createdAt`, `updatedAt`) VALUES
+(1, NULL, '98412935-6939-451a-b9da-cfca6c967293', '2025-09-15 12:48:26.000', '2025-09-15 12:48:26.000');
 
 -- --------------------------------------------------------
 
@@ -309,7 +263,7 @@ CREATE TABLE `category` (
 --
 
 INSERT INTO `category` (`id`, `name`, `mainImage`, `branch_id`) VALUES
-(1, 'Con-Ice-Cream', 'Wafer-Ice-Cream-PNG-Picture.png', 1);
+(1, 'Con-Ice-Cream', 'Wafer-Ice-Cream-PNG-Picture.png', NULL);
 
 -- --------------------------------------------------------
 
@@ -1114,7 +1068,7 @@ CREATE TABLE `customer` (
 --
 
 INSERT INTO `customer` (`id`, `user_id`, `fullname`, `createdAt`, `updatedAt`, `gender`, `date_of_birth`) VALUES
-(1, 2, 'Ameer hamza', '2025-05-10 18:37:10.670', '2025-09-12 19:20:01.441', NULL, NULL);
+(2, 3, 'Waqas Mahmood Khan', '2025-09-15 11:30:22.260', '2025-09-15 11:30:22.260', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1165,19 +1119,19 @@ CREATE TABLE `media` (
 --
 
 INSERT INTO `media` (`imageID`, `type`, `title`, `description`, `alt_text`, `mime_type`, `file_size`, `width`, `height`, `is_featured`, `sort_order`, `productID`, `category_id`, `banner_position`, `banner_url`, `banner_target`, `campaign_id`, `status`, `created_by`, `updated_by`, `image`, `created_at`) VALUES
-(1, 'banner', 'Strawberry Cheese Cake', 'Promotional banner strawberry cheesecake', 'Summer Ice Cream Specials', 'image/jpeg', NULL, NULL, NULL, 1, 1, NULL, 1, 'homepage_top', '/summer-sale', '_self', 5, 'active', 1, NULL, '/banners/summer-ice-cream.jpg', '2025-09-08 20:52:21'),
-(2, 'banner', 'Chocolate Cones Special', 'Special offer on chocolate cones', 'Chocolate Cones Discount', 'image/jpeg', NULL, NULL, NULL, 1, 2, NULL, 1, 'category_top', '/chocolate-specials', '_self', 5, 'active', 1, NULL, '/banners/chocolate-cones.jpg', '2025-09-08 20:52:21'),
-(12, 'banner', 'Summer Ice Cream Banner', 'Main promotional banner for summer ice cream festival', 'Summer Ice Cream Specials - 20% Off', 'image/jpeg', 102400, 1200, 400, 1, 1, NULL, 1, 'homepage_top', '/promotions/summer-festival', '_self', 1, 'active', 1, NULL, '/banners/summer/summer-main-banner.jpg', '2025-05-15 05:30:00'),
-(13, 'banner', 'Family Pack Special', 'Summer family pack promotion with mixed flavors', 'Family Pack - 4 Flavors - $24.99', 'image/jpeg', 98304, 800, 300, 1, 2, NULL, 1, 'category_top', '/products/family-packs', '_self', 1, 'active', 1, NULL, '/banners/summer/family-pack-banner.jpg', '2025-05-15 06:00:00'),
-(14, 'banner', 'New Summer Flavors', 'Introducing new summer exclusive flavors', 'Try New Mango Tango & Berry Blast', 'image/png', 87654, 600, 250, 0, 3, NULL, 1, 'product_sidebar', '/new-flavors', '_self', 1, 'active', 1, NULL, '/banners/summer/new-flavors-banner.png', '2025-05-16 04:20:00'),
-(15, 'banner', 'Back to School Lunchbox', 'Perfect ice cream treats for school lunches', 'Lunchbox Specials - Kid Friendly', 'image/jpeg', 112640, 1000, 350, 1, 1, NULL, 1, 'homepage_top', '/back-to-school', '_self', 2, 'active', 1, NULL, '/banners/school/school-main-banner.jpg', '2025-08-01 03:45:00'),
-(16, 'banner', 'Mini Cup Assortment', 'Variety pack of mini ice cream cups', '12 Mini Cups - Perfect for Lunches', 'image/jpeg', 76543, 700, 280, 1, 2, NULL, 1, 'category_top', '/products/mini-cups', '_self', 2, 'active', 1, NULL, '/banners/school/mini-cups-banner.jpg', '2025-08-01 04:30:00'),
-(17, 'banner', 'Winter Warm-up Special', 'Hot chocolate and warm desserts for cold days', 'Hot Chocolate & Warm Brownies', 'image/jpeg', 118000, 1100, 380, 1, 1, NULL, 1, 'homepage_top', '/winter-specials', '_self', 3, 'active', 1, NULL, '/banners/winter/winter-main-banner.jpg', '2025-11-20 05:15:00'),
-(18, 'banner', 'Hot Chocolate Bundle', 'Special bundle with hot chocolate and marshmallows', 'Hot Chocolate Bundle - $19.99', 'image/jpeg', 89210, 750, 300, 0, 2, NULL, 1, 'product_sidebar', '/products/hot-chocolate', '_blank', 3, 'active', 1, NULL, '/banners/winter/hot-chocolate-banner.jpg', '2025-11-20 06:00:00'),
-(19, 'banner', 'Spring Refresh Launch', 'New spring flavors and seasonal refresh', 'New Strawberry Fields & Lemon Zest', 'image/png', 95420, 950, 320, 1, 1, NULL, 1, 'homepage_top', '/spring-refresh', '_self', 4, 'active', 1, NULL, '/banners/spring/spring-main-banner.png', '2025-02-20 08:20:00'),
-(20, 'banner', 'Easter Specials', 'Limited edition Easter themed ice creams', 'Easter Bunny Cones & Egg Surprises', 'image/jpeg', 82340, 850, 290, 1, 2, NULL, 1, 'category_top', '/easter-specials', '_self', 4, 'active', 1, NULL, '/banners/spring/easter-banner.jpg', '2025-02-25 09:40:00'),
-(21, 'product', 'Chocolate Cone Main Image', 'Main product image for chocolate cone ice cream', 'Chocolate Cone Ice Cream', 'image/jpeg', 65432, 600, 600, 1, 1, 1, NULL, NULL, NULL, '_self', NULL, 'active', 1, NULL, '', '2025-05-10 07:00:00'),
-(22, 'product', 'Chocolate Cone Alternate Angle', 'Alternate view of chocolate cone product', 'Chocolate Cone Side View', 'image/jpeg', 59876, 600, 600, 0, 2, 1, NULL, NULL, NULL, '_self', NULL, 'active', 1, NULL, '', '2025-05-10 07:05:00');
+(1, 'banner', 'Strawberry Cheese Cake', 'Promotional banner strawberry cheesecake', 'Summer Ice Cream Specials', 'image/jpeg', NULL, NULL, NULL, 1, 1, NULL, 1, 'homepage_top', '/summer-sale', '_self', 5, 'active', NULL, NULL, '/banners/summer-ice-cream.jpg', '2025-09-08 20:52:21'),
+(2, 'banner', 'Chocolate Cones Special', 'Special offer on chocolate cones', 'Chocolate Cones Discount', 'image/jpeg', NULL, NULL, NULL, 1, 2, NULL, 1, 'category_top', '/chocolate-specials', '_self', 5, 'active', NULL, NULL, '/banners/chocolate-cones.jpg', '2025-09-08 20:52:21'),
+(12, 'banner', 'Summer Ice Cream Banner', 'Main promotional banner for summer ice cream festival', 'Summer Ice Cream Specials - 20% Off', 'image/jpeg', 102400, 1200, 400, 1, 1, NULL, 1, 'homepage_top', '/promotions/summer-festival', '_self', 1, 'active', NULL, NULL, '/banners/summer/summer-main-banner.jpg', '2025-05-15 05:30:00'),
+(13, 'banner', 'Family Pack Special', 'Summer family pack promotion with mixed flavors', 'Family Pack - 4 Flavors - $24.99', 'image/jpeg', 98304, 800, 300, 1, 2, NULL, 1, 'category_top', '/products/family-packs', '_self', 1, 'active', NULL, NULL, '/banners/summer/family-pack-banner.jpg', '2025-05-15 06:00:00'),
+(14, 'banner', 'New Summer Flavors', 'Introducing new summer exclusive flavors', 'Try New Mango Tango & Berry Blast', 'image/png', 87654, 600, 250, 0, 3, NULL, 1, 'product_sidebar', '/new-flavors', '_self', 1, 'active', NULL, NULL, '/banners/summer/new-flavors-banner.png', '2025-05-16 04:20:00'),
+(15, 'banner', 'Back to School Lunchbox', 'Perfect ice cream treats for school lunches', 'Lunchbox Specials - Kid Friendly', 'image/jpeg', 112640, 1000, 350, 1, 1, NULL, 1, 'homepage_top', '/back-to-school', '_self', 2, 'active', NULL, NULL, '/banners/school/school-main-banner.jpg', '2025-08-01 03:45:00'),
+(16, 'banner', 'Mini Cup Assortment', 'Variety pack of mini ice cream cups', '12 Mini Cups - Perfect for Lunches', 'image/jpeg', 76543, 700, 280, 1, 2, NULL, 1, 'category_top', '/products/mini-cups', '_self', 2, 'active', NULL, NULL, '/banners/school/mini-cups-banner.jpg', '2025-08-01 04:30:00'),
+(17, 'banner', 'Winter Warm-up Special', 'Hot chocolate and warm desserts for cold days', 'Hot Chocolate & Warm Brownies', 'image/jpeg', 118000, 1100, 380, 1, 1, NULL, 1, 'homepage_top', '/winter-specials', '_self', 3, 'active', NULL, NULL, '/banners/winter/winter-main-banner.jpg', '2025-11-20 05:15:00'),
+(18, 'banner', 'Hot Chocolate Bundle', 'Special bundle with hot chocolate and marshmallows', 'Hot Chocolate Bundle - $19.99', 'image/jpeg', 89210, 750, 300, 0, 2, NULL, 1, 'product_sidebar', '/products/hot-chocolate', '_blank', 3, 'active', NULL, NULL, '/banners/winter/hot-chocolate-banner.jpg', '2025-11-20 06:00:00'),
+(19, 'banner', 'Spring Refresh Launch', 'New spring flavors and seasonal refresh', 'New Strawberry Fields & Lemon Zest', 'image/png', 95420, 950, 320, 1, 1, NULL, 1, 'homepage_top', '/spring-refresh', '_self', 4, 'active', NULL, NULL, '/banners/spring/spring-main-banner.png', '2025-02-20 08:20:00'),
+(20, 'banner', 'Easter Specials', 'Limited edition Easter themed ice creams', 'Easter Bunny Cones & Egg Surprises', 'image/jpeg', 82340, 850, 290, 1, 2, NULL, 1, 'category_top', '/easter-specials', '_self', 4, 'active', NULL, NULL, '/banners/spring/easter-banner.jpg', '2025-02-25 09:40:00'),
+(21, 'product', 'Chocolate Cone Main Image', 'Main product image for chocolate cone ice cream', 'Chocolate Cone Ice Cream', 'image/jpeg', 65432, 600, 600, 1, 1, 1, NULL, NULL, NULL, '_self', NULL, 'active', NULL, NULL, '', '2025-05-10 07:00:00'),
+(22, 'product', 'Chocolate Cone Alternate Angle', 'Alternate view of chocolate cone product', 'Chocolate Cone Side View', 'image/jpeg', 59876, 600, 600, 0, 2, 1, NULL, NULL, NULL, '_self', NULL, 'active', NULL, NULL, '', '2025-05-10 07:05:00');
 
 -- --------------------------------------------------------
 
@@ -1233,13 +1187,6 @@ CREATE TABLE `order` (
   `orderNotice` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `order`
---
-
-INSERT INTO `order` (`id`, `customer_id`, `branch_id`, `rider_id`, `dateTime`, `status`, `total`, `orderNotice`) VALUES
-(1, 1, NULL, NULL, '2025-05-10 18:37:10.670', 'processing', 8133, 'Extra chocolate dena mujhe');
-
 -- --------------------------------------------------------
 
 --
@@ -1254,13 +1201,6 @@ CREATE TABLE `order_item` (
   `bundleId` bigint(20) DEFAULT NULL,
   `quantity` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `order_item`
---
-
-INSERT INTO `order_item` (`id`, `customerOrderId`, `productId`, `variantId`, `bundleId`, `quantity`) VALUES
-(1, 1, 1, NULL, NULL, 8);
 
 -- --------------------------------------------------------
 
@@ -1332,13 +1272,6 @@ CREATE TABLE `rider` (
   `updated_at` datetime(3) DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `rider`
---
-
-INSERT INTO `rider` (`id`, `branch_id`, `user_id`, `name`, `phone`, `vehicle_type`, `license_number`, `is_active`, `current_status`, `latitude`, `longitude`, `created_at`, `updated_at`) VALUES
-(1, 1, NULL, 'Rider Ahmed', '+923001234567', 'bike', 'PK-BIKE-123', 1, 'available', '31.20000000', '74.45000000', '2025-09-10 00:35:37.000', '2025-09-10 00:35:37.000');
-
 -- --------------------------------------------------------
 
 --
@@ -1357,9 +1290,37 @@ CREATE TABLE `roles` (
 --
 
 INSERT INTO `roles` (`id`, `name`, `description`, `created_at`) VALUES
-(1, 'administrator', 'Full system administrator', '2025-09-12 14:28:13'),
-(2, 'customer', 'Regular customer account', '2025-09-12 14:28:13'),
-(3, 'delivery_rider', 'Order delivery personnel', '2025-09-12 14:28:13');
+(1, 'administrator', 'Full system administrator', '2025-09-12 09:28:13'),
+(2, 'customer', 'Regular customer account', '2025-09-12 09:28:13'),
+(3, 'delivery_rider', 'Order delivery personnel', '2025-09-12 09:28:13'),
+(4, 'user', 'Visitor on website not yet logged in', '2025-09-16 09:28:13');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sessions`
+--
+
+CREATE TABLE `sessions` (
+  `id` bigint(20) NOT NULL,
+  `session_id` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Unique, persistent session identifier (e.g., UUID or long random string)',
+  `user_id` bigint(20) DEFAULT NULL COMMENT 'Links to user table after login/registration',
+  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'IPv4 or IPv6 address of the visitor',
+  `user_agent` text COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Browser/device fingerprint for additional identification',
+  `cart_id` bigint(20) DEFAULT NULL COMMENT 'Links to the cart table for this anonymous session',
+  `cookie_token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Token stored in frontend cookie for persistent identification',
+  `last_activity` datetime(3) NOT NULL DEFAULT current_timestamp(3) ON UPDATE current_timestamp(3) COMMENT 'Timestamp of last interaction',
+  `created_at` datetime(3) NOT NULL DEFAULT current_timestamp(3),
+  `expires_at` datetime(3) DEFAULT NULL COMMENT 'Optional: Set an expiry date for long-term persistence',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'Flag to mark if session is active or abandoned'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Manages anonymous user sessions for cart persistence';
+
+--
+-- Dumping data for table `sessions`
+--
+
+INSERT INTO `sessions` (`id`, `session_id`, `user_id`, `ip_address`, `user_agent`, `cart_id`, `cookie_token`, `last_activity`, `created_at`, `expires_at`, `is_active`) VALUES
+(1, '98412935-6939-451a-b9da-cfca6c967293', NULL, '::1', 'PostmanRuntime/7.46.0', 1, 'abc123xyz456', '2025-09-15 15:57:21.432', '2025-09-15 10:40:32.000', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -1374,16 +1335,16 @@ CREATE TABLE `user` (
   `password` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'encrypted password',
   `role` varchar(191) COLLATE utf8mb4_unicode_ci DEFAULT 'user' COMMENT 'User role assigned (customer, administrator, rider)',
   `phone_verified` tinyint(1) DEFAULT 0 COMMENT 'Phone number verified',
-  `email_verified` tinyint(1) DEFAULT 0 COMMENT 'Email address verified'
+  `email_verified` tinyint(1) DEFAULT 0 COMMENT 'Email address verified',
+  `createdAt` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id`, `email`, `phone`, `password`, `role`, `phone_verified`, `email_verified`) VALUES
-(1, 'wmkhan101@gmail.com', '', '$2a$05$ODUflk37dIp7bOt4r1W.G.ENSz/A4dCwxen08ic4U3bZmIj.rY54q', 'user', 0, 0),
-(2, 'ameerarif12348@gmail.com', '', '$2a$05$ODUflk37dIp7bOt4r1W.G.ENSz/A4dCwxen08ic4U3bZmIj.rY54q', 'user', 0, 0);
+INSERT INTO `user` (`id`, `email`, `phone`, `password`, `role`, `phone_verified`, `email_verified`, `createdAt`) VALUES
+(3, 'wmkhan101@gmail.com', '+923109428554', '$2y$10$1.oL/pi67sH76G.LR7v5O.XwWTCVNqK6ln5g0/Rb76y89ZgzQK4x.', 'customer', 0, 0, '2025-09-15 11:30:22');
 
 -- --------------------------------------------------------
 
@@ -1437,13 +1398,6 @@ CREATE TABLE `wishlist` (
   `userId` bigint(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `wishlist`
---
-
-INSERT INTO `wishlist` (`id`, `productId`, `userId`) VALUES
-(1, 1, 2);
-
 -- --------------------------------------------------------
 
 --
@@ -1486,6 +1440,12 @@ INSERT INTO `_prisma_migrations` (`id`, `checksum`, `finished_at`, `migration_na
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `addresses`
+--
+ALTER TABLE `addresses`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `banner_campaign`
@@ -1674,6 +1634,24 @@ ALTER TABLE `rider`
   ADD KEY `fk_rider_user` (`user_id`);
 
 --
+-- Indexes for table `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `sessions`
+--
+ALTER TABLE `sessions`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `idx_unique_session_id` (`session_id`),
+  ADD UNIQUE KEY `idx_unique_cookie_token` (`cookie_token`),
+  ADD KEY `idx_sessions_user_id` (`user_id`),
+  ADD KEY `idx_sessions_cart_id` (`cart_id`),
+  ADD KEY `idx_sessions_last_activity` (`last_activity`),
+  ADD KEY `idx_sessions_ip_address` (`ip_address`);
+
+--
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
@@ -1704,6 +1682,12 @@ ALTER TABLE `_prisma_migrations`
 --
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `addresses`
+--
+ALTER TABLE `addresses`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `banner_campaign`
@@ -1757,13 +1741,13 @@ ALTER TABLE `business`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `cart_item`
 --
 ALTER TABLE `cart_item`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `category`
@@ -1787,7 +1771,7 @@ ALTER TABLE `countries`
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `media`
@@ -1832,10 +1816,22 @@ ALTER TABLE `rider`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `sessions`
+--
+ALTER TABLE `sessions`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `variant`
@@ -1847,7 +1843,7 @@ ALTER TABLE `variant`
 -- AUTO_INCREMENT for table `wishlist`
 --
 ALTER TABLE `wishlist`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
@@ -1974,6 +1970,13 @@ ALTER TABLE `product`
 ALTER TABLE `rider`
   ADD CONSTRAINT `fk_rider_branch` FOREIGN KEY (`branch_id`) REFERENCES `branch` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_rider_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `sessions`
+--
+ALTER TABLE `sessions`
+  ADD CONSTRAINT `fk_sessions_cart` FOREIGN KEY (`cart_id`) REFERENCES `cart` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_sessions_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `variant`
