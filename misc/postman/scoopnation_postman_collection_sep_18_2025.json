@@ -1,0 +1,574 @@
+{
+  "info": {
+    "name": "User API Routes",
+    "description": "API endpoints for user management operations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json  "
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Get guest customers",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/guests",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "guests"]
+        }
+      }
+    },
+    {
+      "name": "Get user by email",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/email/:email",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "email", ":email"],
+          "variable": [
+            {
+              "key": "email",
+              "value": "user@example.com"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get users by role",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/role/:role",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "role", ":role"],
+          "variable": [
+            {
+              "key": "role",
+              "value": "customer"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get all users",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users"]
+        }
+      }
+    },
+    {
+      "name": "Get user by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/:id",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", ":id"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create a new user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"John Doe\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users"]
+        }
+      }
+    },
+    {
+      "name": "Link customer to user account",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/:id/link-customer/:customerId",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", ":id", "link-customer", ":customerId"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            },
+            {
+              "key": "customerId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Register new customer user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"Customer Name\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/register-customer",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "register-customer"]
+        }
+      }
+    },
+    {
+      "name": "Login customer user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/login-customer",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "login-customer"]
+        }
+      }
+    },
+    {
+      "name": "Register user with role",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"Admin User\",\n  \"role\": \"admin\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/register-with-role",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "register-with-role"]
+        }
+      }
+    },
+    {
+      "name": "Forgot password",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@example.com\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/forgot-password",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "forgot-password"]
+        }
+      }
+    },
+    {
+      "name": "Add new address",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"street\": \"123 Main St\",\n  \"city\": \"New York\",\n  \"state\": \"NY\",\n  \"zipCode\": \"10001\",\n  \"country\": \"USA\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/:userId/add-address",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", ":userId", "add-address"],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Remove address",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/:userId/remove-address/:addressId",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", ":userId", "remove-address", ":addressId"],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "1"
+            },
+            {
+              "key": "addressId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Add product to favorite",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/:userId/favorites/add/:productId",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", ":userId", "favorites", "add", ":productId"],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "1"
+            },
+            {
+              "key": "productId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Remove product from favorite",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/:userId/favorites/remove/:productId",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", ":userId", "favorites", "remove", ":productId"],
+          "variable": [
+            {
+              "key": "userId",
+              "value": "1"
+            },
+            {
+              "key": "productId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Save profile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"123-456-7890\",\n  \"dateOfBirth\": \"1990-01-01\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/:id/profile",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", ":id", "profile"],
+          "variable": [
+            {
+              "key": "id",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get branch homepage data",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/branches/:businessId/:branchId/homepage",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "branches", ":businessId", ":branchId", "homepage"],
+          "variable": [
+            {
+              "key": "businessId",
+              "value": "1"
+            },
+            {
+              "key": "branchId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get branch summary",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/branches/:branchId/summary",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "branches", ":branchId", "summary"],
+          "variable": [
+            {
+              "key": "branchId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get branch timing by day",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/branches/:branchId/timings/:dayOfWeek",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "branches", ":branchId", "timings", ":dayOfWeek"],
+          "variable": [
+            {
+              "key": "branchId",
+              "value": "1"
+            },
+            {
+              "key": "dayOfWeek",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get active branches by business",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/businesses/:businessId/branches",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "businesses", ":businessId", "branches"],
+          "variable": [
+            {
+              "key": "businessId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Check if branch is open",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/branches/:branchId/is-open",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "branches", ":branchId", "is-open"],
+          "variable": [
+            {
+              "key": "branchId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get all branch timings",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/branches/:branchId/timings",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "branches", ":branchId", "timings"],
+          "variable": [
+            {
+              "key": "branchId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get active banner campaigns for branch",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/branches/:branchId/banners",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "branches", ":branchId", "banners"],
+          "variable": [
+            {
+              "key": "branchId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get available products for branch",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/branches/:branchId/products",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "branches", ":branchId", "products"],
+          "variable": [
+            {
+              "key": "branchId",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
