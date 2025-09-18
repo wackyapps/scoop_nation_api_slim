@@ -6,7 +6,7 @@ require_once __DIR__ . '/SQL_Table_Names.php';
 
 use DB;
 
-class BranchHomePageRepository extends BaseRepository
+class BranchRepository extends BaseRepository
 {
     protected $table = TABLE_BRANCH;
     protected $primaryKey = 'id';
