@@ -1,6 +1,7 @@
 <?php
 // User routes - IMPORTANT: Define specific routes BEFORE parameterized routes
 
+
 /**
  * @OA\Get(
  *     path="/api/users/guests",
@@ -88,7 +89,6 @@ $app->get('/api/users', function ($request, $response) use ($app) {
     return $controller->getAllUsers($request, $response);
 });
 
-/* PARAMETERIZED ROUTES SHOULD COME AFTER SPECIFIC ROUTE */
 
 
 /**
