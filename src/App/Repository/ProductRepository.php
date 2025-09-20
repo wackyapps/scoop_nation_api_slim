@@ -186,4 +186,11 @@ class ProductRepository extends BaseRepository
         $params = [$productId];
         return $this->executeQuery($query, $params) ?: [];
     }
+
+    public function getProductVariantByVariantId(int $variantId)
+    {
+        $query = "SELECT * FROM variant WHERE id = %i";
+        $params = [$variantId];
+        return $this->executeQueryFirstRow($query, $params) ?: null;
+    }
 }

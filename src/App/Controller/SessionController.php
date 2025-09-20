@@ -172,10 +172,16 @@ class SessionController
 
             // Get cart items
             $cartItems = $this->sessionRepository->getCartItemsForSession((int) $sessionId);
+            $result = [];
+            foreach ($cartItems as $cartItem) {
+                $cartItem['product'] = $this->productRepository->find((int) $cartItem['productId']);
+                $cartItem['variant'] = $this->productRepository->getProductVariantByVariantId((int) $cartItem['variantId']);
+                $result[] = $cartItem;
+            }
 
             $response->getBody()->write(json_encode([
                 'success' => true,
-                'data' => $cartItems,
+                'data' => $result,
                 'count' => count($cartItems)
             ]));
 
