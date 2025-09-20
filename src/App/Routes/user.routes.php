@@ -275,6 +275,11 @@ $app->post('/api/users/forgot-password', function ($request, $response) use ($ap
     return $controller->forgotUserPassword($request, $response);
 });
 
+$app->get('/api/users/addresses/get', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->getAddressOfUser($request, $response);
+});
+
 /**
  * @OA\Post(
  *     path="/api/users/add-address",
