@@ -31,9 +31,9 @@ class AddressRepository extends BaseRepository
             'country' => 'Pakistan',
             'is_default' => 0
         ], $addressData);
-
+        var_dump($addressData);
         // Validate required fields
-        $required = ['street_address', 'city', 'state', 'postal_code'];
+        $required = ['street_address', 'city', 'state', 'postal_code','longitude','latitude'];
         foreach ($required as $field) {
             if (!isset($addressData[$field]) || empty($addressData[$field])) {
                 throw new \InvalidArgumentException("Field '{$field}' is required");

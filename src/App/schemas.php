@@ -25,6 +25,8 @@
  *     @OA\Property(property="state", type="string"),
  *     @OA\Property(property="postal_code", type="string"),
  *     @OA\Property(property="country", type="string"),
+ *     @OA\Property(property="longitude", type="string"),
+ *     @OA\Property(property="latitude", type="string"),
  *     @OA\Property(property="is_default", type="boolean")
  * )
  */
