@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use App\Services\CORS\CORSMiddleware;
 use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -13,6 +14,7 @@ require __DIR__ . '/../src/App/Constants.php';
 require __DIR__ . '/../src/App/meekrodb/db.class.php';
 // require for JWT Middleware
 require __DIR__ . '/../src/App/Services/Authentication/JWTMiddleware.php';
+require __DIR__ . '/../src/App/Services/CORS/CORSMiddleware.php';
 
 // Configure MeekroDB
 DB::$host = DB_HOST;
@@ -36,14 +38,7 @@ $app = Bridge::create($container);
 $app->add(new JWTMiddleware());
 
 // Add CORS middleware
-$app->add(function ($request, $handler) {
-    $response = $handler->handle($request);
-    
-    return $response
-        ->withHeader('Access-Control-Allow-Origin', '*')
-        ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
-        ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-});
+$app->add(new CORSMiddleware());
 
 // Handle preflight OPTIONS requests
 $app->options('/{routes:.+}', function ($request, $response) {
