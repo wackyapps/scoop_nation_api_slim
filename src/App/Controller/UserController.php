@@ -596,10 +596,9 @@ class UserController
      * 
      * @Route PUT /api/users/{id}/profile
      */
-    public function saveProfile(Request $request, Response $response, array $args): Response
+    public function saveProfile(Request $request, Response $response, int $userId): Response
     {
         try {
-            $userId = (int) $args['id'];
             $data = $request->getParsedBody();
 
             // Prepare user data

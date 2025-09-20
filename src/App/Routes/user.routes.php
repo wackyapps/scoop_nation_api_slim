@@ -493,7 +493,16 @@ $app->post('/api/users/favorites/remove', function ($request, $response) use ($a
  *     security={{"bearerAuth": {}}}
  * )
  */
-$app->put('/api/users/{id}/profile', function ($request, $response, $args) use ($app) {
+$app->put('/api/users/profile', function ($request, $response) use ($app) {
+    $userId = (int) $request->getAttribute('user')['id'];
+    if (!$userId) {
+        $response = $response->withStatus(400);
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'User ID is required'
+        ]));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->saveProfile($request, $response, $args);
+    return $controller->saveProfile($request, $response, $userId);
 });
