@@ -577,9 +577,10 @@ class UserController
     {
         try {
             $data = $request->getParsedBody();
+            $userId = (int) $request->getAttribute('user')['id'];
 
             // Validate required fields
-            if (!isset($data['user_id']) || !isset($data['product_id'])) {
+            if (!$userId || !isset($data['product_id'])) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
                     'error' => 'user_id and product_id are required'
@@ -587,7 +588,6 @@ class UserController
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
 
-            $userId = (int) $data['user_id'];
             $productId = (int) $data['product_id'];
 
             $wishlistRepository = new WishlistRepository();
