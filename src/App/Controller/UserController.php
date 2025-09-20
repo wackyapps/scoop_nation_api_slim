@@ -599,8 +599,9 @@ class UserController
     public function saveProfile(Request $request, Response $response, int $userId): Response
     {
         try {
-            $data = $request->getParsedBody();
+            $userEmail = $request->getAttribute('user')['email'];
 
+            $data = $request->getParsedBody();
             // Prepare user data
             $userData = array_intersect_key($data, array_flip(['email', 'phone']));
 
@@ -608,8 +609,14 @@ class UserController
             $customerData = array_intersect_key($data, array_flip(['fullname', 'gender', 'date_of_birth']));
 
             $success = $this->userRepository->saveProfile($userId, $userData, $customerData);
+            $user = $this->userRepository->findByEmailWithProfile($userEmail);
 
-            $response->getBody()->write(json_encode(['success' => $success, 'message' => $success ? 'Profile updated successfully' : 'No changes made']));
+            // remove password field from $user
+            if (isset($user['password'])) {
+                unset($user['password']);
+            }
+
+            $response->getBody()->write(json_encode(['success' => $success, 'message' => $success ? 'Profile updated successfully' : 'No changes made', 'user' => $user]));
             return $response->withHeader('Content-Type', 'application/json');
 
         } catch (\Exception $e) {
