@@ -112,10 +112,15 @@ class ProductController
         $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
 
         $products = $this->productRepository->getAllProducts($branchId);
-        
+        $result = [];
+        foreach ($products as $product) {
+            $product['variants'] = $this->productRepository->getProductVariantByProductId((int) $product['id']);
+            $result[] = $product;
+        }
+ 
         $response->getBody()->write(json_encode([
             'success' => true,
-            'data' => $products
+            'data' => $result
         ]));
         
         return $response->withHeader('Content-Type', 'application/json');

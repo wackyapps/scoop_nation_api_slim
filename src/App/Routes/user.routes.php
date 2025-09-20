@@ -339,6 +339,35 @@ $app->post('/api/users/add-address', function ($request, $response) use ($app) {
     return $controller->addNewAddress($request, $response);
 });
 
+/**
+ * @OA\Post(
+ *     path="/api/users/favorites",
+ *     summary="Get favorites",
+ *     description="Get all favorites for a user.",
+ *     tags={"Users"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="user_id",
+ *                 type="integer",
+ *                 description="User ID"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     ),
+ *     security={{"bearerAuth": {}}}
+ * )
+ */
+
+$app->post('/api/users/favorites', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->getFavorites($request, $response);
+});
 
 /**
  * @OA\Post(

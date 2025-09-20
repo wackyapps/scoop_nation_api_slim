@@ -95,13 +95,13 @@ $app->post('/api/sessions/cart', function ($request, $response) use ($app) {
     $data = $request->getParsedBody();
     $sessionId = isset($data['session_id']) ? (int) $data['session_id'] : 0;
 
-    if ($sessionId <= 0) {
-        $response->getBody()->write(json_encode([
-            'success' => false,
-            'error' => 'session_id is required and must be a positive integer'
-        ]));
-        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
-    }
+    // if ($sessionId <= 0) {
+    //     $response->getBody()->write(json_encode([
+    //         'success' => false,
+    //         'error' => 'session_id is required and must be a positive integer'
+    //     ]));
+    //     return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    // }
 
     $args = ['sessionId' => $sessionId];
     return $controller->getCartItems($request, $response, $args);
@@ -151,13 +151,13 @@ $app->post('/api/sessions/cart/add', function ($request, $response) use ($app) {
     $data = $request->getParsedBody();
     $sessionId = isset($data['session_id']) ? (int) $data['session_id'] : 0;
 
-    if ($sessionId <= 0) {
-        $response->getBody()->write(json_encode([
-            'success' => false,
-            'error' => 'session_id is required and must be a positive integer'
-        ]));
-        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
-    }
+    // if ($sessionId <= 0) {
+    //     $response->getBody()->write(json_encode([
+    //         'success' => false,
+    //         'error' => 'session_id is required and must be a positive integer'
+    //     ]));
+    //     return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    // }
 
     $args = ['sessionId' => $sessionId];
     return $controller->addProductToCart($request, $response, $args);

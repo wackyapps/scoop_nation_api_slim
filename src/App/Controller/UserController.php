@@ -504,6 +504,25 @@ class UserController
     }
 
     /**
+     * Get favorites for user
+     * 
+     * @Route POST /api/users/favorites
+     */
+    public function getFavorites(Request $request, Response $response): Response
+    {
+        try {
+            $userId =(int) $request->getAttribute('user')['id'];
+            $wishlistRepository = new WishlistRepository();
+            $favorites = $wishlistRepository->getAllFavorites($userId);
+            $response->getBody()->write(json_encode(['success' => true, 'data' => $favorites]));
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to get favorites: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+    /**
      * Add product to favorite
      * 
      * @Route POST /api/users/{userId}/favorites/add/{productId}

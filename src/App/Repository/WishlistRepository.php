@@ -10,6 +10,15 @@ class WishlistRepository extends BaseRepository
     protected $table = 'wishlist';
     protected $primaryKey = 'id';
 
+
+    /**
+     * Get all favorites for a user
+     */
+    public function getAllFavorites(int $userId): array
+    {
+        return $this->findBy(['userId' => $userId]);
+    }
+
     /**
      * Add product to favorite (wishlist)
      */
