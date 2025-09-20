@@ -364,10 +364,6 @@ $app->post('/api/users/add-address', function ($request, $response) use ($app) {
  * )
  */
 
-$app->post('/api/users/favorites', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->getFavorites($request, $response);
-});
 
 /**
  * @OA\Post(
@@ -403,6 +399,12 @@ $app->post('/api/users/remove-address', function ($request, $response) use ($app
     return $controller->removeAddress($request, $response);
 });
 
+
+
+$app->get('/api/users/favorites/get', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->getFavorites($request, $response);
+});
 /**
  * @OA\Post(
  *     path="/api/users/{userId}/favorites/add/{productId}",

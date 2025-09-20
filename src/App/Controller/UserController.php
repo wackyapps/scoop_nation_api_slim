@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Repository\ProductRepository;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use App\Repository\UserRepository;
@@ -516,7 +517,23 @@ class UserController
             $userId =(int) $request->getAttribute('user')['id'];
             $wishlistRepository = new WishlistRepository();
             $favorites = $wishlistRepository->getAllFavorites($userId);
-            $response->getBody()->write(json_encode(['success' => true, 'data' => $favorites]));
+            $productRepository = new ProductRepository();
+
+            $result = [];
+
+            foreach ($favorites as $favorite) {
+                $productId =(int) $favorite['productId'];
+                $product = $productRepository->findOneBy(['id' => $productId]);
+                $product['variants'] = $productRepository->getProductVariantByProductId($productId);
+                $result[] = [
+                    'id' => $favorite['id'],
+                    'user_id' => $favorite['userId'],
+                    'productId' => $favorite['productId'],
+                    'product' => $product
+                ];
+            }
+
+            $response->getBody()->write(json_encode(['success' => true, 'data' => $result]));
             return $response->withHeader('Content-Type', 'application/json');
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to get favorites: ' . $e->getMessage()]));
@@ -535,7 +552,7 @@ class UserController
 
             $data = $request->getParsedBody();
 
-            $userId = (int) $data['user_id'];
+            $userId = (int) $request->getAttribute('user')['id'];
             $productId = (int) $data['product_id'];
 
             $wishlistRepository = new WishlistRepository();
