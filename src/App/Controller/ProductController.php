@@ -120,6 +120,47 @@ class ProductController
         
         return $response->withHeader('Content-Type', 'application/json');
     }
+    
+    /**
+     * Get product by ID
+     * 
+     * @OA\Get(
+     *     path="/api/products/{productId}",
+     *     summary="Get product by ID",
+     *     tags={"Products"},
+     *     @OA\Parameter(
+     *         name="productId",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(ref="#/components/schemas/Product")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Product not found",
+     *         @OA\JsonContent(ref="#/components/schemas/Error")
+     *     )
+     * )
+     */
+     public function getProductById(Request $request, Response $response,int $id): Response
+    {
+        $productId = $id;
+        // Extract branch_id from request
+
+        $product = $this->productRepository->findById($productId);
+        var_dump($product);
+        
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'data' => $product
+        ]));
+        
+        return $response->withHeader('Content-Type', 'application/json');
+    }
 
     /**
      * Retrieve products by category ID
@@ -278,4 +319,5 @@ class ProductController
         
         return $response->withHeader('Content-Type', 'application/json');
     }
+   
 }

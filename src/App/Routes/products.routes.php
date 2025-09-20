@@ -5,6 +5,13 @@ $app->get('/api/products', function ($request, $response) use ($app) {
     return $controller->getAll($request, $response);
 });
 
+// get product by id
+$app->get('/api/products/{productId}', function ($request, $response, $args) use ($app) {
+    $productId = (int)$args['productId'];
+    $controller = $app->getContainer()->get(App\Controller\ProductController::class);
+    return $controller->getProductById($request, $response, $productId);
+});
+
 // Accepts an optional X-Branch-Id header to filter branch-specific products
 $app->get('/api/products/category/{categoryId}', function ($request, $response, $args) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\ProductController::class);
@@ -12,7 +19,7 @@ $app->get('/api/products/category/{categoryId}', function ($request, $response, 
 });
 
 // Accepts an optional X-Branch-Id header to filter branch-specific products
-$app->get('/api/products/search', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\ProductController::class);
-    return $controller->search($request, $response);
-});
+// $app->get('/api/products/search', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\ProductController::class);
+//     return $controller->search($request, $response);
+// });

@@ -162,4 +162,20 @@ class ProductRepository extends BaseRepository
         $query = "SELECT * FROM {$this->table}" . ($branchId ? " WHERE EXISTS (SELECT 1 FROM branch_product bp WHERE bp.product_id = {$this->table}.id AND (bp.branch_id = %i OR bp.branch_id IS NULL))" : "");
         return $branchId ? $this->executeQuery($query, [$branchId]) : $this->findAll();
     }
+
+     /**
+     * Find a product by its slug
+     *
+     * @param int $id The unique ID identifier of the product
+     * @return array|null Returns the product data as an associative array or null if not found
+     * 
+     * @example
+     * $product = $productRepository->findById(1, 1);
+     */
+    public function findById(int $id)
+    {
+        $query = "SELECT * FROM {$this->table} WHERE id = %i";
+        $params = [$id];
+        return $this->executeQueryFirstRow($query, $params) ?: null;
+    }
 }
