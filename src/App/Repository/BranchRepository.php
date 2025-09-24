@@ -554,5 +554,26 @@ class BranchRepository extends BaseRepository
         return DB::query($query, $branchId);
     }
 
+    /**
+     * Get Privacy Policy for a branch or global business privacy policy 
+     * 
+     * @params int @businessId Business ID
+     * @param int $branchId Branch ID (optional)
+     */
+
+    public function getPrivacyPolicy(int $businessId, ?int $branchId = null)
+    {
+        $query = "
+            SELECT * 
+            FROM privacy_policy 
+            WHERE (branch_id = %i OR branch_id IS NULL) 
+            AND business_id = %i
+        ";
+
+        return DB::queryFirstRow($query, $branchId, $businessId);
+    }
+
+
+
     
 }
