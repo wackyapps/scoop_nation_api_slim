@@ -16,6 +16,60 @@ class BranchController
         $this->branchRepository = $branchRepository;
     }
 
+
+
+    /**
+     * Get branch homepage data
+     * 
+     * @Route GET /api/branch/homepage?businessId=[0-9]+&branchId=[0-9]+
+     */
+
+    public function getBranchHomepageData(Request $request, Response $response): Response
+    {
+        try {
+            $queryParams = $request->getQueryParams();
+            $businessId = (int) $queryParams['businessId'];
+            $branchId = (int) $queryParams['branchId'];
+
+            var_dump($businessId, $branchId);
+
+            if ($businessId <= 0 || $branchId <= 0) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Invalid businessId or branchId'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            $branchData = $this->branchRepository->getBranchHomePage($businessId, $branchId);
+
+            if (empty($branchData)) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Branch not found or inactive'
+                ]));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'data' => $branchData
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+
+
+
     /**
      * Get branch homepage data
      * 

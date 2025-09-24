@@ -25,19 +25,24 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
         '/api/sessions/cart/increase', // increase product quantity http_method: POST
         '/api/sessions/cart/decrease', // decrease product quantity http_method: POST
         '/api/sessions', // get session by id http_method: POST
-        '/api/sessions/active' // todo: later make it authorized only for admin
+        '/api/sessions/active', // todo: later make it authorized only for admin
+        '/api/branch/homepage' // Added the exact path for query parameter version
     ];
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $path = $request->getUri()->getPath();
+        $method = $request->getMethod();
+
+        // Normalize path by removing trailing slash if present
+        $normalizedPath = rtrim($path, '/');
 
         // Debug: Log the path (remove in production)
-        error_log("Request Path: " . $path);
+        error_log("Request Path: " . $normalizedPath . " Method: " . $method);
 
-        // If the request is for a public API, skip authentication
-        if (in_array($path, $this->publicApis)) {
-            error_log("Public API detected, skipping authentication for: " . $path);
+        // Check if the request is for a public API
+        if ($this->isPublicApi($normalizedPath, $method)) {
+            error_log("Public API detected, skipping authentication for: " . $normalizedPath);
             return $handler->handle($request);
         }
 
@@ -75,5 +80,33 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
 
         // Proceed to next middleware or route handler
         return $handler->handle($request);
+    }
+
+    /**
+     * Check if the current request is for a public API
+     */
+    private function isPublicApi(string $path, string $method): bool
+    {
+        // Exact path matches
+        if (in_array($path, $this->publicApis)) {
+            return true;
+        }
+
+        // Regex pattern matches
+        $publicPatterns = [
+            // Parameterized branch homepage URL: /api/branches/{businessId}/{branchId}/homepage
+            '#^/api/branches/[0-9]+/[0-9]+/homepage$#',
+            
+            // Query parameter branch homepage URL: /api/branch/homepage (handled by exact match above)
+            // Additional patterns can be added here if needed
+        ];
+
+        foreach ($publicPatterns as $pattern) {
+            if (preg_match($pattern, $path)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

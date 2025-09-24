@@ -27,10 +27,11 @@
  *     )
  * )
  */
-$app->get('/api/branches/{businessId}/{branchId}/homepage', function ($request, $response, $args) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\BranchController::class);
-    return $controller->getBranchHomePage($request, $response, $args);
-});
+
+// $app->get('/api/branches/{businessId}/{branchId}/homepage', function ($request, $response, $args) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\BranchController::class);
+//     return $controller->getBranchHomePage($request, $response, $args);
+// });
 
 /**
  * @OA\Get(
@@ -205,4 +206,27 @@ $app->get('/api/branches/{branchId}/banners', function ($request, $response, $ar
 $app->get('/api/branches/{branchId}/products', function ($request, $response, $args) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\BranchController::class);
     return $controller->getAvailableProductsForBranch($request, $response, $args);
+});
+
+// Branch parameterized routes 
+
+/**
+ * '/api/branch/homepage?businessId=[0-9]+&branchId=[0-9]+' // Added to match parameterized URLs
+ */
+
+/**
+ * @OA\Get(
+ *     path="/api/branch/homepage",
+ *     summary="Get branch homepage data",
+ *     description="Retrieves complete branch homepage data including branch info, business info, timings, banners, products, and bundles.",
+ *     tags={"Branches"},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Successful operation"
+ *     )
+ * )
+ */
+$app->get('/api/branch/homepage', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\BranchController::class);
+    return $controller->getBranchHomepageData($request, $response);
 });
