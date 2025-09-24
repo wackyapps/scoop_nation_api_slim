@@ -5,9 +5,9 @@
  */
 
 define('DB_HOST', 'localhost');
+define('DB_NAME', 'orgitelc_commerc');
 define('DB_USER', 'orgitelc_ecomm');
 define('DB_PASS', '6n]kKW4PRVW)t@QW');
-define('DB_NAME', 'orgitelc_commerce');
 define('DB_PORT', '3306');
 define('DB_CHARSET', 'utf8');
 

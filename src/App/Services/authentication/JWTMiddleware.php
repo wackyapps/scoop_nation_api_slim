@@ -17,30 +17,48 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
         '/api/users/login-customer',
         '/api/users/register-customer',
         // session routes
-        '/api/sessions/start', // start new session http_method: POST
-        '/api/sessions/cart', // get session cart items http_method: POST
-        '/api/sessions/verify', // verify session http_method: POST
-        '/api/sessions/cart/add', // add product to cart http_method: POST
-        '/api/sessions/cart/remove', // remove product from cart http_method: POST
-        '/api/sessions/cart/increase', // increase product quantity http_method: POST
-        '/api/sessions/cart/decrease', // decrease product quantity http_method: POST
-        '/api/sessions', // get session by id http_method: POST
-        '/api/sessions/active', // todo: later make it authorized only for admin
-        '/api/branch/homepage', // Added the exact path for query parameter version
+        '/api/sessions/start',
+        '/api/sessions/cart',
+        '/api/sessions/verify',
+        '/api/sessions/cart/add',
+        '/api/sessions/cart/remove',
+        '/api/sessions/cart/increase',
+        '/api/sessions/cart/decrease',
+        '/api/sessions',
+        '/api/sessions/active',
+        '/api/branch/homepage',
         // contact us
-        '/api/contact/submit', // Add this line
+        '/api/contact/submit',
     ];
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $path = $request->getUri()->getPath();
         $method = $request->getMethod();
+        $path   = $request->getUri()->getPath();
 
-        // Normalize path by removing trailing slash if present
+        // === Determine base path ===
+        // Preferred: use SCRIPT_NAME (eg "/scoopnation_api/public/index.php") and strip "index.php"
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? ($_SERVER['PHP_SELF'] ?? '');
+        $basePath = '';
+
+        if ($scriptName !== '') {
+            // remove trailing "index.php" if present
+            $basePath = rtrim(str_replace('index.php', '', $scriptName), '/');
+        }
+
+        // If basePath equals empty string, nothing to strip
+        if ($basePath && strpos($path, $basePath) === 0) {
+            $path = substr($path, strlen($basePath));
+        }
+
+        // Normalize path
         $normalizedPath = rtrim($path, '/');
+        if ($normalizedPath === '') {
+            $normalizedPath = '/';
+        }
 
-        // Debug: Log the path (remove in production)
-        error_log("Request Path: " . $normalizedPath . " Method: " . $method);
+        // Debug logging (safe to keep temporarily)
+        error_log("JWTMiddleware -> SCRIPT_NAME: [$scriptName] basePath: [$basePath] path: [" . $request->getUri()->getPath() . "] normalized: [$normalizedPath] method: [$method]");
 
         // Check if the request is for a public API
         if ($this->isPublicApi($normalizedPath, $method)) {
@@ -48,30 +66,36 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
             return $handler->handle($request);
         }
 
-        // Get Bearer token from headers
+        // Get Bearer token from headers (make regex resilient to spacing/case)
         $authHeader = $request->getHeaderLine('Authorization');
-        $token = trim(str_replace('Bearer', '', $authHeader));
+        $token = '';
+        if (preg_match('/Bearer\s+(.+)/i', $authHeader, $m)) {
+            $token = trim($m[1]);
+        } else {
+            // fallback: strip literal 'Bearer' if present
+            $token = trim(str_ireplace('Bearer', '', $authHeader));
+        }
 
         // If token is not set or empty, return 401 Unauthorized
         if (empty($token)) {
             $response = new Response();
             $response->getBody()->write(json_encode([
                 'success' => false,
-                'error' => 'Token not found',
-                'message' => 'Authorization token is required'
+                'error'   => 'Token not found',
+                'message' => 'Authorization token is required for: ' . $normalizedPath,
             ]));
             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
         }
 
+        // Validate token (your JWT class should exist and implement validate/decodeJWT)
         $jwt = new JWT();
 
-        // Validate token
         if (!$jwt->validate($token)) {
             $response = new Response();
             $response->getBody()->write(json_encode([
                 'success' => false,
-                'error' => 'Invalid Token',
-                'message' => 'Authorization token is invalid or expired'
+                'error'   => 'Invalid Token',
+                'message' => 'Authorization token is invalid or expired',
             ]));
             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
         }
@@ -90,7 +114,7 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
     private function isPublicApi(string $path, string $method): bool
     {
         // Exact path matches
-        if (in_array($path, $this->publicApis)) {
+        if (in_array($path, $this->publicApis, true)) {
             return true;
         }
 
@@ -98,9 +122,6 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
         $publicPatterns = [
             // Parameterized branch homepage URL: /api/branches/{businessId}/{branchId}/homepage
             '#^/api/branches/[0-9]+/[0-9]+/homepage$#',
-            
-            // Query parameter branch homepage URL: /api/branch/homepage (handled by exact match above)
-            // Additional patterns can be added here if needed
         ];
 
         foreach ($publicPatterns as $pattern) {

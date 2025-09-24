@@ -32,6 +32,13 @@ $container = $containerBuilder->build();
 // Create Slim app instance with PHP-DI bridge
 $app = Bridge::create($container);
 
+// if its production url then set base path
+// <-- ADD THIS -->
+if (isset($_SERVER['SERVER_NAME']) && $_SERVER['SERVER_NAME'] == 'itelc.org') {
+    // echo "production";
+    $app->setBasePath('/scoopnation_api/public');
+}
+
 /**
  * Add JWT Middleware
  */
@@ -48,13 +55,14 @@ $app->options('/{routes:.+}', function ($request, $response) {
 // Add body parsing middleware
 $app->addBodyParsingMiddleware();
 
+
 // Add error middleware
 $app->addErrorMiddleware(true, true, true);
 
 // Disable cache middleware
 $app->add(function ($request, $handler) {
     $response = $handler->handle($request);
-    
+
     return $response
         ->withHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
         ->withHeader('Pragma', 'no-cache')

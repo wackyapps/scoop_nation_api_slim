@@ -31,7 +31,7 @@ class BranchController
             $businessId = (int) $queryParams['businessId'];
             $branchId = (int) $queryParams['branchId'];
 
-            var_dump($businessId, $branchId);
+            // var_dump($businessId, $branchId);
 
             if ($businessId <= 0 || $branchId <= 0) {
                 $response->getBody()->write(json_encode([

@@ -329,7 +329,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"Admin User\",\n  \"role\": \"admin\"\n}"
+							"raw": "{\n  \"email\": \"wmkhan101@gmail.com\",\n  \"password\": \"hello1234\",\n  \"name\": \"Admin User\",\n  \"role\": \"admin\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/users/register-with-role",
@@ -1076,6 +1076,39 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "ContactUs",
+			"item": [
+				{
+					"name": "/api/contact/submit",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"business_id\": 1,\r\n    \"branch_id\": 1,\r\n    \"full_name\": \"Waqas Mahmmood\",\r\n    \"email_address\": \"wmkhan101@gmail.com\",\r\n    \"phone_number\": \"03109438554\",\r\n    \"message\": \"Hi, I would like to open a franchise of Scoop Nation in Kasur. \",\r\n    \"submission_type\": \"partnership\"\r\n    //enum={\"general\", \"support\", \"feedback\", \"complaint\", \"partnership\"}, \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/contact/submit",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"contact",
+								"submit"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -1084,6 +1117,7 @@
 			"script": {
 				"type": "text/javascript",
 				"packages": {},
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -1094,6 +1128,7 @@
 			"script": {
 				"type": "text/javascript",
 				"packages": {},
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -1108,6 +1143,10 @@
 		{
 			"key": "token",
 			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImlzcyI6Imp3dC5sb2NhbCIsImF1ZCI6ImxvY2FsaG9zdCJ9.eyJpZCI6IjMiLCJlbWFpbCI6Indta2hhbjEwMUBnbWFpbC5jb20iLCJyb2xlIjoiY3VzdG9tZXIiLCJwaG9uZV92ZXJpZmllZCI6IjAiLCJlbWFpbF92ZXJpZmllZCI6IjAiLCJwaG9uZSI6Iis5MjMxMDk0Mjg1NTQiLCJ1c2VyX2NyZWF0ZWQiOiIyMDI1LTA5LTE1IDExOjMwOjIyIiwiY3VzdG9tZXJfaWQiOiIyIiwiZnVsbG5hbWUiOiJXYXFhcyBNYWhtb29kIEtoYW4iLCJnZW5kZXIiOm51bGwsImRhdGVfb2ZfYmlydGgiOm51bGwsImV4cCI6MTc1ODExODg4M30.eio0Bgo-CHsDftbCWD2rw8MdAWvqWiu3HBB3nDA3BEc"
+		},
+		{
+			"key": "baseUrlProd",
+			"value": ""
 		}
 	]
 }
