@@ -26,7 +26,9 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
         '/api/sessions/cart/decrease', // decrease product quantity http_method: POST
         '/api/sessions', // get session by id http_method: POST
         '/api/sessions/active', // todo: later make it authorized only for admin
-        '/api/branch/homepage' // Added the exact path for query parameter version
+        '/api/branch/homepage', // Added the exact path for query parameter version
+        // contact us
+        '/api/contact/submit', // Add this line
     ];
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
