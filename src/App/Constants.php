@@ -44,6 +44,12 @@ define('JWT_ISS', "jwt.local");
 define('JWT_SECRET', "thisIsASecret");
 
 
+/**
+ * Email Admin User Credentials
+ */
+
+define('ADMIN_EMAIL', 'idiaz2025cms@gmail.com');
+define('ADMIN_PASSWORD', 'aksz tqws xkgg vbtj');
 
 
 ?>

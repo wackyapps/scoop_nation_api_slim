@@ -64,7 +64,14 @@ class EmailService
             // Set email parameters
             $this->mailer->clearAddresses();
             $this->mailer->clearAttachments();
-            $this->mailer->addAddress($to);
+            // if $to is not array
+            if (!is_array($to)) {
+                $this->mailer->addAddress($to);
+            } else {
+                foreach ($to as $email) {
+                    $this->mailer->addAddress($email);
+                }
+            }
             $this->mailer->Subject = $subject;
             $this->mailer->Body = $body;
 

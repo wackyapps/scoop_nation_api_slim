@@ -6,17 +6,21 @@ namespace App\Controller;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use App\Repository\ContactSubmissionRepository;
-use App\Service\EmailService;
+use App\Repository\UserRepository;
+use App\Services\EmailService;
 
 class ContactController
 {
     private $contactRepository;
     private $emailService;
+    // UserController
+    private $userRepository;
 
     public function __construct(ContactSubmissionRepository $contactRepository, EmailService $emailService)
     {
         $this->contactRepository = $contactRepository;
         $this->emailService = $emailService;
+        $this->userRepository = new UserRepository();
     }
 
     /**
@@ -28,7 +32,7 @@ class ContactController
     {
         try {
             $data = $request->getParsedBody();
-            
+
             // Validate required fields
             $required = ['full_name', 'email_address', 'message'];
             foreach ($required as $field) {
@@ -68,8 +72,26 @@ class ContactController
             // Create submission
             $submissionId = $this->contactRepository->createSubmission($submissionData);
 
-            // Send notification email
-            $this->emailService->sendContactNotification($submissionData);
+            // findByRole from UserRepository
+            $users = $this->userRepository->findByRole('admin');
+
+            if ($users) {
+                // loop through users and make an array of emails that will be used to send email later to all admins
+                $adminEmails = [];
+                foreach ($users as $user) {
+                    $adminEmails[] = $user['email'];
+                }
+                $submissionData['admin_emails'] = $adminEmails;
+            }
+            // TODO: send email to admin
+            // $this->emailService->sendEmail(
+            //     $adminEmails, 
+            //     'New contact submission', 
+            //     'contact_notification', 
+            //     $submissionData);
+
+
+
 
             $response->getBody()->write(json_encode([
                 'success' => true,
@@ -97,19 +119,22 @@ class ContactController
     {
         try {
             $queryParams = $request->getQueryParams();
-            $businessId = isset($queryParams['business_id']) ? (int)$queryParams['business_id'] : null;
-            $branchId = isset($queryParams['branch_id']) ? (int)$queryParams['branch_id'] : null;
+            $businessId = isset($queryParams['business_id']) ? (int) $queryParams['business_id'] : null;
+            $branchId = isset($queryParams['branch_id']) ? (int) $queryParams['branch_id'] : null;
             $status = $queryParams['status'] ?? null;
-            
+
             $orderBy = isset($queryParams['sort']) ? [$queryParams['sort'] => $queryParams['order'] ?? 'DESC'] : ['created_at' => 'DESC'];
-            $limit = isset($queryParams['limit']) ? (int)$queryParams['limit'] : null;
-            $offset = isset($queryParams['offset']) ? (int)$queryParams['offset'] : null;
+            $limit = isset($queryParams['limit']) ? (int) $queryParams['limit'] : null;
+            $offset = isset($queryParams['offset']) ? (int) $queryParams['offset'] : null;
 
             // Build criteria based on filters
             $criteria = [];
-            if ($businessId) $criteria['business_id'] = $businessId;
-            if ($branchId) $criteria['branch_id'] = $branchId;
-            if ($status) $criteria['status'] = $status;
+            if ($businessId)
+                $criteria['business_id'] = $businessId;
+            if ($branchId)
+                $criteria['branch_id'] = $branchId;
+            if ($status)
+                $criteria['status'] = $status;
 
             $submissions = $this->contactRepository->findBy($criteria, $orderBy, $limit, $offset);
 
@@ -138,7 +163,7 @@ class ContactController
     public function updateSubmissionStatus(Request $request, Response $response, array $args): Response
     {
         try {
-            $submissionId = (int)$args['id'];
+            $submissionId = (int) $args['id'];
             $data = $request->getParsedBody();
 
             if (!isset($data['status'])) {

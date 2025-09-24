@@ -12,7 +12,8 @@ class ContactSubmissionRepository extends BaseRepository
      */
     public function createSubmission(array $data): int
     {
-        return $this->insert($data);
+        return (int) $this->save($data);
+
     }
 
     /**
