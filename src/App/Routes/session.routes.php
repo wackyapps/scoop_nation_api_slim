@@ -386,7 +386,7 @@ $app->post('/api/sessions/cart/remove', function ($request, $response) use ($app
 $app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
-    
+
     $sessionId = isset($data['session_id']) ? (int) $data['session_id'] : 0;
 
     // check branch_id from request
@@ -482,4 +482,46 @@ $app->post('/api/sessions', function ($request, $response) use ($app) {
 $app->get('/api/sessions/active', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     return $controller->getActiveSessions($request, $response);
+});
+
+
+/** 
+ * Logout customer session 
+ * 
+ * @OA\Post(
+ *     path="/api/sessions/logout",
+ *     summary="Logout customer session",
+ *     description="Logs out a customer session.",
+ *     tags={"Sessions"},
+ *      @OA\Parameter(
+ *         name="session_id",
+ *        in="query",
+ *        required=true,
+ *        description="Session ID",
+ *        @OA\Schema(type="string")
+ *     ),
+ *    @OA\Parameter(
+ *        name="cookie_token",
+ *       in="query",
+ *       required=true,
+ *       description="Cookie token",
+ *      @OA\Schema(type="string")
+ *   ),
+ *    @OA\Parameter(
+ *        name="jwt_token",
+ *      in="query",
+ *      required=true,
+ *      description="JWT token",
+ *     @OA\Schema(type="string")
+ *  ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Session logged out successfully"
+ *     ),
+ *     security={{"bearerAuth": {}}}
+ * )
+ */
+$app->post('/api/sessions/logout-customer', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\SessionController::class);
+    return $controller->logoutCustomerSession($request, $response);
 });

@@ -372,66 +372,7 @@ class UserController
         }
     }
 
-    /**
-     * Logout customer user
-     */
-
-    public function logout(Request $request, Response $response): Response
-    {
-        /**
-         * Decode JWT token from Authorization header
-         * Fetch user_id from decoded token
-         * check if user exists
-         * check if user has session cart
-         * if session cart exists and linked up with user then remove the link
-         */
-
-        $token = $request->getHeaderLine('Authorization');
-        $jwt = new JWT();
-        $decodedToken = $jwt->decodeJWT($token);
-
-        if (!$decodedToken) {
-            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid logout information given']));
-            return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
-        }
-
-        /**
-         * Fetch email from decoded token
-         */
-        $email = $decodedToken['email'] ?? null;
-        if (!$email) {
-            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid user information given']));
-            return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
-        }
-
-        /**
-         * Fetch user by email
-         */
-
-        $user = $this->userRepository->findByEmail($email);
-        if (!$user) {
-            $response->getBody()->write(json_encode(['success' => false, 'error' => 'User not found']));
-            return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
-        }
-
-        /**
-         * Check if user has session cart linked and check is logout request has session_id and cookie_token
-         */
-        $sessionId = $request->getQueryParams()['session_id'] ?? null;
-        $cookieToken = $request->getQueryParams()['cookie_token'] ?? null;
-
-        /**
-         * Retrieve session by session_id and cookie_token and unlink session from user
-         */
-
-        if ($sessionId && $cookieToken) {
-            $session = $this->sessionRepository->retrieveSessionByCookieAndSessionId($sessionId, $cookieToken);
-            $this->sessionRepository->unlinkSessionFromUser($sessionId, $cookieToken, (int) $user['id']);
-        }
-
-        $response->getBody()->write(json_encode(['success' => true, 'message' => 'User logged out successfully']));
-        return $response->withHeader('Content-Type', 'application/json');
-    }
+    
 
 
 
