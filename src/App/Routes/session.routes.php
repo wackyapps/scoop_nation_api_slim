@@ -386,7 +386,9 @@ $app->post('/api/sessions/cart/remove', function ($request, $response) use ($app
 $app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
+    
     $sessionId = isset($data['session_id']) ? (int) $data['session_id'] : 0;
+
     // check branch_id from request
     $branchId = isset($data['branch_id']) ? (int) $data['branch_id'] : 0;
 

@@ -20,6 +20,7 @@ class SessionRepository extends BaseRepository
      * @param string $ipAddress Visitor's IP address
      * @param string|null $userAgent Visitor's user agent string
      * @return array The created session record
+     * TODO: Add business_id, branch_id into session (if needed in future)
      */
     public function startNewAnonymousSession(string $cookieToken, string $ipAddress, ?string $userAgent = null): array
     {
