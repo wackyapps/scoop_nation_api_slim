@@ -433,7 +433,6 @@ class UserController
     }
 
 
-
     public function getAddressOfUser(Request $request, Response $response): Response
     {
           try {

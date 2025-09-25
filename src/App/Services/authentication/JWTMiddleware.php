@@ -15,6 +15,7 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
     private $publicApis = [
         '/',
         '/api/users/login-customer',
+        '/api/users/login-admin',
         '/api/users/register-customer',
         // session routes
         '/api/sessions/start',
