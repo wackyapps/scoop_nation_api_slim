@@ -156,7 +156,7 @@ class UserRepository extends BaseRepository
 
         // Send email
         $emailService = new EmailService();
-        return $emailService->sendOtp($email, $otp);
+        return $emailService->sendOtp($email, $otpString);
     }
 
     /**
