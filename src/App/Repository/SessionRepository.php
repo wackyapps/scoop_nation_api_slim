@@ -505,4 +505,21 @@ class SessionRepository extends BaseRepository
 
         return DB::query($query, $session['cart_id']);
     }
+
+    /**
+     * Unlink session from user (e.g. on logout)
+     * @param string $sessionId Database ID of the session
+     * @param string $cookieToken The client-side cookie token
+     * @param int $userId Database ID of the user
+     * @return void
+     */
+
+    public function unlinkSessionFromUser(string $sessionId, string $cookieToken, int $userId): void
+    {
+        
+
+        DB::update($this->table, ['user_id' => null], "id = %i AND user_id = %i", $sessionId, $userId);
+    }
+
+    /** */
 }
