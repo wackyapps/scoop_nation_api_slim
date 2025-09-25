@@ -119,6 +119,23 @@ class UserRepository extends BaseRepository
 
         return array("success" => false, "error" => "No customer account found with given credentials");
     }
+    /**
+     * Login admin user - verify credentials
+     */
+    public function loginAdminUser(string $email, string $password): ?array
+    {
+        $user = $this->findByEmailWithProfile($email);
+
+        // if user is administrator or delivery_rider and password matches then return user data without password field
+        if ($user && in_array($user["role"], ['administrator', 'delivery_rider'])) {
+            if (password_verify($password, $user["password"])) {
+                // remove password field from $user
+                unset($user['password']);
+                return $user;
+            }
+        } 
+        return array("success" => false, "error" => "No administrator or delivery_rider account found with given credentials");
+    }
 
     /**
      * Register user with specific role (admin or rider)

@@ -224,6 +224,15 @@ $app->post('/api/users/login-customer', function ($request, $response) use ($app
 });
 
 /**
+ * Login Admin User
+ */
+
+$app->post('/api/users/login-admin', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->loginAdminUser($request, $response);
+});
+
+/**
  * @OA\Post(
  *     path="/api/users/register-with-role",
  *     summary="Register user with role",

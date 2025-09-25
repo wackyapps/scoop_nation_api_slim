@@ -257,6 +257,49 @@ class UserController
     }
 
     /**
+     * Login admin user
+     * 
+     * @Route POST /api/users/login-admin
+     */
+    public function loginAdminUser(Request $request, Response $response): Response
+    {
+        try {
+            $data = $request->getParsedBody();
+
+            if (!isset($data['email']) || !isset($data['password'])) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'Email and password are required']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            $user = $this->userRepository->loginCustomerUser($data['email'], $data['password']);
+
+            // var_dump(  $user);
+
+            if (!$user) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid email or password']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
+            if ($user["success"] == false) {
+                $response->getBody()->write(json_encode($user));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Generate token (assuming you have a method for this)
+            $jwt = new JWT();
+            $token = $jwt->generate($user);
+
+            $response->getBody()->write(json_encode(['success' => true, 'token' => $token, 'user' => $user]));
+            return $response->withHeader('Content-Type', 'application/json');
+
+
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to login: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+    /**
      * Login customer user
      * 
      * @Route POST /api/users/login-customer
