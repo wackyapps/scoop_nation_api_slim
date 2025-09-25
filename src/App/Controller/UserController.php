@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use App\Repository\UserRepository;
 use App\Repository\WishlistRepository;
 use App\Repository\AddressRepository;
+use App\Repository\SessionRepository;
 use App\Services\EmailService;
 use App\Services\OtpService;
 use App\Services\Authentication\JWT;
@@ -18,6 +19,7 @@ class UserController
     private $userRepository;
     private $wishlistRepository;
     private $addressRepository;
+    private $sessionRepository;
     private $emailService;
     private $otpService;
 
@@ -25,12 +27,14 @@ class UserController
         UserRepository $userRepository,
         WishlistRepository $wishlistRepository,
         AddressRepository $addressRepository,
+        SessionRepository $sessionRepository,
         EmailService $emailService,
         OtpService $otpService
     ) {
         $this->userRepository = $userRepository;
         $this->wishlistRepository = $wishlistRepository;
         $this->addressRepository = $addressRepository;
+        $this->sessionRepository = $sessionRepository;
         $this->emailService = $emailService;
         $this->otpService = $otpService;
     }
@@ -308,24 +312,53 @@ class UserController
         try {
             $data = $request->getParsedBody();
 
+            /**
+             * Validate email and password
+             */
             if (!isset($data['email']) || !isset($data['password'])) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Email and password are required']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
 
+            /**
+             * Authenticate user as customer role type
+             */
+
             $user = $this->userRepository->loginCustomerUser($data['email'], $data['password']);
 
-            // var_dump(  $user);
+            /**
+             * Authentication Failed - Invalid email or password
+             */
 
             if (!$user) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid email or password']));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
 
+            /**
+             * Authentication Failed - User found is not customer role user
+             */
+
             if (isset($user["success"]) && $user["success"] == false) {
-                $response->getBody()->write(json_encode($user));
+                $response->getBody()->write(json_encode(['success' => $user["success"], 'error' => $user["error"]]));
+                // $response->getBody()->write(json_encode($user));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
+
+            /**
+             * If user is found and in request there is session_id, cookie_token are found then link session cart to logged in user
+             * using sessionRepository
+             */
+
+            $sessionId = $data['session_id'] ?? null;
+            $cookieToken = $data['cookie_token'] ?? null;
+            $businessId = isset($data['business_id']) ? (int) $data['business_id'] : null;
+            $branchId = isset($data['branch_id']) ? (int) $data['branch_id'] : null;
+
+            if ($sessionId && $cookieToken && $user['id']) {
+                $this->sessionRepository->linkSessionCartToUser($sessionId, $cookieToken, $user['id'], $businessId, $branchId);
+            }
+
 
             // Generate token (assuming you have a method for this)
             $jwt = new JWT();
@@ -333,8 +366,6 @@ class UserController
 
             $response->getBody()->write(json_encode(['success' => true, 'token' => $token, 'user' => $user]));
             return $response->withHeader('Content-Type', 'application/json');
-
-
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to login: ' . $e->getMessage()]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
@@ -434,12 +465,12 @@ class UserController
 
     public function getAddressOfUser(Request $request, Response $response): Response
     {
-          try {
-            $userId =(int) $request->getAttribute('user')['id'];
+        try {
+            $userId = (int) $request->getAttribute('user')['id'];
             $addressResitory = new AddressRepository();
             $addresses = $addressResitory->listAllAddressesByUserId($userId);
 
-          
+
 
             $response->getBody()->write(json_encode(['success' => true, 'data' => $addresses]));
             return $response->withHeader('Content-Type', 'application/json');
@@ -464,7 +495,7 @@ class UserController
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
             // Validate required fields
-            $required = ['street_address', 'city', 'state', 'country', 'postal_code','longtitude','latitude'];
+            $required = ['street_address', 'city', 'state', 'country', 'postal_code', 'longtitude', 'latitude'];
             foreach ($required as $field) {
                 if (!isset($data[$field]) || empty($data[$field])) {
                     $response->getBody()->write(json_encode(['success' => false, 'error' => "Field {$field} is required"]));
@@ -576,7 +607,7 @@ class UserController
     public function getFavorites(Request $request, Response $response): Response
     {
         try {
-            $userId =(int) $request->getAttribute('user')['id'];
+            $userId = (int) $request->getAttribute('user')['id'];
             $wishlistRepository = new WishlistRepository();
             $favorites = $wishlistRepository->getAllFavorites($userId);
             $productRepository = new ProductRepository();
@@ -584,7 +615,7 @@ class UserController
             $result = [];
 
             foreach ($favorites as $favorite) {
-                $productId =(int) $favorite['productId'];
+                $productId = (int) $favorite['productId'];
                 $product = $productRepository->findOneBy(['id' => $productId]);
                 $product['variants'] = $productRepository->getProductVariantByProductId($productId);
                 $result[] = [

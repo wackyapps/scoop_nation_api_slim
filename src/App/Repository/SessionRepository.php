@@ -24,6 +24,9 @@ class SessionRepository extends BaseRepository
      */
     public function startNewAnonymousSession(string $cookieToken, string $ipAddress, ?string $userAgent = null): array
     {
+        /**
+         * Generate a new session_id (UUID) is a GUID (globally unique identifier) e.g: 98412935-6939-451a-b9da-cfca6c967293
+         */
         $sessionId = Uuid::uuid4()->toString();
 
         $data = [
@@ -80,6 +83,29 @@ class SessionRepository extends BaseRepository
     {
         $query = "UPDATE {$this->table} SET last_activity = NOW(3) WHERE id = %i";
         return DB::query($query, $sessionId);
+    }
+
+
+    /**
+     * Link up session cart to logged in user when user logs in 
+     * and session exists in request with cookie_token and session_id
+     * @param int $sessionId Database ID of the session
+     * @param int $cookieToken The client-side cookie token
+     * @param int $userId Database ID of the logged in user
+     * @param int|null $businessId Optional business ID to associate with session
+     * @param int|null $branchId Optional branch ID to associate with session
+     */
+
+    public function linkSessionCartToUser(int $sessionId, string $cookieToken, int $userId, ?int $businessId = null, ?int $branchId = null): void
+    {
+        $data = [
+            'user_id' => $userId,
+            'business_id' => $businessId,
+            'branch_id' => $branchId,
+            'last_activity' => date('Y-m-d H:i:s.u')
+        ];
+
+        DB::update($this->table, $data, "id = %i AND cookie_token = %s", $sessionId, $cookieToken);
     }
 
     /**

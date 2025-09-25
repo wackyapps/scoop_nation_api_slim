@@ -414,7 +414,6 @@ $app->post('/api/users/remove-address', function ($request, $response) use ($app
 });
 
 
-
 $app->get('/api/users/favorites/get', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
     return $controller->getFavorites($request, $response);
