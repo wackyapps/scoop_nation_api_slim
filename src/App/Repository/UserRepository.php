@@ -75,7 +75,9 @@ class UserRepository extends BaseRepository
             WHERE u.email = %s
         ";
 
-        return DB::queryFirstRow($sql, $email);
+        $record = DB::queryFirstRow($sql, $email);
+        // var_dump($record);
+        return $record;
     }
 
     /**
@@ -106,13 +108,15 @@ class UserRepository extends BaseRepository
     public function loginCustomerUser(string $email, string $password): ?array
     {
         $user = $this->findByEmailWithProfile($email);
-        // var_dump($user["password"]); // Debug line to check the fetched user data
         if ($user && $user["role"] === 'customer' && password_verify($password, $user["password"])) {
             // remove password field from $user
             unset($user['password']);
             return $user;
         }
-        return null;
+
+        // when user is not customer role type them return array with success false and error
+
+        return array("success" => false, "error" => "No customer account found with given credentials");
     }
 
     /**

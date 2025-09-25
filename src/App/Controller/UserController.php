@@ -273,8 +273,15 @@ class UserController
 
             $user = $this->userRepository->loginCustomerUser($data['email'], $data['password']);
 
+            // var_dump(  $user);
+
             if (!$user) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid email or password']));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
+            if ($user["success"] == false) {
+                $response->getBody()->write(json_encode($user));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
 
