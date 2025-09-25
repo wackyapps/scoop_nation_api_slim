@@ -128,7 +128,7 @@ class EmailService
     public function sendOtp($email, $otp)
     {
         try {
-            $this->mailer->setFrom('no-reply@example.com', HEADER_TITLE_TEXT);
+            $this->mailer->setFrom('no-reply@' . DOMAIN, DOMAIN);
             $this->mailer->addAddress($email);
             $this->mailer->isHTML(true);
             $this->mailer->Subject = SINGLE_SIGN_ON_OTP_EMAIL_SUBJECT;

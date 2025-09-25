@@ -38,53 +38,14 @@ class OtpService
     }
 
     /**
-     * Send an email
-     * 
-     * @param string $to Recipient email address
-     * @param string $subject Email subject
-     * @param string $template Email template filename (inside templates folder)
-     * @param array $data Associative array of template variables
-     * @param array $attachments Array of file paths to attach
-     * @return bool True if email sent, false otherwise
+     * Generate OTP again given email address 
      */
-    public function sendEmail($to, $subject, $template, $data = [], $attachments = [])
+
+    public function generateOtp()
     {
-        $body = '';
-        try {
-            // Load email template
-            $body = $this->loadTemplate($template, $data);
-        } catch (Exception $e) {
-            // error_log("Email Error: " . $e->getMessage());
-            echo "Template Error: " . $e->getMessage();
-            return false;
-        }
-
-        try {
-
-            // Set email parameters
-            $this->mailer->clearAddresses();
-            $this->mailer->clearAttachments();
-            $this->mailer->addAddress($to);
-            $this->mailer->Subject = $subject;
-            $this->mailer->Body = $body;
-
-            // Attach files
-            if (!empty($attachments)) {
-                foreach ($attachments as $file) {
-                    if (file_exists($file)) {
-                        $this->mailer->addAttachment($file);
-                    }
-                }
-            }
-
-            // Send email
-            return $this->mailer->send();
-        } catch (Exception $e) {
-            // error_log("Email Error: " . $e->getMessage());
-            echo "Email Sending Error: " . $e->getMessage();
-            return false;
-        }
-
+        // generate numeric OTP code of 6 number length
+        $otp = random_int(100000, 999999);
+        return $otp;
     }
 
     /**
@@ -111,7 +72,7 @@ class OtpService
         }
         return $content;
     }
-     /**
+    /**
      * Send OTP email to the user.
      *
      * @param string $email Recipient email

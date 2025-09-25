@@ -7,6 +7,7 @@ require_once __DIR__ . '/SQL_Table_Names.php';
 
 use DB;
 use App\Services\EmailService;
+use App\Services\OtpService;
 
 class UserRepository extends BaseRepository
 {
@@ -144,11 +145,35 @@ class UserRepository extends BaseRepository
         // Generate OTP (assuming you have an OtpService)
         $otpService = new OtpService();
         $otp = $otpService->generateOtp();
-        $otpService->saveOtp($user->id, $otp);
+        $otpString = (string)$otp;
+        // turn $otp to password_hash
+        $saved = $this->saveOtp($user['email'], password_hash($otpString, PASSWORD_DEFAULT));
 
-        // Send email (assuming EmailService exists)
+        // Send email if OTP saved successfully
+        if (!$saved) {
+            return false;
+        }    
+
+        // Send email
         $emailService = new EmailService();
         return $emailService->sendOtp($email, $otp);
+    }
+
+    /**
+     * private function to save OTP to database against user id
+     */
+
+    private function saveOtp(string $email, string $otp): bool
+    {
+        // find user by email
+        $user = $this->findByEmail($email);
+        if (!$user) {
+            return false;
+        }
+
+        // save user otp to user table in password 
+        $this->update($user['id'], ['password' => $otp]);
+        return true;
     }
 
     /**

@@ -11,6 +11,13 @@ define('DB_PASS', '6n]kKW4PRVW)t@QW');
 define('DB_PORT', '3306');
 define('DB_CHARSET', 'utf8');
 
+/**
+ * Domain configuration
+ */
+define('DOMAIN', 'scoopnation.pk');
+define('SINGLE_SIGN_ON_OTP_EMAIL_SUBJECT', 'Your One-Time Passcode From Scoop Nation');
+
+
 
 /**
  * Email Services SMTP
