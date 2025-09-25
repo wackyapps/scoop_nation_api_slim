@@ -798,6 +798,23 @@ class SessionController
          */
 
         $token = $request->getHeaderLine('Authorization');
+        if (!$token) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'No logout information given']));
+            return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+        }
+
+        /**
+         * extract token from Bearer string
+         */
+
+        if (preg_match('/Bearer\s(\S+)/', $token, $matches)) {
+            $token = $matches[1];
+        } else {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid logout information given']));
+            return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+        }
+
+        // Decode JWT
         $jwt = new JWT();
         $decodedToken = $jwt->decodeJWT($token);
 
