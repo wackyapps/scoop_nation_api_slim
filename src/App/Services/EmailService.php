@@ -118,7 +118,7 @@ class EmailService
         }
         return $content;
     }
-     /**
+    /**
      * Send OTP email to the user.
      *
      * @param string $email Recipient email
@@ -133,12 +133,10 @@ class EmailService
             $this->mailer->isHTML(true);
             $this->mailer->Subject = SINGLE_SIGN_ON_OTP_EMAIL_SUBJECT;
             $this->mailer->Body = "
-                <h2>Login Verification</h2>
-                <p>A login attempt was detected from a new device.</p>
-                <p>Your OTP is: <strong>$otp</strong></p>
-                <p>This OTP is valid for 10 minutes. If you did not initiate this login, please secure your account.</p>
+                <h2>Hi,</h2>
+                <p>Your verification PIN for " . DOMAIN . " is: <strong>$otp</strong></p>
             ";
-            $this->mailer->AltBody = "Login Verification\nYour OTP is: $otp\nValid for 10 minutes.";
+            // $this->mailer->AltBody = "Login Verification\nYour OTP is: $otp\nValid for 10 minutes.";
 
             $this->mailer->send();
             return true;
