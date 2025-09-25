@@ -271,16 +271,15 @@ class UserController
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
 
-            $user = $this->userRepository->loginCustomerUser($data['email'], $data['password']);
+            $user = $this->userRepository->loginAdminUser($data['email'], $data['password']);
 
-            // var_dump(  $user);
 
             if (!$user) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid email or password']));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
 
-            if ($user["success"] == false) {
+            if (isset($user["success"]) && $user["success"] == false) {
                 $response->getBody()->write(json_encode($user));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
@@ -323,7 +322,7 @@ class UserController
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
 
-            if ($user["success"] == false) {
+            if (isset($user["success"]) && $user["success"] == false) {
                 $response->getBody()->write(json_encode($user));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
             }
