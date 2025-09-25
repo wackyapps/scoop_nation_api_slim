@@ -516,10 +516,6 @@ class SessionRepository extends BaseRepository
 
     public function unlinkSessionFromUser(string $sessionId, string $cookieToken, int $userId): void
     {
-        
-
         DB::update($this->table, ['user_id' => null], "id = %i AND user_id = %i", $sessionId, $userId);
     }
-
-    /** */
 }
