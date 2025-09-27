@@ -281,6 +281,10 @@ class BranchRepository extends BaseRepository
             if ($row['product_id'] && !isset($products[$row['product_id']])) {
                 $productRepository = new  ProductRepository();
                 $variants = $productRepository->getProductVariantByProductId((int) $row['product_id']) ?? [];
+                $mediaRepository = new MediaRepository();
+                $media = $mediaRepository->findMediaByProductId((int) $row['product_id']) ?? [];
+
+
                 $products[$row['product_id']] = [
                     'id' => (int) $row['product_id'],
                     'slug' => $row['slug'],
@@ -307,7 +311,8 @@ class BranchRepository extends BaseRepository
                         'updated_at' => $row['branch_product_updated_at']
                     ],
                     'bundles' => [],
-                    'variants' => $variants
+                    'variants' => $variants,
+                    'media'=>$media
                 ];
             }
 
