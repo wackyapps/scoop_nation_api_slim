@@ -784,7 +784,7 @@ class UserController
                 $order['items'] = $items;
                 $result[] = $order;
             }
-            $response->getBody()->write(json_encode(['success' => true, 'orders' => $result]));
+            $response->getBody()->write(json_encode(['success' => true, 'data' => $result]));
             return $response->withHeader('Content-Type', 'application/json');
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to get orders: ' . $e->getMessage()]));
