@@ -632,7 +632,7 @@ class SessionController
             }
 
             // Validate required fields for customer information
-            $requiredFields = ['fullname', 'email', 'phone'];
+            $requiredFields = ['user_id'];
             foreach ($requiredFields as $field) {
                 if (!isset($data[$field]) || empty($data[$field])) {
                     $response->getBody()->write(json_encode([
@@ -643,20 +643,13 @@ class SessionController
                 }
             }
 
-            // Optional fields
-            $gender = $data['gender'] ?? null;
-            $dateOfBirth = $data['date_of_birth'] ?? null;
-            $branchId = isset($data['branch_id']) ? (int) $data['branch_id'] : null;
+            
 
             // Convert session cart to order
             $order = $this->sessionRepository->convertSessionCartToOrderCart(
                 (int) $sessionId,
-                $data['fullname'],
-                $data['email'],
-                $data['phone'],
-                $gender,
-                $dateOfBirth,
-                $branchId
+                 (int) $data['user_id'],
+                (int) $data['branch_id']
             );
 
             if (!$order) {

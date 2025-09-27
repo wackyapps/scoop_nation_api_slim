@@ -124,12 +124,8 @@ class SessionRepository extends BaseRepository
     
     public function convertSessionCartToOrderCart(
         int $sessionId,
-        string $fullname,
-        string $email,
-        string $phone,
-        ?string $gender = null,
-        ?string $dateOfBirth = null,
-        ?int $branchId = null
+        int $user_id,
+        int $branchId
     ): ?array {
         // Get session to ensure it exists and get cart_id
         $session = $this->find($sessionId);
@@ -141,28 +137,30 @@ class SessionRepository extends BaseRepository
 
         // Check if user already exists by email or phone
         $existingUser = DB::queryFirstRow(
-            "SELECT id FROM " . TABLE_USER . " WHERE email = %s OR phone = %s",
-            $email,
-            $phone
+            "SELECT id FROM " . TABLE_USER . " WHERE id = %i",
+            $user_id
         );
 
         $userId = null;
-        if ($existingUser) {
-            $userId = $existingUser['id'];
-        } else {
-            // Create new user
-            $userData = [
-                'email' => $email,
-                'phone' => $phone,
-                'role' => 'customer',
-                'email_verified' => 0,
-                'phone_verified' => 0,
-                'createdAt' => date('Y-m-d H:i:s')
-            ];
+        if (!$existingUser) {
+            return null;
+        } 
+        $userId = $existingUser['id'];
+        
+        // else {
+        //     // Create new user
+        //     $userData = [
+        //         'email' => $email,
+        //         'phone' => $phone,
+        //         'role' => 'customer',
+        //         'email_verified' => 0,
+        //         'phone_verified' => 0,
+        //         'createdAt' => date('Y-m-d H:i:s')
+        //     ];
 
-            DB::insert(TABLE_USER, $userData);
-            $userId = DB::insertId();
-        }
+        //     DB::insert(TABLE_USER, $userData);
+        //     $userId = DB::insertId();
+        // }
 
         // Create or update customer record
         $existingCustomer = DB::queryFirstRow(
@@ -171,34 +169,37 @@ class SessionRepository extends BaseRepository
         );
 
         $customerId = null;
-        if ($existingCustomer) {
-            $customerId = $existingCustomer['id'];
+        if (!$existingCustomer) {
+            return null;
             // Update existing customer
-            DB::update(
-                TABLE_CUSTOMER,
-                [
-                    'fullname' => $fullname,
-                    'gender' => $gender,
-                    'date_of_birth' => $dateOfBirth,
-                    'updatedAt' => date('Y-m-d H:i:s')
-                ],
-                "id = %i",
-                $customerId
-            );
-        } else {
-            // Create new customer
-            $customerData = [
-                'user_id' => $userId,
-                'fullname' => $fullname,
-                'gender' => $gender,
-                'date_of_birth' => $dateOfBirth,
-                'createdAt' => date('Y-m-d H:i:s'),
-                'updatedAt' => date('Y-m-d H:i:s')
-            ];
+            // DB::update(
+            //     TABLE_CUSTOMER,
+            //     [
+            //         'fullname' => $fullname,
+            //         'gender' => $gender,
+            //         'date_of_birth' => $dateOfBirth,
+            //         'updatedAt' => date('Y-m-d H:i:s')
+            //     ],
+            //     "id = %i",
+            //     $customerId
+            // );
+        } 
+        $customerId = $existingCustomer["id"];
 
-            DB::insert(TABLE_CUSTOMER, $customerData);
-            $customerId = DB::insertId();
-        }
+        // else {
+        //     Create new customer
+        //     $customerData = [
+        //         'user_id' => $userId,
+        //         'fullname' => $fullname,
+        //         'gender' => $gender,
+        //         'date_of_birth' => $dateOfBirth,
+        //         'createdAt' => date('Y-m-d H:i:s'),
+        //         'updatedAt' => date('Y-m-d H:i:s')
+        //     ];
+
+        //     DB::insert(TABLE_CUSTOMER, $customerData);
+        //     $customerId = DB::insertId();
+        // }
 
         // Get cart items
         $cartItems = DB::query(

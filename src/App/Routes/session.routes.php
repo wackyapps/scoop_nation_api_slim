@@ -393,10 +393,10 @@ $app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
     $branchId = isset($data['branch_id']) ? (int) $data['branch_id'] : 0;
 
     // validate required fields
-    if (empty($data['fullname']) || empty($data['email']) || empty($data['phone'])) {
+    if (empty($data['user_id'])) {
         $response->getBody()->write(json_encode([
             'success' => false,
-            'error' => 'fullname, email, and phone are required'
+            'error' => 'user_id is required required'
         ]));
         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
     }
