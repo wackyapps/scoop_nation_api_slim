@@ -12,6 +12,13 @@ class OrderRepository extends BaseRepository
         $criteria = ['email' => $email];
         return $this->findBy($criteria, $orderBy, $limit, $offset);
     }
+    public function findByCustomerId(int $customer_id): array
+    {
+        $criteria = ['customer_id' => $customer_id];
+        $query = "SELECT * FROM `order` WHERE customer_id = %i";
+        $params = [$customer_id];
+        return $this->executeQuery($query, $params);
+    }
 
     public function findByStatus(string $status, array $orderBy = null, $limit = null, $offset = null): array
     {

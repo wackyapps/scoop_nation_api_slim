@@ -31,4 +31,11 @@ class OrderItemRepository extends BaseRepository
         $result = DB::queryFirstRow($query, $orderId);
         return (float) ($result['order_total'] ?? 0);
     }
+
+    public function findByOrderId(int $orderId): array
+    {
+        $query = "SELECT * FROM `order_item` WHERE customerOrderId = %i";
+        $params = [$orderId];
+        return $this->executeQuery($query, $params);
+    }
 }

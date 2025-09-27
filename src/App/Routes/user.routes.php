@@ -521,3 +521,9 @@ $app->put('/api/users/profile', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
     return $controller->saveProfile($request, $response, $userId);
 });
+
+
+$app->get('/api/users/orders/get', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->getUserOrders($request, $response);
+});

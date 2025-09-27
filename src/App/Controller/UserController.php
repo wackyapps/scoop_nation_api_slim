@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Repository\CustomerRepository;
+use App\Repository\OrderItemRepository;
+use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -22,6 +25,10 @@ class UserController
     private $sessionRepository;
     private $emailService;
     private $otpService;
+    private $orderRepository;
+    private $customerRepository;
+    private $orderItemRepository;
+    private $productRepository;
 
     public function __construct(
         UserRepository $userRepository,
@@ -29,14 +36,22 @@ class UserController
         AddressRepository $addressRepository,
         SessionRepository $sessionRepository,
         EmailService $emailService,
-        OtpService $otpService
+        OtpService $otpService,
+        OrderRepository $orderRepository,
+        CustomerRepository $customerRepository,
+        OrderItemRepository $orderItemRepository,
+        ProductRepository $productRepository
     ) {
         $this->userRepository = $userRepository;
         $this->wishlistRepository = $wishlistRepository;
         $this->addressRepository = $addressRepository;
         $this->sessionRepository = $sessionRepository;
         $this->emailService = $emailService;
-        $this->otpService = $otpService;
+        $this->otpService = $otpService;    
+        $this->orderRepository = $orderRepository;
+        $this->customerRepository = $customerRepository;
+        $this->orderItemRepository = $orderItemRepository;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -735,6 +750,44 @@ class UserController
 
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to update profile: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+    /**
+     * Get user orders
+     * 
+     * @Route GET /api/users/{id}/orders
+     */
+    public function getUserOrders(Request $request, Response $response): Response
+    {
+        try {
+            $userId = (int) $request->getAttribute('user')['id'];
+            
+            $customer = $this->customerRepository->findCustomerByUserId($userId);
+            if (!$customer) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'Customer not found']));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+            $customerId = (int) $customer['id'];
+            $orders = $this->orderRepository->findByCustomerId($customerId);
+            $result = [];
+
+            foreach ($orders as $order) {
+                $orderItems = $this->orderItemRepository->findByOrderId( (int) $order['id']);
+                $items = [];
+                foreach ($orderItems as $item) {
+                    $item['product'] = $this->productRepository->findById( (int) $item['productId']);
+                    $item['variant'] = $this->productRepository->getProductVariantByVariantId( (int) $item['variantId']);
+                    $items[] = $item;
+                }
+                $order['items'] = $items;
+                $result[] = $order;
+            }
+            $response->getBody()->write(json_encode(['success' => true, 'orders' => $result]));
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to get orders: ' . $e->getMessage()]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
     }

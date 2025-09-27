@@ -120,4 +120,8 @@ class CustomerRepository extends BaseRepository
         
         return DB::query($sql);
     }
+    public function findCustomerByUserId(int $userId): array
+    {
+        return $this->findOneBy(['user_id' => $userId]);
+    }
 }
