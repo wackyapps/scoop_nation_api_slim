@@ -649,7 +649,9 @@ class SessionController
             $order = $this->sessionRepository->convertSessionCartToOrderCart(
                 (int) $sessionId,
                  (int) $data['user_id'],
-                (int) $data['branch_id']
+                (int) $data['branch_id'],
+                (int) $data['address_id'],
+                $data['orderNotice'],
             );
 
             if (!$order) {

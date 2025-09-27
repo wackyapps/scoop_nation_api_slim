@@ -125,7 +125,9 @@ class SessionRepository extends BaseRepository
     public function convertSessionCartToOrderCart(
         int $sessionId,
         int $user_id,
-        int $branchId
+        int $branchId,
+        int $addressId,
+        string $orderNotice = '',
     ): ?array {
         // Get session to ensure it exists and get cart_id
         $session = $this->find($sessionId);
@@ -227,7 +229,8 @@ class SessionRepository extends BaseRepository
             'dateTime' => date('Y-m-d H:i:s.u'),
             'status' => 'pending',
             'total' => $total,
-            'orderNotice' => null
+            'address_id' => $addressId,
+            'orderNotice' => $orderNotice ?? '',
         ];
 
         DB::insert(TABLE_ORDER, $orderData);
@@ -239,7 +242,8 @@ class SessionRepository extends BaseRepository
                 'customerOrderId' => $orderId,
                 'productId' => $item['productId'],
                 'variantId' => $item['variantId'],
-                'quantity' => $item['quantity']
+                'quantity' => $item['quantity'],
+
             ];
 
             DB::insert(TABLE_ORDER_ITEM, $orderItemData);

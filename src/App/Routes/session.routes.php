@@ -400,10 +400,18 @@ $app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
         ]));
         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
     }
+    if (empty($data['address_id']) || !is_numeric($data['address_id'])) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'address_id is required and must be a positive integer'
+        ]));
+        return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+    }
+
 
 
     // validate session_id
-    if (!$sessionId  ) {
+    if (!$sessionId) {
         $response->getBody()->write(json_encode([
             'success' => false,
             'error' => 'session_id is required '
