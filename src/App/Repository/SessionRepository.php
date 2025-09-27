@@ -248,7 +248,7 @@ class SessionRepository extends BaseRepository
         DB::update($this->table, ['user_id' => $userId], "id = %i", $sessionId);
 
         // Return the created order with items
-        $order = DB::queryFirstRow("SELECT * FROM " . TABLE_ORDER . " WHERE id = %i", $orderId);
+        $order = DB::queryFirstRow("SELECT * FROM `" . TABLE_ORDER . "` WHERE id = %i", $orderId);
         $orderItems = DB::query("SELECT * FROM " . TABLE_ORDER_ITEM . " WHERE customerOrderId = %i", $orderId);
 
         $order['items'] = $orderItems;

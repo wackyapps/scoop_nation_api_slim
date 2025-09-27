@@ -387,7 +387,7 @@ $app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     $data = $request->getParsedBody();
 
-    $sessionId = isset($data['session_id']) ? (int) $data['session_id'] : 0;
+    $sessionId = isset($data['session_id']) ? $data['session_id'] : null;
 
     // check branch_id from request
     $branchId = isset($data['branch_id']) ? (int) $data['branch_id'] : 0;
@@ -403,10 +403,10 @@ $app->post('/api/sessions/checkout', function ($request, $response) use ($app) {
 
 
     // validate session_id
-    if ($sessionId <= 0) {
+    if (!$sessionId  ) {
         $response->getBody()->write(json_encode([
             'success' => false,
-            'error' => 'session_id is required and must be a positive integer'
+            'error' => 'session_id is required '
         ]));
         return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
     }
