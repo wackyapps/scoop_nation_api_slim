@@ -30,6 +30,8 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
         '/api/branch/homepage',
         // contact us
         '/api/contact/submit',
+        '/api/products',
+        '/api/banners/active'
     ];
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -62,7 +64,7 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
             return $handler->handle($request);
         }
 
-        /*
+        
         // === TOKEN CHECKING DISABLED TEMPORARILY ===
         // Get Bearer token from headers
         $authHeader = $request->getHeaderLine('Authorization');
@@ -96,7 +98,7 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
 
         $decoded = $jwt->decodeJWT($token);
         $request = $request->withAttribute('user', $decoded);
-        */
+        
 
         // Proceed to next middleware or route handler
         return $handler->handle($request);
