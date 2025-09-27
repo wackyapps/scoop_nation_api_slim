@@ -499,7 +499,7 @@ class UserController
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
             // Validate required fields
-            $required = ['street_address', 'city', 'state', 'country', 'postal_code', 'longtitude', 'latitude'];
+            $required = ['street_address', 'city', 'state', 'country', 'postal_code', 'longitude', 'latitude'];
             foreach ($required as $field) {
                 if (!isset($data[$field]) || empty($data[$field])) {
                     $response->getBody()->write(json_encode(['success' => false, 'error' => "Field {$field} is required"]));
@@ -522,7 +522,7 @@ class UserController
                 'state' => $data['state'] ?? null,
                 'postal_code' => $data['postal_code'],
                 'country' => $data['country'],
-                'longitude' => $data['longtitude'],
+                'longitude' => $data['longitude'],
                 'latitude' => $data['latitude'],
                 'is_default' => $data['is_default'] ?? false
             ];
