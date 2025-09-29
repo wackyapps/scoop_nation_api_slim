@@ -106,13 +106,12 @@ class BannerRepository extends BaseRepository
      * @param int|null $branchId The ID of the branch to filter banners, or null for all
      * @return array Array of campaigns, each with 'banners' key containing banners with meta
      */
-    public function getActiveCampaignsWithBannersAndMeta(?int $branchId = null): array
+    public function getActiveCampaignsWithBannersAndMeta(?int $branchId = null , $limit=20, $offset = 0): array
     {
-        $campaigns = $this->getActiveBannerCampaigns($branchId);
+        $campaigns = $this->findBy(['branch_id'=> $branchId],null,$limit,$offset);
         $result = [];
-
         foreach ($campaigns as $campaign) {
-            $campaign['banners'] = $this->getBannersWithMetaForCampaign((int) $campaign['id']); // Cast to int
+            $campaign['media'] = $this->getBannersWithMetaForCampaign((int) $campaign['id']); // Cast to int
             $result[] = $campaign;
         }
 

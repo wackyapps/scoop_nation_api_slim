@@ -57,6 +57,87 @@ class BannerController
 
 
 
+    public function getAllBanners(Request $request, Response $response): Response
+    {
+        try {
+            // Extract branch_id from request (e.g., header, query param, or session)
+
+            $campaigns = $this->bannerRepository->getActiveCampaignsWithBannersAndMeta(1);
+
+            if (empty($campaigns)) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'message' => 'No active banner campaigns found for today'
+                ]));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+            }
+
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'data' => $campaigns,
+                'message' => 'Active banner campaigns retrieved successfully'
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'message' => 'Failed to retrieve active banner campaigns: ' . $e->getMessage()
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+    }
+
+
+    public function getBannerCampaignById(Request $request, Response $response): Response
+    {
+        try {
+            // Extract campaign ID from query parameters
+            $campaignId =(int) $request->getQueryParams()['campaignId'] ?? null;
+            if (!$campaignId) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'message' => 'Missing campaignId in query parameters'
+                ]));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            }
+
+
+            // Extract branch_id from request (e.g., header, query param, or session)
+
+            $campaign = $this->bannerRepository->findOneBy(['id'=> $campaignId]);
+
+            if (empty($campaign)) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'message' => 'No Banner Found'
+                ]));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+            }
+            // Add banners with meta data
+            $campaign['media'] = $this->bannerRepository->getBannersWithMetaForCampaign($campaignId);
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'data' => $campaign,
+                'message' => 'Banner campaign retrieved successfully'
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'message' => 'Failed to retrieve active banner campaigns: ' . $e->getMessage()
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+    }
+
+
+
     public function createBannerCampaign(Request $request, Response $response): Response{
          try {
              
