@@ -11,3 +11,4 @@ $app->get('/api/banners/active', [BannerController::class, 'getActiveBannerCampa
 
 
 $app->post('/api/banners/create', [BannerController::class,'createBannerCampaign']);
+$app->post('/api/banners/update', [BannerController::class,'updateBannerCampaign']);
