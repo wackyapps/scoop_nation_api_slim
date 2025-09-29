@@ -855,4 +855,82 @@ class SessionController
         $response->getBody()->write(json_encode(['success' => true, 'message' => 'User logged out successfully']));
         return $response->withHeader('Content-Type', 'application/json');
     }
+
+
+    /**
+     * clear session cart
+     */
+    public function clearSessionCart(Request $request, Response $response): Response{
+         try {
+            // Get session_id from request body instead of route parameter
+            $data = $request->getParsedBody();
+            $session_id = $data['session_id'] ?? null;
+
+            // Validate session_id
+            if (empty($session_id)) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'session_id is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // If session_id is a GUID (string), find the session by session_id field
+            // If it's an integer, find by ID
+            if (is_numeric($session_id) && (int) $session_id == $session_id) {
+                $sessionId = (int) $session_id;
+                $session = $this->sessionRepository->find($sessionId);
+            } else {
+                // Find session by session_id field (GUID)
+                $session = $this->sessionRepository->findOneBy(['session_id' => $session_id]);
+                if ($session) {
+                    $sessionId = $session['id']; // Get the numeric ID for further operations
+                } else {
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'error' => 'Session not found'
+                    ]));
+                    return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+                }
+            }
+
+            if (!$session) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Session not found'
+                ]));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+
+           
+
+            // Remove product
+            $success = $this->sessionRepository->clearCartItemsForSession(
+                (int) $sessionId,
+            );
+
+            if (!$success) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Failed to Clear Cart'
+                ]));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'message' => 'Cart cleared successfully'
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'Failed to clear cart: ' . $e->getMessage()
+            ]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+
+    }
 }

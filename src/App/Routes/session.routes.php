@@ -533,3 +533,10 @@ $app->post('/api/sessions/logout-customer', function ($request, $response) use (
     $controller = $app->getContainer()->get(App\Controller\SessionController::class);
     return $controller->logoutCustomerSession($request, $response);
 });
+
+
+
+$app->post('/api/sessions/cart/clear', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\SessionController::class);
+    return $controller->clearSessionCart($request, $response);
+});

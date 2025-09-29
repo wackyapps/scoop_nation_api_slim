@@ -17,6 +17,7 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
         '/api/users/login-customer',
         '/api/users/login-admin',
         '/api/users/register-customer',
+        '/api/users/forgot-password',
         // session routes
         '/api/sessions/start',
         '/api/sessions/cart',
@@ -25,6 +26,7 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
         '/api/sessions/cart/remove',
         '/api/sessions/cart/increase',
         '/api/sessions/cart/decrease',
+        '/api/sessions/cart/clear',
         '/api/sessions',
         '/api/sessions/active',
         '/api/branch/homepage',

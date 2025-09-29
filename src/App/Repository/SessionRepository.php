@@ -476,6 +476,20 @@ class SessionRepository extends BaseRepository
         return $affectedRows > 0;
     }
 
+    public function clearCartItemsForSession(int $sessionId): bool
+    {
+        $session = $this->find($sessionId);
+        if (!$session || !$session['cart_id']) {
+            return false;
+        }
+
+        $cartId = $session['cart_id'];
+
+        // Delete all items in the cart
+        $affectedRows = DB::delete(TABLE_CART_ITEM, "cartId = %i", $cartId);
+        return $affectedRows > 0;
+    }
+
     /**
      * Get cart items for a session
      * 
