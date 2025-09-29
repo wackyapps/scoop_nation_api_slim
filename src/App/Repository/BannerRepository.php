@@ -33,6 +33,12 @@ class BannerRepository extends BaseRepository
 
         return $branchId ? DB::query($query, $branchId) : DB::query($query);
     }
+    public function deleteCompaignMedia(int $campaignId): bool
+    {
+        $this->executeQuery('DELETE FROM ' . TABLE_MEDIA . ' WHERE campaign_id = %i', ['campaign_id'=>  $campaignId]);
+        // $this->executeQuery('DELETE FROM ' . TABLE_MEDIA_META . ' WHERE media_id IN (SELECT imageID FROM ' . TABLE_MEDIA . ' WHERE campaign_id = %i)', $campaignId);
+        return true;
+    }
 
     /**
      * Get banner images for a specific campaign

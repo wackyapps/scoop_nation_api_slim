@@ -13,3 +13,4 @@ $app->get('/api/banners', [BannerController::class, 'getAllBanners']);
 $app->get('/api/banners/get', [BannerController::class,'getBannerCampaignById']);
 $app->post('/api/banners/create', [BannerController::class,'createBannerCampaign']);
 $app->post('/api/banners/update', [BannerController::class,'updateBannerCampaign']);
+$app->delete('/api/banners/delete', [BannerController::class,'deleteBannerCampaign']);

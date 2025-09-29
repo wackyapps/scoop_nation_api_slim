@@ -25,7 +25,7 @@ class BannerController
     {
         try {
             // Extract branch_id from request (e.g., header, query param, or session)
-            $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+            $branchId = $request->getHeaderLine('X-Branch-Id') ? (int) $request->getHeaderLine('X-Branch-Id') : null;
 
             $campaigns = $this->bannerRepository->getActiveCampaignsWithBannersAndMeta($branchId);
 
@@ -95,7 +95,7 @@ class BannerController
     {
         try {
             // Extract campaign ID from query parameters
-            $campaignId =(int) $request->getQueryParams()['campaignId'] ?? null;
+            $campaignId = (int) $request->getQueryParams()['campaignId'] ?? null;
             if (!$campaignId) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -107,7 +107,7 @@ class BannerController
 
             // Extract branch_id from request (e.g., header, query param, or session)
 
-            $campaign = $this->bannerRepository->findOneBy(['id'=> $campaignId]);
+            $campaign = $this->bannerRepository->findOneBy(['id' => $campaignId]);
 
             if (empty($campaign)) {
                 $response->getBody()->write(json_encode([
@@ -138,9 +138,10 @@ class BannerController
 
 
 
-    public function createBannerCampaign(Request $request, Response $response): Response{
-         try {
-             
+    public function createBannerCampaign(Request $request, Response $response): Response
+    {
+        try {
+
             $data = json_decode($request->getBody()->getContents(), true);
             $user = $request->getAttribute('user');
 
@@ -151,7 +152,7 @@ class BannerController
                 ]));
                 return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
             }
-            $user_id =(int) $user['id'];
+            $user_id = (int) $user['id'];
 
             // Validate required fields
             $requiredFields = ['name', 'description', 'start_date', 'end_date', 'is_active'];
@@ -167,19 +168,19 @@ class BannerController
 
             // Create the campaign via repository
             $campaign = $this->bannerRepository->save([
-                'name'        => $data['name'],
+                'name' => $data['name'],
                 'description' => $data['description'],
-                'start_date'   => $data['start_date'],
-                'end_date'     => $data['end_date'],
-                'is_active'    => (bool)$data['is_active'],
-                'created_by'=> $user_id,
-                'updated_by'=> $user_id,
-                'branch_id'=>1,
-                'created_at'=> date('Y-m-d H:i:s'),
-                'updated_at'=> date('Y-m-d H:i:s')
+                'start_date' => $data['start_date'],
+                'end_date' => $data['end_date'],
+                'is_active' => (bool) $data['is_active'],
+                'created_by' => $user_id,
+                'updated_by' => $user_id,
+                'branch_id' => 1,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
             ]);
 
-            if(!$campaign){
+            if (!$campaign) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
                     'message' => 'Failed to create banner campaign'
@@ -189,7 +190,7 @@ class BannerController
 
             $response->getBody()->write(json_encode([
                 'success' => true,
-                'data'    => $campaign,
+                'data' => $campaign,
                 'message' => 'Banner campaign created successfully'
             ]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
@@ -205,7 +206,8 @@ class BannerController
     }
 
 
-    public function updateBannerCampaign(Request $request, Response $response): Response {
+    public function updateBannerCampaign(Request $request, Response $response): Response
+    {
         try {
             $data = json_decode($request->getBody()->getContents(), true);
             $user = $request->getAttribute('user');
@@ -217,7 +219,7 @@ class BannerController
                 ]));
                 return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
             }
-            $user_id =(int) $user['id'];
+            $user_id = (int) $user['id'];
 
             // Validate required fields
             $requiredFields = ['id'];
@@ -231,8 +233,8 @@ class BannerController
                 }
             }
             // check if compaign is exist 
-            $compaign = $this->bannerRepository->findOneBy(['id'=>$data['id']]);
-            if(!$compaign){
+            $compaign = $this->bannerRepository->findOneBy(['id' => $data['id']]);
+            if (!$compaign) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
                     'message' => 'Banner campaign not found'
@@ -241,27 +243,27 @@ class BannerController
             }
             // check if data is provided then add it to updateData
             $updateData = [];
-            if(isset($data['name'])){
+            if (isset($data['name'])) {
                 $updateData['name'] = $data['name'];
             }
-            if(isset($data['description'])){
+            if (isset($data['description'])) {
                 $updateData['description'] = $data['description'];
             }
-            if(isset($data['start_date'])){
+            if (isset($data['start_date'])) {
                 $updateData['start_date'] = $data['start_date'];
             }
-            if(isset($data['end_date'])){
+            if (isset($data['end_date'])) {
                 $updateData['end_date'] = $data['end_date'];
             }
-            if(isset($data['is_active'])){
-                $updateData['is_active'] = (bool)$data['is_active'];
+            if (isset($data['is_active'])) {
+                $updateData['is_active'] = (bool) $data['is_active'];
             }
             // add updated_by and updated_at
             $updateData['updated_by'] = $user_id;
             $updateData['updated_at'] = date('Y-m-d H:i:s');
 
-            $updateCampaign = $this->bannerRepository->update( (int) $data['id'], $updateData);
-            if(!$updateCampaign){
+            $updateCampaign = $this->bannerRepository->update((int) $data['id'], $updateData);
+            if (!$updateCampaign) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
                     'message' => 'Failed to update banner campaign'
@@ -276,7 +278,59 @@ class BannerController
                 // 'id' => $id
             ]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
-            
+
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'message' => 'Failed to update banner campaign: ' . $e->getMessage()
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+    }
+
+    public function deleteBannerCampaign(Request $request, Response $response): Response
+    {
+        try {
+            $data = json_decode($request->getBody()->getContents(), true);
+            // Validate required fields
+            $requiredFields = ['id'];
+            foreach ($requiredFields as $field) {
+                if (!isset($data[$field])) {
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'message' => "Missing required field: {$field}"
+                    ]));
+                    return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+                }
+            }
+            // check if compaign is exist 
+            $compaign = $this->bannerRepository->findOneBy(['id' => $data['id']]);
+            if (!$compaign) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'message' => 'Banner campaign not found'
+                ]));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+            }
+
+
+            $deletedCompaign = $this->bannerRepository->delete((int) $data['id']);
+            if (!$deletedCompaign) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'message' => 'Failed to delete banner campaign'
+                ]));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+            }
+            // delete media
+            // $deletedCompaignMedia = $this->bannerRepository->deleteCompaignMedia((int) $data['id']);
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'message' => 'Banner campaign deleted successfully',
+                // 'id' => $id
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
