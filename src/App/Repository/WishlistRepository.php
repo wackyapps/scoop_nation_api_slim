@@ -27,7 +27,7 @@ class WishlistRepository extends BaseRepository
         // Check if already exists
         $existing = $this->findOneBy(['userId' => $userId, 'productId' => $productId]);
         if ($existing) {
-            return $existing['id'];
+            return (int) $existing['id'];
         }
 
         return (int) $this->save(['userId' => $userId, 'productId' => $productId]);

@@ -39,7 +39,7 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $method = $request->getMethod();
-        $path   = $request->getUri()->getPath();
+        $path = $request->getUri()->getPath();
 
         // === Determine base path ===
         $scriptName = $_SERVER['SCRIPT_NAME'] ?? ($_SERVER['PHP_SELF'] ?? '');
@@ -66,41 +66,55 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
             return $handler->handle($request);
         }
 
-        
+
         // === TOKEN CHECKING DISABLED TEMPORARILY ===
         // Get Bearer token from headers
-        $authHeader = $request->getHeaderLine('Authorization');
-        $token = '';
-        if (preg_match('/Bearer\s+(.+)/i', $authHeader, $m)) {
-            $token = trim($m[1]);
-        } else {
-            $token = trim(str_ireplace('Bearer', '', $authHeader));
-        }
+        /* $authHeader = $request->getHeaderLine('Authorization');
+         $token = '';
+         if (preg_match('/Bearer\s+(.+)/i', $authHeader, $m)) {
+             $token = trim($m[1]);
+         } else {
+             $token = trim(str_ireplace('Bearer', '', $authHeader));
+         }
 
-        if (empty($token)) {
-            $response = new Response();
-            $response->getBody()->write(json_encode([
-                'success' => false,
-                'error'   => 'Token not found',
-                'message' => 'Authorization token is required for: ' . $normalizedPath,
-            ]));
-            return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
-        }
+         if (empty($token)) {
+             $response = new Response();
+             $response->getBody()->write(json_encode([
+                 'success' => false,
+                 'error'   => 'Token not found',
+                 'message' => 'Authorization token is required for: ' . $normalizedPath,
+             ]));
+             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+         }
 
-        $jwt = new JWT();
-        if (!$jwt->validate($token)) {
-            $response = new Response();
-            $response->getBody()->write(json_encode([
-                'success' => false,
-                'error'   => 'Invalid Token',
-                'message' => 'Authorization token is invalid or expired',
-            ]));
-            return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
-        }
+         $jwt = new JWT();
+         if (!$jwt->validate($token)) {
+             $response = new Response();
+             $response->getBody()->write(json_encode([
+                 'success' => false,
+                 'error'   => 'Invalid Token',
+                 'message' => 'Authorization token is invalid or expired',
+             ]));
+             return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+         }
 
-        $decoded = $jwt->decodeJWT($token);
-        $request = $request->withAttribute('user', $decoded);
-        
+         $decoded = $jwt->decodeJWT($token);
+         $request = $request->withAttribute('user', $decoded);*/
+        $user = array(
+            'id' => '7',
+            'email' => 'waqasmahmood@gmail.com',
+            'role' => 'customer',
+            'phone_verified' => '0',
+            'email_verified' => '0',
+            'phone' => '+923109428554',
+            'user_created' => '2025-09-26 21:10:45',
+            'customer_id' => '4',
+            'fullname' => 'Waqas1 Mahmood',
+            'gender' => 'male',
+            'date_of_birth' => '0000-00-00'
+        );
+        $request = $request->withAttribute('user', $user);
+
 
         // Proceed to next middleware or route handler
         return $handler->handle($request);
