@@ -137,8 +137,8 @@ class CustomerRepository extends BaseRepository
             SELECT 
                 c.id,
                 c.fullname,
-                c.email,
-                c.phone,
+                u.email,
+                u.phone,
                 c.gender,
                 c.date_of_birth,
                 c.createdAt as customer_since,
