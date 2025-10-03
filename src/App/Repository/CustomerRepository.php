@@ -173,12 +173,12 @@ class CustomerRepository extends BaseRepository
         }
 
         if (!empty($filters['email'])) {
-            $whereConditions[] = "c.email LIKE %s";
+            $whereConditions[] = "u.email LIKE %s";
             $params[] = "%{$filters['email']}%";
         }
 
         if (!empty($filters['phone'])) {
-            $whereConditions[] = "c.phone LIKE %s";
+            $whereConditions[] = "u.phone LIKE %s";
             $params[] = "%{$filters['phone']}%";
         }
 
@@ -255,6 +255,7 @@ class CustomerRepository extends BaseRepository
 
 
         $params2  = [...$params,$perPage, $offset];
+        var_dump($sql);
         // Execute the main query
         $customers = DB::query($sql, ...$params2);
 
