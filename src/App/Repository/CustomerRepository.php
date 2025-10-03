@@ -255,7 +255,6 @@ class CustomerRepository extends BaseRepository
 
 
         $params2  = [...$params,$perPage, $offset];
-        var_dump($sql);
         // Execute the main query
         $customers = DB::query($sql, ...$params2);
 
