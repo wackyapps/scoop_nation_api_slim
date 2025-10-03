@@ -329,8 +329,24 @@ class CustomerRepository extends BaseRepository
             ORDER BY o.dateTime DESC
             LIMIT 10
         ";
+        $orderItemRepository = new OrderItemRepository();
+        $productReposity = new ProductRepository();
 
-        $customer['recent_orders'] = DB::query($recentOrdersSql, $customerId);
+        $recentOrders = DB::query($recentOrdersSql, $customerId);
+        $orders = [];
+        foreach($recentOrders as $order ){
+            $items = $orderItemRepository->findByOrderId( (int) $order['id']);
+            $orderItems = [];
+            foreach($items as $item){
+                    $item['product'] = $productReposity->findById( (int) $item['productId']);
+                    $item['variant'] = $productReposity->getProductVariantByVariantId( (int) $item['variantId']);
+                    $orderItems = $item;
+            }
+            $order['items'] = $orderItems;
+            $orders[] = $order;
+        }
+
+        $customer['recent_orders']  = $orders;
 
         return $customer;
     }
