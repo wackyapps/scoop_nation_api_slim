@@ -295,6 +295,7 @@ class CustomerRepository extends BaseRepository
                 u.role as user_role,
                 u.phone_verified,
                 u.email_verified,
+                u.phone,
                 u.createdAt as user_created_at,
                 COUNT(DISTINCT o.id) as total_orders,
                 COALESCE(SUM(o.total), 0) as total_spent,
@@ -340,7 +341,7 @@ class CustomerRepository extends BaseRepository
             foreach($items as $item){
                     $item['product'] = $productReposity->findById( (int) $item['productId']);
                     $item['variant'] = $productReposity->getProductVariantByVariantId( (int) $item['variantId']);
-                    $orderItems = $item;
+                    $orderItems[] = $item;
             }
             $order['items'] = $orderItems;
             $orders[] = $order;
