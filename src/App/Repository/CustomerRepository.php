@@ -27,9 +27,9 @@ class CustomerRepository extends BaseRepository
             SELECT * 
             FROM `customer` 
             WHERE 
-                fullname LIKE %ss OR 
-                email LIKE %ss OR 
-                phone LIKE %ss
+                fullname LIKE %s OR 
+                email LIKE %s OR 
+                phone LIKE %s
             ORDER BY fullname
         ";
         
@@ -163,22 +163,22 @@ class CustomerRepository extends BaseRepository
         // Apply search filters
         if (!empty($filters['search'])) {
             $searchTerm = "%{$filters['search']}%";
-            $whereConditions[] = "(c.fullname LIKE %ss OR c.email LIKE %ss OR c.phone LIKE %ss)";
+            $whereConditions[] = "(c.fullname LIKE %s OR u.email LIKE %s OR u.phone LIKE %s)";
             array_push($params, $searchTerm, $searchTerm, $searchTerm);
         }
 
         if (!empty($filters['fullname'])) {
-            $whereConditions[] = "c.fullname LIKE %ss";
+            $whereConditions[] = "c.fullname LIKE %s";
             $params[] = "%{$filters['fullname']}%";
         }
 
         if (!empty($filters['email'])) {
-            $whereConditions[] = "c.email LIKE %ss";
+            $whereConditions[] = "c.email LIKE %s";
             $params[] = "%{$filters['email']}%";
         }
 
         if (!empty($filters['phone'])) {
-            $whereConditions[] = "c.phone LIKE %ss";
+            $whereConditions[] = "c.phone LIKE %s";
             $params[] = "%{$filters['phone']}%";
         }
 
@@ -252,10 +252,11 @@ class CustomerRepository extends BaseRepository
         // Add pagination
         $offset = ($page - 1) * $perPage;
         $sql .= " LIMIT %i OFFSET %i";
-        array_push($params, $perPage, $offset);
 
+
+        $params2  = [...$params,$perPage, $offset];
         // Execute the main query
-        $customers = DB::query($sql, ...$params);
+        $customers = DB::query($sql, ...$params2);
 
         // Get total count for pagination
         $countSql = "
@@ -268,7 +269,6 @@ class CustomerRepository extends BaseRepository
         if (!empty($whereConditions)) {
             $countSql .= " WHERE " . implode(' AND ', $whereConditions);
         }
-
         $totalResult = DB::queryFirstRow($countSql, ...$params);
         $total = $totalResult['total'] ?? 0;
 
