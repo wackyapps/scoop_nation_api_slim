@@ -53,6 +53,28 @@ class OrderRepository extends BaseRepository
         return $order;
     }
     
+    public function updateOrder(int $orderId, array $data): bool
+    {
+        $allowedFields = ['status', 'rider_id'];
+        $updateData = [];
+
+        foreach ($data as $key => $value) {
+            if (in_array($key, $allowedFields)) {
+                $updateData[$key] = $value;
+            }
+        }
+
+        if (empty($updateData)) {
+            return false;
+        }
+
+
+        DB::update($this->table, $updateData, "id=%i", $orderId);
+
+
+        return DB::affectedRows() > 0;
+    }
+
     public function findByCustomerId(int $customer_id): array
     {
         $criteria = ['customer_id' => $customer_id];

@@ -147,4 +147,51 @@ class OrderController
         }
 
     }
+
+    public function updateOrder(Request $request, Response $response): Response
+    {
+        try {
+            $data = $request->getParsedBody();
+            if (empty($data)) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'No data provided for update.']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+            if (!isset($data['orderId'])) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'orderId is required.']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            $orderId = (int)$data['orderId'];
+            $order = $this->orderRepository->getOrderByOrderId($orderId);
+            if (!$order) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'Order not found.']));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+            $allowedFields = ['status', 'rider_id'];
+            $updateData = [];
+            foreach ($allowedFields as $field) {
+                if (isset($data[$field])) {
+                    $updateData[$field] = $data[$field];
+                }
+            }
+            if (empty($updateData)) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'No valid fields to update.']));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            $success = $this->orderRepository->updateOrder($orderId, $updateData);
+
+            if ($success) {
+                $response->getBody()->write(json_encode(['success' => true, 'message' => 'Order updated successfully.']));
+            } else {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to update order or no changes were made.']));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to update order: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
 }
