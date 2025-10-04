@@ -87,6 +87,9 @@ class OrderController
                     $items[] = $item2;
                 }
                 $order['items'] = $items;
+                // decode customer_address from json string
+                $order['customer_address'] = json_decode($order['customer_address'] ?? '{}', true);
+                var_dump($order['customer_address']);
                 $result[] = $order;
             }
             $response->getBody()->write(json_encode([
@@ -137,6 +140,8 @@ class OrderController
                 $items[] = $item2;
             }
             $order['items'] = $items;
+            // decode customer_address from json string
+            $order['customer_address'] = json_decode($order['customer_address'] ?? '{}', true);
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'data' => $order

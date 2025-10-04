@@ -228,6 +228,13 @@ class SessionRepository extends BaseRepository
             $total += $item['price'] * $item['quantity'];
         }
 
+        // fetch address to store it as json 
+        $addressRepository= new AddressRepository();
+        $address = $addressRepository->findByPkId($addressId);
+        if (!$address) {
+            return null;
+        }
+
         // Create order
         $orderData = [
             'customer_id' => $customerId,
@@ -237,6 +244,7 @@ class SessionRepository extends BaseRepository
             'total' => $total,
             'address_id' => $addressId,
             'orderNotice' => $orderNotice ?? '',
+            'customer_address'=> json_encode($address),
         ];
 
         DB::insert(TABLE_ORDER, $orderData);

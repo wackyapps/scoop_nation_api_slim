@@ -784,6 +784,8 @@ class UserController
                     $items[] = $item2;
                 }
                 $order['items'] = $items;
+                 // decode customer_address from json string
+                $order['customer_address'] = json_decode($order['customer_address'] ?? '{}', true);
                 $result[] = $order;
             }
             $response->getBody()->write(json_encode(['success' => true, 'data' => $result]));

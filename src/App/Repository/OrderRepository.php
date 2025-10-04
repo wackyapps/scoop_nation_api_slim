@@ -17,7 +17,7 @@ class OrderRepository extends BaseRepository
     public function getAllOrders(array $filters = [], $page = 1, $perPage = 10): array
     {
         $offset = ($page - 1) * $perPage;
-        $sql = 'select o.id, o.customer_id,o.branch_id,o.rider_id,o.dateTime,o.status,o.total,o.orderNotice,o.order_number,o.address_id,c.fullname from `order` o INNER JOIN customer c on o.customer_id = c.id ';
+        $sql = 'select o.id, o.customer_id,o.branch_id,o.rider_id,o.dateTime,o.status,o.total,o.orderNotice,o.order_number,o.address_id,c.fullname,o.customer_address from `order` o INNER JOIN customer c on o.customer_id = c.id ';
         $countSql = 'select  count(DISTINCT o.id) as total from `order` o INNER JOIN customer c on o.customer_id = c.id ';        
 
         $params = [];
@@ -44,7 +44,7 @@ class OrderRepository extends BaseRepository
     }
 
     public function getOrderByOrderId(int $orderId): ?array{
-        $query = "select o.id, o.customer_id,o.branch_id,o.rider_id,o.dateTime,o.status,o.total,o.orderNotice,o.order_number,o.address_id,c.fullname from `order` o INNER JOIN customer c on o.customer_id = c.id WHERE o.id = %i";
+        $query = "select o.id, o.customer_id,o.branch_id,o.rider_id,o.dateTime,o.status,o.total,o.orderNotice,o.order_number,o.address_id,c.fullname,o.customer_address from `order` o INNER JOIN customer c on o.customer_id = c.id WHERE o.id = %i";
         $params = [$orderId];
         $order = DB::queryFirstRow($query, ...$params);
         if (!$order) {
