@@ -2,6 +2,8 @@
 declare(strict_types=1);
 namespace App\Repository;
 
+use DB;
+
 class OrderRepository extends BaseRepository
 {
     protected $table = 'order';
@@ -12,6 +14,32 @@ class OrderRepository extends BaseRepository
         $criteria = ['email' => $email];
         return $this->findBy($criteria, $orderBy, $limit, $offset);
     }
+    public function getAllOrders(array $filters = [], $page = 1, $perPage = 10): array
+    {
+        $offset = ($page - 1) * $perPage;
+        $sql = 'select o.id, o.customer_id,o.branch_id,o.rider_id,o.dateTime,o.status,o.total,o.orderNotice,o.order_number,o.address_id,c.fullname from `order` o INNER JOIN customer c on o.customer_id = c.id ';
+        $countSql = 'select  count(DISTINCT o.id) as total from `order` o INNER JOIN customer c on o.customer_id = c.id ';        
+
+        $params = [];
+        if ($filters['search']) {
+            $sql .= 'WHERE o.order_number LIKE %s OR c.fullname LIKE %s';
+            $countSql .= 'WHERE o.order_number LIKE %s OR c.fullname LIKE %s';
+            $params[] = '%' . $filters['search'] . '%';
+            $params[] = '%' . $filters['search'] . '%';
+        }
+        $sql .='limit  %i offset %i';
+        $params2 = [...$params,$perPage, $offset];
+        $orders = DB::query($sql, ...$params2);
+        
+        $total = DB::query($countSql, ...$params);
+        return [
+            'orders'=>$orders,
+            'total'=>$total[0]['total'],
+            'per_page'=>$perPage,
+            'page'=>$page
+        ];
+    }
+    
     public function findByCustomerId(int $customer_id): array
     {
         $criteria = ['customer_id' => $customer_id];

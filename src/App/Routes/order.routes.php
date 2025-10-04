@@ -1,0 +1,7 @@
+<?php
+
+
+$app->get('/api/admin/orders', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\OrderController::class);
+    return $controller->getAllOrders($request, $response);
+});
