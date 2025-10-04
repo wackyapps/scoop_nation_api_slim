@@ -103,4 +103,48 @@ class OrderController
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
     }
+
+    public function getOrderDetails(Request $request, Response $response): Response
+    {
+        try {
+            $queryParams = $request->getQueryParams();
+            $id = (int)($queryParams['id'] ?? 0);
+            
+            if (!$id) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Customer ID is required. Use ?customer_id=123'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+            $order = $this->orderRepository->getOrderByOrderId($id);
+            if (!$order) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Order not found.'
+                ]));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+            $orderItems = $this->orderItemRepository->findByOrderId((int) $order['id']);
+            $items = [];
+            foreach ($orderItems as $item) {
+                $item['product'] = $this->productRepository->findById((int) $item['productId']);
+                $item['variant'] = $this->productRepository->getProductVariantByVariantId((int) $item['variantId']);
+                $items[] = $item;
+            }
+            $order['items'] = $items;
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'data' => $order
+            ]));
+            return $response->withHeader('Content-Type', 'application/json');
+
+
+
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to get orders: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+
+    }
 }

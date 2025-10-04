@@ -31,9 +31,9 @@ class OrderRepository extends BaseRepository
         $params2 = [...$params,$perPage, $offset];
         $orders = DB::query($sql, ...$params2);
         
-        $total = DB::query($countSql, ...$params);
+        $total = DB::queryFirstRow($countSql, ...$params);
 
-        $totalCount = $total[0]['total'] ??0;
+        $totalCount = $total['total'] ??0;
         return [
             'orders'=>$orders,
             'total'=>$totalCount,
@@ -41,6 +41,16 @@ class OrderRepository extends BaseRepository
             'total_pages'=>ceil($totalCount / $perPage),
             'page'=>$page
         ];
+    }
+
+    public function getOrderByOrderId(int $orderId): ?array{
+        $query = "select o.id, o.customer_id,o.branch_id,o.rider_id,o.dateTime,o.status,o.total,o.orderNotice,o.order_number,o.address_id,c.fullname from `order` o INNER JOIN customer c on o.customer_id = c.id WHERE o.id = %i";
+        $params = [$orderId];
+        $order = DB::queryFirstRow($query, ...$params);
+        if (!$order) {
+            return null;
+        }
+        return $order;
     }
     
     public function findByCustomerId(int $customer_id): array
