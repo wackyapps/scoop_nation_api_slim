@@ -25,6 +25,10 @@ abstract class BaseRepository implements RepositoryInterface
     {
         return DB::queryFirstRow("SELECT * FROM {$this->table} WHERE {$this->primaryKey} = %i", $id);
     }
+    public function findByPkId( int $id): array
+    {
+        return $this->executeQueryFirstRow("SELECT * FROM {$this->table} WHERE {$this->primaryKey} = %i", [$id]);
+    }
 
     public function findAll(): array
     {

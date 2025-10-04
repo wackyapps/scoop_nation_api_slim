@@ -776,10 +776,12 @@ class UserController
             foreach ($orders as $order) {
                 $orderItems = $this->orderItemRepository->findByOrderId( (int) $order['id']);
                 $items = [];
+                // decoding product and variant from json string
                 foreach ($orderItems as $item) {
-                    $item['product'] = $this->productRepository->findById( (int) $item['productId']);
-                    $item['variant'] = $this->productRepository->getProductVariantByVariantId( (int) $item['variantId']);
-                    $items[] = $item;
+                    $item2 = [...$item];
+                    $item2['product'] = json_decode($item['product'] ?? '{}', true);
+                    $item2['variant'] = json_decode($item['variant'] ?? '{}', true);
+                    $items[] = $item2;
                 }
                 $order['items'] = $items;
                 $result[] = $order;

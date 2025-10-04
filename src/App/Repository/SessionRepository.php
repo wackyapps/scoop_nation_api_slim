@@ -128,6 +128,7 @@ class SessionRepository extends BaseRepository
         int $branchId,
         int $addressId,
         string $orderNotice = '',
+
     ): ?array {
         // Get session to ensure it exists and get cart_id
         $session = $this->find($sessionId);
@@ -212,6 +213,11 @@ class SessionRepository extends BaseRepository
             $cartId
         );
 
+        $productRepository = new  ProductRepository();
+        $variantRepository = new VariantRepository();
+
+
+
         if (empty($cartItems)) {
             return null; // No items in cart
         }
@@ -238,14 +244,16 @@ class SessionRepository extends BaseRepository
 
         // Create order items
         foreach ($cartItems as $item) {
+            $product = $productRepository->findById((int)$item['productId']);
+            $variant = $variantRepository->findByPkId((int)$item['variantId']);
             $orderItemData = [
                 'customerOrderId' => $orderId,
                 'productId' => $item['productId'],
                 'variantId' => $item['variantId'],
                 'quantity' => $item['quantity'],
-
+                'product'=> json_encode($product),
+                'variant' => json_encode($variant),
             ];
-
             DB::insert(TABLE_ORDER_ITEM, $orderItemData);
         }
 
@@ -257,6 +265,8 @@ class SessionRepository extends BaseRepository
         $orderItems = DB::query("SELECT * FROM " . TABLE_ORDER_ITEM . " WHERE customerOrderId = %i", $orderId);
 
         $order['items'] = $orderItems;
+        // clear cart item after order
+        DB::delete(TABLE_CART_ITEM, "cartId = %i", $cartId);
         return $order;
     }
 
