@@ -93,8 +93,8 @@ class OrderController
                 'pagination' => [
                     'total' => $data['total'],
                     'per_page' => $data['per_page'],
-                    'page' => $data['page']
-
+                    'page' => $data['page'],
+                    'total_pages' => $data['total_pages'],
                 ]
             ]));
             return $response->withHeader('Content-Type', 'application/json');

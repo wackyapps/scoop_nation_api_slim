@@ -32,10 +32,13 @@ class OrderRepository extends BaseRepository
         $orders = DB::query($sql, ...$params2);
         
         $total = DB::query($countSql, ...$params);
+
+        $totalCount = $total[0]['total'] ??0;
         return [
             'orders'=>$orders,
-            'total'=>$total[0]['total'],
+            'total'=>$totalCount,
             'per_page'=>$perPage,
+            'total_pages'=>ceil($totalCount / $perPage),
             'page'=>$page
         ];
     }
