@@ -423,7 +423,15 @@ class ProductController
 
         // Generate unique slug
         $slug = $this->generateUniqueSlug($data['title']);
-
+        $mediaFile = $files['media'];
+        $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
+        $filename = sprintf('%s.%s', uniqid(), $extension);
+        $directory = __DIR__ . '/../../../public/media/products/';
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
+        $mediaFile->moveTo($directory . $filename);
+        $path = 'media/products/' . $filename;
         // Insert product
         $productId = $this->productRepository->save([
             'title' => $data['title'],
@@ -431,6 +439,7 @@ class ProductController
             'description' => $data['description'],
             'price' => (int)$data['price'],
             'categoryId' => (int)$data['categoryId'],
+            'mainImage'=>$path
         ]);
 
         // Insert variants
@@ -444,15 +453,7 @@ class ProductController
         }
 
         // Handle media upload
-        $mediaFile = $files['media'];
-        $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
-        $filename = sprintf('%s.%s', uniqid(), $extension);
-        $directory = __DIR__ . '/../../../public/media/products/';
-        if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
-        }
-        $mediaFile->moveTo($directory . $filename);
-        $path = 'media/products/' . $filename;
+        
 
         // Insert media
         $this->mediaRepository->save([
