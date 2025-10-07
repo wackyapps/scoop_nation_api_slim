@@ -1,6 +1,14 @@
 <?php
+// Updated ProductRepository.php
+// Added support for pagination/sorting in getAllProducts
+// Added findWithImages (updated to use media table)
+// Uses executeQuery/executeQueryFirstRow from BaseRepository
+// Assumes media table has 'productID' and 'type' for linking
+
 declare(strict_types=1);
 namespace App\Repository;
+
+use DB;
 
 /**
  * ProductRepository - Data access layer for product entities
@@ -67,14 +75,13 @@ class ProductRepository extends BaseRepository
             $query .= implode(', ', $orders);
         }
 
-        if ($limit) {
+        if ($limit !== null) {
             $query .= " LIMIT %i";
             $params[] = $limit;
-        }
-
-        if ($offset) {
-            $query .= " OFFSET %i";
-            $params[] = $offset;
+            if ($offset !== null) {
+                $query .= " OFFSET %i";
+                $params[] = $offset;
+            }
         }
 
         return $this->executeQuery($query, $params);
@@ -109,21 +116,20 @@ class ProductRepository extends BaseRepository
             $query .= implode(', ', $orders);
         }
 
-        if ($limit) {
+        if ($limit !== null) {
             $query .= " LIMIT %i";
             $params[] = $limit;
-        }
-
-        if ($offset) {
-            $query .= " OFFSET %i";
-            $params[] = $offset;
+            if ($offset !== null) {
+                $query .= " OFFSET %i";
+                $params[] = $offset;
+            }
         }
 
         return $this->executeQuery($query, $params);
     }
 
     /**
-     * Find a product with its associated images
+     * Find a product with its associated images/media
      *
      * @param int $productId The ID of the product to retrieve with images
      * @param int|null $branchId The ID of the branch to filter, or null for all
@@ -135,9 +141,9 @@ class ProductRepository extends BaseRepository
     public function findWithImages(int $productId, ?int $branchId = null)
     {
         $query = "
-            SELECT p.*, i.imageID, i.image 
+            SELECT p.*, m.imageID, m.image 
             FROM product p 
-            LEFT JOIN image i ON p.id = i.productID 
+            LEFT JOIN media m ON p.id = m.productID AND m.type = 'product'
             WHERE p.id = %i" . ($branchId ? " AND EXISTS (SELECT 1 FROM branch_product bp WHERE bp.product_id = p.id AND (bp.branch_id = %i OR bp.branch_id IS NULL))" : "");
         $params = [$productId];
         if ($branchId) $params[] = $branchId;
@@ -148,8 +154,12 @@ class ProductRepository extends BaseRepository
     /**
      * Get all products from the database
      * Filters by branch_id if provided using branch_product
+     * Supports sorting and pagination
      *
      * @param int|null $branchId The ID of the branch to filter, or null for all
+     * @param array|null $orderBy Associative array for sorting
+     * @param int|null $limit Limit results
+     * @param int|null $offset Offset for pagination
      * @return array Array of all products in the database
      * 
      * @example
@@ -157,20 +167,79 @@ class ProductRepository extends BaseRepository
      * 
      * @see BaseRepository::findAll()
      */
-    public function getAllProducts(?int $branchId = null)
+    public function getAllProducts(?int $branchId = null, ?string $search = null, ?array $orderBy = null, ?int $limit = 10, ?int $page = 1)
     {
-        $query = "SELECT * FROM {$this->table}" . ($branchId ? " WHERE EXISTS (SELECT 1 FROM branch_product bp WHERE bp.product_id = {$this->table}.id AND (bp.branch_id = %i OR bp.branch_id IS NULL))" : "");
-        return $branchId ? $this->executeQuery($query, [$branchId]) : $this->findAll();
-    }
+        $query = "SELECT * FROM {$this->table}";
+        $params = [];
+        $conditions = [];
 
+        if ($search) {
+            $conditions[] = "(title LIKE %s OR description LIKE %s OR price LIKE %s OR manufacturer LIKE %s)";
+            $params[] = "%{$search}%";
+            $params[] = "%{$search}%";
+            $params[] = "%{$search}%";
+            $params[] = "%{$search}%";
+        }
+
+        if ($branchId) {
+            $conditions[] = "EXISTS (SELECT 1 FROM branch_product bp WHERE bp.product_id = {$this->table}.id AND (bp.branch_id = %i OR bp.branch_id IS NULL))";
+            $params[] = $branchId;
+        }
+
+        if (!empty($conditions)) {
+            $query .= " WHERE " . implode(' AND ', $conditions);
+        }
+
+        if ($orderBy) {
+            $query .= " ORDER BY " . implode(', ', array_map(function($field, $dir) { return "$field $dir"; }, array_keys($orderBy), $orderBy));
+        }
+
+            $query .= " LIMIT %i OFFSET %i";
+            //limit
+            $params[] = $limit;
+            //offset calculation
+            $params[] = ($page - 1) * $limit;
+
+
+        return $this->executeQuery($query, $params);
+    }
+    public function getAllProductsCount(?int $branchId = null, ?string $search = null, ?array $orderBy = null)
+    {
+        $query = "SELECT COUNT(DISTINCT id) as total from {$this->table}";
+        $params = [];
+        $conditions = [];
+
+        if ($search) {
+            $conditions[] = "(title LIKE %s OR description LIKE %s OR price LIKE %s OR manufacturer LIKE %s)";
+            $params[] = "%{$search}%";
+            $params[] = "%{$search}%";
+            $params[] = "%{$search}%";
+            $params[] = "%{$search}%";
+        }
+
+        if ($branchId) {
+            $conditions[] = "EXISTS (SELECT 1 FROM branch_product bp WHERE bp.product_id = {$this->table}.id AND (bp.branch_id = %i OR bp.branch_id IS NULL))";
+            $params[] = $branchId;
+        }
+
+        if (!empty($conditions)) {
+            $query .= " WHERE " . implode(' AND ', $conditions);
+        }
+
+        if ($orderBy) {
+            $query .= " ORDER BY " . implode(', ', array_map(function($field, $dir) { return "$field $dir"; }, array_keys($orderBy), $orderBy));
+        }
+
+        return DB::queryFirstRow($query, ...$params)['total'];
+    }
      /**
-     * Find a product by its slug
+     * Find a product by its ID
      *
      * @param int $id The unique ID identifier of the product
      * @return array|null Returns the product data as an associative array or null if not found
      * 
      * @example
-     * $product = $productRepository->findById(1, 1);
+     * $product = $productRepository->findById(1);
      */
     public function findById(int $id)
     {
@@ -194,3 +263,4 @@ class ProductRepository extends BaseRepository
         return $this->executeQueryFirstRow($query, $params) ?: null;
     }
 }
+?>

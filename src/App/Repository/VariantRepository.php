@@ -1,6 +1,11 @@
 <?php
+// Updated VariantRepository.php
+// Added deleteByProductId for bulk deletion by product
+
 declare(strict_types=1);
 namespace App\Repository;
+
+use DB;
 
 class VariantRepository extends BaseRepository
 {
@@ -22,4 +27,11 @@ class VariantRepository extends BaseRepository
         
         return DB::queryFirstRow($query, $productId, $name, $value);
     }
+
+    public function deleteByProductId(int $productId): int
+    {
+        DB::delete($this->table, "productId = %i", $productId);
+        return DB::affectedRows();
+    }
 }
+?>

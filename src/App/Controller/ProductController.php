@@ -1,10 +1,24 @@
 <?php
+// Updated ProductController.php
+// Added create, update, delete methods
+// Enhanced getAll and getProductById to include variants and media
+// Injected VariantRepository and MediaRepository
+// Uses BaseRepository methods: save (for insert), update, delete
+// For deletions of multiples (variants, media), uses custom deleteByProductId added to repos
+// For file uploads, handles multipart/form-data
+// For media, assumes only one media per product for simplicity (as per "one media"), but code handles multiple if present
+// Media upload validates image/video MIME types
+// Slug generation with basic uniqueness check
+// Assumes media table has 'productID' and 'type' columns for linking
+
 declare(strict_types=1);
 namespace App\Controller;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Repository\ProductRepository;
+use App\Repository\VariantRepository;
+use App\Repository\MediaRepository;
 
 /**
  * ProductController - Handles HTTP requests for product operations
@@ -20,13 +34,27 @@ class ProductController
     private $productRepository;
 
     /**
-     * Constructor - Dependency injection of ProductRepository
+     * @var VariantRepository $variantRepository Repository for variant data access
+     */
+    private $variantRepository;
+
+    /**
+     * @var MediaRepository $mediaRepository Repository for media data access
+     */
+    private $mediaRepository;
+
+    /**
+     * Constructor - Dependency injection of repositories
      *
      * @param ProductRepository $productRepository The product repository instance
+     * @param VariantRepository $variantRepository The variant repository instance
+     * @param MediaRepository $mediaRepository The media repository instance
      */
-    public function __construct(ProductRepository $productRepository)
+    public function __construct(ProductRepository $productRepository, VariantRepository $variantRepository, MediaRepository $mediaRepository)
     {
         $this->productRepository = $productRepository;
+        $this->variantRepository = $variantRepository;
+        $this->mediaRepository = $mediaRepository;
     }
 
     /**
@@ -57,8 +85,10 @@ class ProductController
 
     /**
      * Retrieve all products from the database
+     * Supports pagination, sorting via query params for datatable use
+     * Includes variants and media in response
      *
-     * GET /api/products
+     * GET /api/products?limit=10&offset=0&orderBy={"price":"ASC"}
      *
      * @param Request $request The PSR-7 request object
      * @param Response $response The PSR-7 response object
@@ -72,9 +102,12 @@ class ProductController
      *       "title": "Chocolate Con Ice Cream",
      *       "slug": "chocolate-con-ice-cream",
      *       "price": 1000,
+     *       "variants": [...],
+     *       "media": [...],
      *       ...
      *     }
-     *   ]
+     *   ],
+     *   "count": 10
      * }
      */
 
@@ -111,16 +144,34 @@ class ProductController
         // Extract branch_id from request (e.g., header, query param, or session)
         $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
 
-        $products = $this->productRepository->getAllProducts($branchId);
+        // Get query params for pagination/sorting
+        $queryParams = $request->getQueryParams();
+        $limit = isset($queryParams['limit']) ? (int)$queryParams['limit'] : 10;
+        $page = isset($queryParams['page']) ? (int)$queryParams['page'] : 1;
+        $orderBy = isset($queryParams['orderBy']) ? json_decode($queryParams['orderBy'], true) : null;
+        $search = isset($queryParams['search']) ? $queryParams['search']  : null;
+
+        $products = $this->productRepository->getAllProducts($branchId , $search, $orderBy, $limit, $page);
+        $total = $this->productRepository->getAllProductsCount($branchId , $search, $orderBy);
         $result = [];
         foreach ($products as $product) {
-            $product['variants'] = $this->productRepository->getProductVariantByProductId((int) $product['id']);
+            $product['variants'] = $this->variantRepository->findByProduct((int) $product['id']);
+            $product['media'] = $this->mediaRepository->findMediaByProductId((int) $product['id']);
             $result[] = $product;
         }
- 
+
+
+
+
         $response->getBody()->write(json_encode([
             'success' => true,
-            'data' => $result
+            'data' => $result,
+            'pagination' => [
+                'limit'=> $limit,
+                'page'=>$page,
+                'total'=> $total,
+                'total_pages' =>  ceil($total / $limit)
+            ]
         ]));
         
         return $response->withHeader('Content-Type', 'application/json');
@@ -128,6 +179,7 @@ class ProductController
     
     /**
      * Get product by ID
+     * Includes variants and media
      * 
      * @OA\Get(
      *     path="/api/products/{productId}",
@@ -151,14 +203,26 @@ class ProductController
      *     )
      * )
      */
-     public function getProductById(Request $request, Response $response,int $id): Response
+     public function getProductById(Request $request, Response $response): Response
     {
-        $productId = $id;
+
+        $productId = (int) $request->getQueryParams()['productId'] ?? null;
+
+        if (!$productId) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'productId is required']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
         // Extract branch_id from request
 
         $product = $this->productRepository->findById($productId);
-        var_dump($product);
-        
+        if (!$product) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Product not found']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
+
+        $product['variants'] = $this->variantRepository->findByProduct((int) $product['id']);
+        $product['media'] = $this->mediaRepository->findMediaByProductId((int) $product['id']);
+
         $response->getBody()->write(json_encode([
             'success' => true,
             'data' => $product
@@ -324,5 +388,261 @@ class ProductController
         
         return $response->withHeader('Content-Type', 'application/json');
     }
-   
+
+    /**
+     * Create a new product with variants and media
+     * Requires at least one variant and one media file
+     * Media file uploaded to public/media/products
+     * Expects multipart/form-data with fields: title, description, price, categoryId, variants (JSON string array), media (file)
+     *
+     * @param Request $request The PSR-7 request object
+     * @param Response $response The PSR-7 response object
+     * @return Response JSON response with created product
+     */
+    public function create(Request $request, Response $response): Response
+    {
+        $data = $request->getParsedBody();
+        $files = $request->getUploadedFiles();
+
+        // Parse variants if sent as JSON string
+        $variants = !empty($data['variants']) ? json_decode($data['variants'], true) : [];
+
+        // Validate required fields
+        if (empty($data['title']) || empty($data['description']) || empty($data['price']) || empty($data['categoryId']) ||
+            !is_array($variants) || count($variants) < 1 || empty($files['media']) || $files['media']->getError() !== UPLOAD_ERR_OK) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Missing required fields or invalid data']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        // Validate media type (image or video)
+        $mime = $files['media']->getClientMediaType();
+        if (!str_starts_with($mime, 'image/') && !str_starts_with($mime, 'video/')) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid media type. Must be image or video']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        // Generate unique slug
+        $slug = $this->generateUniqueSlug($data['title']);
+
+        // Insert product
+        $productId = $this->productRepository->save([
+            'title' => $data['title'],
+            'slug' => $slug,
+            'description' => $data['description'],
+            'price' => (int)$data['price'],
+            'categoryId' => (int)$data['categoryId'],
+        ]);
+
+        // Insert variants
+        foreach ($variants as $variant) {
+            $this->variantRepository->save([
+                'productId' => $productId,
+                'name' => $variant['name'],
+                'value' => $variant['value'],
+                'price' => (int)($variant['price'] ?? 0),
+            ]);
+        }
+
+        // Handle media upload
+        $mediaFile = $files['media'];
+        $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
+        $filename = sprintf('%s.%s', uniqid(), $extension);
+        $directory = __DIR__ . '/../../../public/media/products/';
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
+        $mediaFile->moveTo($directory . $filename);
+        $path = 'media/products/' . $filename;
+
+        // Insert media
+        $this->mediaRepository->save([
+            'image' => $path,
+            'productID' => $productId,
+            'type' => 'product',
+            'mime_type'=> $mime,
+        ]);
+
+        // Return created product
+        $product = $this->productRepository->findById((int)$productId);
+        $product['variants'] = $this->variantRepository->findByProduct($productId);
+        $product['media'] = $this->mediaRepository->findMediaByProductId($productId);
+
+        $response->getBody()->write(json_encode(['success' => true, 'data' => $product]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+    }
+
+    /**
+     * Update an existing product
+     * Allows updating fields, replacing variants, and optionally replacing media
+     * If new media provided, deletes old media and file
+     *
+     * @param Request $request The PSR-7 request object
+     * @param Response $response The PSR-7 response object
+     * @param int $productId Product ID to update
+     * @return Response JSON response with updated product
+     */
+    public function update(Request $request, Response $response, ): Response
+    {
+        $data = $request->getParsedBody();
+        $files = $request->getUploadedFiles();
+
+        if (empty($data['productId'])) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'productId is required']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
+
+        $productId = (int)$data['productId'];
+
+        // Check if product exists
+        if (!$this->productRepository->findById($productId)) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Product not found']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
+
+        // Parse variants if provided
+        $variants = !empty($data['variants']) ? json_decode($data['variants'], true) : null;
+
+        // Update product fields if provided
+        $updateData = [];
+        if (!empty($data['title'])) $updateData['title'] = $data['title'];
+        if (!empty($data['description'])) $updateData['description'] = $data['description'];
+        if (!empty($data['price'])) $updateData['price'] = (int)$data['price'];
+        if (!empty($data['categoryId'])) $updateData['categoryId'] = (int)$data['categoryId'];
+
+        if (!empty($updateData)) {
+            if (isset($updateData['title'])) {
+                $updateData['slug'] = $this->generateUniqueSlug($updateData['title'], $productId);
+            }
+            $this->productRepository->update($productId, $updateData);
+        }
+
+        // Update variants if provided (replace all)
+        if (is_array($variants)) {
+            $this->variantRepository->deleteByProductId($productId);
+            foreach ($variants as $variant) {
+                $this->variantRepository->save([
+                    'productId' => $productId,
+                    'name' => $variant['name'] ?? '',
+                    'value' => $variant['value'] ?? '',
+                    'price' => (int)($variant['price'] ?? 0),
+                ]);
+            }
+        }
+
+        // Update media if new file provided
+        if (!empty($files['media']) && $files['media']->getError() === UPLOAD_ERR_OK) {
+            $mime = $files['media']->getClientMediaType();
+            if (!str_starts_with($mime, 'image/') && !str_starts_with($mime, 'video/')) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid media type. Must be image or video']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            }
+
+            // Delete old media
+            $oldMedias = $this->mediaRepository->findMediaByProductId($productId);
+            foreach ($oldMedias as $oldMedia) {
+                $filePath = __DIR__ . '/../../public/' . $oldMedia['image'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            $this->mediaRepository->deleteByProductId($productId);
+
+            // Upload new
+            $mediaFile = $files['media'];
+            $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
+            $filename = sprintf('%s.%s', uniqid(), $extension);
+            $directory = __DIR__ . '/../../../public/media/products/';
+            if (!is_dir($directory)) {
+                mkdir($directory, 0777, true);
+            }
+            $mediaFile->moveTo($directory . $filename);
+            $path = 'media/products/' . $filename;
+
+            $this->mediaRepository->save([
+                'image' => $path,
+                'productID' => $productId,
+                'type' => 'product',
+                'mime_type'=> $mime,
+            ]);
+        }
+
+        // Return updated product
+        $product = $this->productRepository->findById($productId);
+        $product['variants'] = $this->variantRepository->findByProduct($productId);
+        $product['media'] = $this->mediaRepository->findMediaByProductId($productId);
+
+        $response->getBody()->write(json_encode(['success' => true, 'data' => $product]));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
+     * Delete a product and associated variants/media
+     * Also deletes physical media files
+     *
+     * @param Request $request The PSR-7 request object
+     * @param Response $response The PSR-7 response object
+     * @param int $productId Product ID to delete
+     * @return Response JSON response confirming deletion
+     */
+    public function delete(Request $request, Response $response): Response
+    {
+        $productId = (int) $request->getQueryParams()['productId'] ?? null;
+
+        if (!$productId) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'productId is required']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
+        //
+
+        // Check if product exists
+        if (!$this->productRepository->findById($productId)) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Product not found']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        }
+
+        // Delete media and files
+        $medias = $this->mediaRepository->findMediaByProductId($productId);
+        foreach ($medias as $media) {
+            $filePath = __DIR__ . '/../../../public/' . $media['image'];
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+        $this->mediaRepository->deleteByProductId($productId);
+
+        // Delete variants
+        $this->variantRepository->deleteByProductId($productId);
+
+        // Delete product
+        $this->productRepository->delete($productId);
+
+        $response->getBody()->write(json_encode(['success' => true,"message"=>"Product deleted successfully"]));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
+     * Generate a unique slug based on title
+     * Appends number if duplicate
+     *
+     * @param string $title Product title
+     * @param int|null $excludeId ID to exclude for uniqueness check
+     * @return string Unique slug
+     */
+    private function generateUniqueSlug(string $title, ?int $excludeId = null): string
+    {
+        $baseSlug = preg_replace('/[^a-z0-9]+/', '-', strtolower(trim($title)));
+        $slug = $baseSlug;
+        $count = 1;
+
+        while (true) {
+            $existing = $this->productRepository->findBy(['slug' => $slug]);
+            if (empty($existing) || ($excludeId && $existing[0]['id'] == $excludeId)) {
+                break;
+            }
+            $slug = $baseSlug . '-' . $count++;
+        }
+
+        return $slug;
+    }
 }
+?>
