@@ -522,7 +522,7 @@ class ProductController
 
         // Parse variants if provided
         $variants = !empty($data['variants']) ? json_decode($data['variants'], true) : null;
-        $media = !empty($data['media']) ? json_decode($data['media'], true) : null;
+        $media = !empty($data['media']) ? json_decode($data['media'], true) : [];
 
         // Update product fields if provided
         $updateData = [];
@@ -557,7 +557,6 @@ class ProductController
 
         // --- Media sync logic ---
         // 1. Get current media records
-        if ($media) {
             $currentMedias = $this->mediaRepository->findMediaByProductId($productId); // array of db rows
             $mediaToKeep = [];
             if (!empty($data['media']) && is_array($media)) {
@@ -579,7 +578,6 @@ class ProductController
                     $this->mediaRepository->delete($media['imageID']);
                 }
             }
-        }
 
         // 3. Add new uploaded files (support multiple)
         $mediaFiles = [];
