@@ -35,7 +35,7 @@ class BannerRepository extends BaseRepository
     }
     public function deleteCompaignMedia(int $campaignId): bool
     {
-        $this->executeQuery('DELETE FROM ' . TABLE_MEDIA . ' WHERE campaign_id = %i', ['campaign_id'=>  $campaignId]);
+        $this->executeQuery('DELETE FROM ' . TABLE_MEDIA . ' WHERE campaign_id = %i', ['campaign_id' => $campaignId]);
         // $this->executeQuery('DELETE FROM ' . TABLE_MEDIA_META . ' WHERE media_id IN (SELECT imageID FROM ' . TABLE_MEDIA . ' WHERE campaign_id = %i)', $campaignId);
         return true;
     }
@@ -112,9 +112,9 @@ class BannerRepository extends BaseRepository
      * @param int|null $branchId The ID of the branch to filter banners, or null for all
      * @return array Array of campaigns, each with 'banners' key containing banners with meta
      */
-    public function getActiveCampaignsWithBannersAndMeta(?int $branchId = null , $limit=20, $offset = 0): array
+    public function getActiveCampaignsWithBannersAndMeta(?int $branchId = null, $limit = 10, $offset = 0): array
     {
-        $campaigns = $this->findBy(['branch_id'=> $branchId],null,$limit,$offset);
+        $campaigns = $this->findBy(['branch_id' => $branchId], null, $limit, $offset);
         $result = [];
         foreach ($campaigns as $campaign) {
             $campaign['media'] = $this->getBannersWithMetaForCampaign((int) $campaign['id']); // Cast to int
@@ -123,6 +123,62 @@ class BannerRepository extends BaseRepository
 
         return $result;
     }
+    public function getAllBanners(?int $branchId = null, $search = null, $limit = 10, $page = 0): array
+    {
+        $query = "SELECT * FROM banner_campaign ";
+        $params = [];
+        $whereClauses = [];
+        if ($branchId) {
+            $whereClauses[] = " branch_id = %i ";
+            $params[] = $branchId;
+        }
+        if ($search) {
+            $whereClauses[] = "  (name LIKE %s OR description LIKE %s) ";
+            $params[] = "%{$search}%";
+            $params[] = "%{$search}%";
+        }
+
+        if (!empty($whereClauses)) {
+            $query .= "WHERE " . implode(" AND ", $whereClauses) . " ";
+        }
+
+        $query .= " ORDER BY start_date DESC LIMIT %i OFFSET %i";
+        $params[] = $limit;
+        $params[] = ($page - 1) * $limit;
+
+
+        $campaigns = DB::query($query, ...$params);
+
+        $countQuery = "SELECT COUNT(id) as total FROM banner_campaign ";
+        $countWhereClauses = [];
+        $countParams = [];
+
+
+
+        if ($branchId) {
+            $countWhereClauses[] = " branch_id = %i ";
+            $countParams[] = $branchId; // Bug: Appending to wrong array ($params instead of $countParams)
+        }
+        if ($search) {
+            $countWhereClauses[] = " (name LIKE %s OR description LIKE %s) ";
+            $countParams[] = "%{$search}%";
+            $countParams[] = "%{$search}%";
+        }
+        if (!empty($countWhereClauses)) {
+            $countQuery .= "WHERE " . implode(" AND ", $countWhereClauses) . " "; // Bug: Appending to $query instead of $countQuery
+        }
+        $totalResult = DB::queryFirstRow($countQuery, ...$countParams);
+
+        $result = [];
+        foreach ($campaigns as $campaign) {
+            $campaign['media'] = $this->getBannersWithMetaForCampaign((int) $campaign['id']); // Cast to int
+            $result[] = $campaign;
+        }
+
+        return ['data' => $result, 'total' => $totalResult['total']];
+    }
+
+
 
     /**
      * Get a single banner campaign by ID with banners and meta

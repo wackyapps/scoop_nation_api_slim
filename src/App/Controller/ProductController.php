@@ -451,22 +451,71 @@ class ProductController
         $mediaFile->moveTo($directory . $filename);
         $path = 'media/products/' . $filename;
         // Insert product
-        $productId = $this->productRepository->save([
+
+
+        $payload = [];
+        if (!empty($data['manufacturer'])) {
+            $payload['manufacturer'] = $data['manufacturer'];
+        }
+        if (!empty($slug)) {
+            $payload['slug'] = $slug;
+        }
+        if (isset($data['inStock'])) {
+            $payload['inStock'] = (int) $data['inStock'];
+        }
+        if (isset($data['rating'])) {
+            $payload['rating'] = (float) $data['rating'];
+        }
+        if (!empty($data['discountType'])) {
+            $payload['discountType'] = $data['discountType'];
+        }
+        if (isset($data['discountValue'])) {
+            $payload['discountValue'] = $data['discountValue'];
+        }
+        if (isset($data['originalPrice'])) {
+            $payload['originalPrice'] = $data['originalPrice'];
+        }
+        if (!empty($data['discountStartDate'])) {
+            $payload['discountStartDate'] = $data['discountStartDate'];
+        }
+        if (!empty($data['discountEndDate'])) {
+            $payload['discountEndDate'] = $data['discountEndDate'];
+        }
+
+        $productId = $this->productRepository->save(array_merge([
             'title' => $data['title'],
             'slug' => $slug,
             'description' => $data['description'],
             'price' => (int) $data['price'],
             'categoryId' => (int) $data['categoryId'],
-            'mainImage' => $path
-        ]);
+            'mainImage' => $path,
+            ...$payload
+        ]));
 
         // Insert variants
         foreach ($variants as $variant) {
+            $payload = [];
+            if (!empty($variant['discountType'])) {
+                $payload['discountType'] = $variant['discountType'];
+            }
+            if (isset($variant['discountValue'])) {
+                $payload['discountValue'] = $variant['discountValue'];
+            }
+            if (isset($variant['originalPrice'])) {
+                $payload['originalPrice'] = $variant['originalPrice'];
+            }
+            if (isset($variant['discountStartDate'])) {
+                $payload['discountStartDate'] = $variant['discountStartDate'];
+            }
+            if (isset($variant['discountEndDate'])) {
+                $payload['discountEndDate'] = $variant['discountEndDate'];
+            }
             $this->variantRepository->save([
                 'productId' => $productId,
                 'name' => $variant['name'],
                 'value' => $variant['value'],
                 'price' => (int) ($variant['price'] ?? 0),
+                ...$payload
             ]);
         }
 
@@ -534,8 +583,27 @@ class ProductController
             $updateData['price'] = (int) $data['price'];
         if (!empty($data['categoryId']))
             $updateData['categoryId'] = (int) $data['categoryId'];
+        if (!empty($data['manufacturer']))
+            $updateData['manufacturer'] = $data['manufacturer'];
+        if (!empty($data['slug']))
+            $updateData['slug'] = $data['slug'];
+        if (isset($data['inStock']))
+            $updateData['inStock'] = (int) $data['inStock'];
+        if (isset($data['rating']))
+            $updateData['rating'] = (float) $data['rating'];
+        if (!empty($data['discountType']))
+            $updateData['discountType'] = $data['discountType'];
+        if (isset($data['discountValue']))
+            $updateData['discountValue'] = $data['discountValue'];
+        if (isset($data['originalPrice']))
+            $updateData['originalPrice'] = $data['originalPrice'];
+        if (!empty($data['discountStartDate']))
+            $updateData['discountStartDate'] = $data['discountStartDate'];
+        if (!empty($data['discountEndDate']))
+            $updateData['discountEndDate'] = $data['discountEndDate'];
 
-        if (!empty($updateData)) {
+
+        if (!empty($updateData) && empty($updateData['slug'])) {
             if (isset($updateData['title'])) {
                 $updateData['slug'] = $this->generateUniqueSlug($updateData['title'], $productId);
             }
@@ -546,38 +614,55 @@ class ProductController
         if (is_array($variants)) {
             $this->variantRepository->deleteByProductId($productId);
             foreach ($variants as $variant) {
-                $this->variantRepository->save([
+                $payload = [];
+                if (!empty($variant['discountType'])) {
+                    $payload['discountType'] = $variant['discountType'];
+                }
+                if (isset($variant['discountValue'])) {
+                    $payload['discountValue'] = $variant['discountValue'];
+                }
+                if (isset($variant['originalPrice'])) {
+                    $payload['originalPrice'] = $variant['originalPrice'];
+                }
+                if (isset($variant['discountStartDate'])) {
+                    $payload['discountStartDate'] = $variant['discountStartDate'];
+                }
+                if (isset($variant['discountEndDate'])) {
+                    $payload['discountEndDate'] = $variant['discountEndDate'];
+                }
+                $this->variantRepository->save(array_merge([
                     'productId' => $productId,
                     'name' => $variant['name'] ?? '',
                     'value' => $variant['value'] ?? '',
                     'price' => (int) ($variant['price'] ?? 0),
-                ]);
+                    ...$payload
+                ]));
             }
         }
 
         // --- Media sync logic ---
         // 1. Get current media records
-            $currentMedias = $this->mediaRepository->findMediaByProductId($productId); // array of db rows
-            $mediaToKeep = [];
-            if (!empty($data['media']) && is_array($media)) {
-                $mediaToKeep = $media;// array of image paths or IDs to keep
-            }
+        $currentMedias = $this->mediaRepository->findMediaByProductId($productId); // array of db rows
+        $mediaToKeep = [];
+        if (!empty($data['media']) && is_array($media)) {
+            $mediaToKeep = $media;// array of image paths or IDs to keep
+        }
 
 
-            // 2. Delete media not in data['media']
-            foreach ($currentMedias as $media) {
-                // Use image path for comparison (adjust if you use IDs)
-                $imageIDsToKeep = array_column($mediaToKeep, 'imageID');
+        // 2. Delete media not in data['media']
+        foreach ($currentMedias as $media) {
+            // Use image path for comparison (adjust if you use IDs)
+            $imageIDsToKeep = array_column($mediaToKeep, 'imageID');
 
-                if (!in_array($media['imageID'], $imageIDsToKeep)) {
-                    $filePath = __DIR__ . '/../../../public/' . $media['image'];
-                    if (file_exists($filePath)) {
-                        unlink($filePath);
-                    }
-                    // Delete from DB
-                    $this->mediaRepository->delete($media['imageID']);
+            if (!in_array($media['imageID'], $imageIDsToKeep)) {
+                $filePath = __DIR__ . '/../../../public/' . $media['image'];
+                if (file_exists($filePath)) {
+                    unlink($filePath);
                 }
+                // Delete from DB
+                $this->mediaRepository->delete($media['imageID']);
             }
+        }
 
         // 3. Add new uploaded files (support multiple)
         $mediaFiles = [];

@@ -60,21 +60,25 @@ class BannerController
     public function getAllBanners(Request $request, Response $response): Response
     {
         try {
+
             // Extract branch_id from request (e.g., header, query param, or session)
+            $page = (int) ($request->getQueryParams()['page'] ?? 1);
+            $limit = (int) ($request->getQueryParams()['limit'] ?? 10);
+            $search = ($request->getQueryParams()['search'] ?? null);
 
-            $campaigns = $this->bannerRepository->getActiveCampaignsWithBannersAndMeta(1);
+            $campaigns = $this->bannerRepository->getAllBanners(1,$search,$limit,$page);
 
-            if (empty($campaigns)) {
-                $response->getBody()->write(json_encode([
-                    'success' => false,
-                    'message' => 'No active banner campaigns found for today'
-                ]));
-                return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
-            }
+            
 
             $response->getBody()->write(json_encode([
                 'success' => true,
-                'data' => $campaigns,
+                'data' => $campaigns['data'],
+                'pagination'=>[
+                    'limit' => $limit,
+                    'page' => $page,
+                    'total_pages' => ceil((int) $campaigns['total'] / $limit),
+                    'total' => $campaigns['total'],
+                ],
                 'message' => 'Active banner campaigns retrieved successfully'
             ]));
 
