@@ -75,11 +75,11 @@ class ProductController
         // or you can use it to route to specific methods based on the request
         $route = $request->getAttribute('route');
         $method = $route->getArgument('method', 'index');
-        
+
         if (method_exists($this, $method)) {
             return $this->$method($request, $response, $args);
         }
-        
+
         throw new \RuntimeException("Method {$method} not found");
     }
 
@@ -142,17 +142,17 @@ class ProductController
     public function getAll(Request $request, Response $response): Response
     {
         // Extract branch_id from request (e.g., header, query param, or session)
-        $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+        $branchId = $request->getHeaderLine('X-Branch-Id') ? (int) $request->getHeaderLine('X-Branch-Id') : null;
 
         // Get query params for pagination/sorting
         $queryParams = $request->getQueryParams();
-        $limit = isset($queryParams['limit']) ? (int)$queryParams['limit'] : 10;
-        $page = isset($queryParams['page']) ? (int)$queryParams['page'] : 1;
+        $limit = isset($queryParams['limit']) ? (int) $queryParams['limit'] : 10;
+        $page = isset($queryParams['page']) ? (int) $queryParams['page'] : 1;
         $orderBy = isset($queryParams['orderBy']) ? json_decode($queryParams['orderBy'], true) : null;
-        $search = isset($queryParams['search']) ? $queryParams['search']  : null;
+        $search = isset($queryParams['search']) ? $queryParams['search'] : null;
 
-        $products = $this->productRepository->getAllProducts($branchId , $search, $orderBy, $limit, $page);
-        $total = $this->productRepository->getAllProductsCount($branchId , $search, $orderBy);
+        $products = $this->productRepository->getAllProducts($branchId, $search, $orderBy, $limit, $page);
+        $total = $this->productRepository->getAllProductsCount($branchId, $search, $orderBy);
         $result = [];
         foreach ($products as $product) {
             $product['variants'] = $this->variantRepository->findByProduct((int) $product['id']);
@@ -167,16 +167,16 @@ class ProductController
             'success' => true,
             'data' => $result,
             'pagination' => [
-                'limit'=> $limit,
-                'page'=>$page,
-                'total'=> $total,
-                'total_pages' =>  ceil($total / $limit)
+                'limit' => $limit,
+                'page' => $page,
+                'total' => $total,
+                'total_pages' => ceil($total / $limit)
             ]
         ]));
-        
+
         return $response->withHeader('Content-Type', 'application/json');
     }
-    
+
     /**
      * Get product by ID
      * Includes variants and media
@@ -203,7 +203,7 @@ class ProductController
      *     )
      * )
      */
-     public function getProductById(Request $request, Response $response): Response
+    public function getProductById(Request $request, Response $response): Response
     {
 
         $productId = (int) $request->getQueryParams()['productId'] ?? null;
@@ -227,7 +227,7 @@ class ProductController
             'success' => true,
             'data' => $product
         ]));
-        
+
         return $response->withHeader('Content-Type', 'application/json');
     }
 
@@ -298,15 +298,15 @@ class ProductController
     {
         $categoryId = (int) $args['categoryId'];
         // Extract branch_id from request
-        $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+        $branchId = $request->getHeaderLine('X-Branch-Id') ? (int) $request->getHeaderLine('X-Branch-Id') : null;
 
         $products = $this->productRepository->findByCategory($categoryId, $branchId);
-        
+
         $response->getBody()->write(json_encode([
             'success' => true,
             'data' => $products
         ]));
-        
+
         return $response->withHeader('Content-Type', 'application/json');
     }
 
@@ -371,21 +371,21 @@ class ProductController
      *     )
      * )
      */
-    
+
     public function search(Request $request, Response $response): Response
     {
         $queryParams = $request->getQueryParams();
         $keyword = $queryParams['q'] ?? '';
         // Extract branch_id from request
-        $branchId = $request->getHeaderLine('X-Branch-Id') ? (int)$request->getHeaderLine('X-Branch-Id') : null;
+        $branchId = $request->getHeaderLine('X-Branch-Id') ? (int) $request->getHeaderLine('X-Branch-Id') : null;
 
         $products = $this->productRepository->search($keyword, $branchId);
-        
+
         $response->getBody()->write(json_encode([
             'success' => true,
             'data' => $products
         ]));
-        
+
         return $response->withHeader('Content-Type', 'application/json');
     }
 
@@ -408,22 +408,40 @@ class ProductController
         $variants = !empty($data['variants']) ? json_decode($data['variants'], true) : [];
 
         // Validate required fields
-        if (empty($data['title']) || empty($data['description']) || empty($data['price']) || empty($data['categoryId']) ||
-            !is_array($variants) || count($variants) < 1 || empty($files['media']) || $files['media']->getError() !== UPLOAD_ERR_OK) {
-            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Missing required fields or invalid data']));
+        $errors = [];
+        if (empty($data['title'])) {
+            $errors[] = 'Title is required.';
+        }
+        if (empty($data['description'])) {
+            $errors[] = 'Description is required.';
+        }
+        if (empty($data['price'])) {
+            $errors[] = 'Price is required.';
+        }
+        if (empty($data['categoryId'])) {
+            $errors[] = 'Category ID is required.';
+        }
+        if (!is_array($variants) || count($variants) < 1) {
+            $errors[] = 'At least one variant is required and must be a valid JSON array.';
+        }
+        if (empty($files['file']) || $files['file']->getError() !== UPLOAD_ERR_OK) {
+            $errors[] = 'Media file is required and must be a valid upload.';
+        }
+        if (!empty($errors)) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Missing or invalid data', 'details' => $errors]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
         // Validate media type (image or video)
-        $mime = $files['media']->getClientMediaType();
+        $mime = $files['file']->getClientMediaType();
         if (!str_starts_with($mime, 'image/') && !str_starts_with($mime, 'video/')) {
-            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid media type. Must be image or video']));
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid file type. Must be image or video']));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
         // Generate unique slug
         $slug = $this->generateUniqueSlug($data['title']);
-        $mediaFile = $files['media'];
+        $mediaFile = $files['file'];
         $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
         $filename = sprintf('%s.%s', uniqid(), $extension);
         $directory = __DIR__ . '/../../../public/media/products/';
@@ -437,9 +455,9 @@ class ProductController
             'title' => $data['title'],
             'slug' => $slug,
             'description' => $data['description'],
-            'price' => (int)$data['price'],
-            'categoryId' => (int)$data['categoryId'],
-            'mainImage'=>$path
+            'price' => (int) $data['price'],
+            'categoryId' => (int) $data['categoryId'],
+            'mainImage' => $path
         ]);
 
         // Insert variants
@@ -448,27 +466,27 @@ class ProductController
                 'productId' => $productId,
                 'name' => $variant['name'],
                 'value' => $variant['value'],
-                'price' => (int)($variant['price'] ?? 0),
+                'price' => (int) ($variant['price'] ?? 0),
             ]);
         }
 
         // Handle media upload
-        
+
 
         // Insert media
         $this->mediaRepository->save([
             'image' => $path,
             'productID' => $productId,
             'type' => 'product',
-            'mime_type'=> $mime,
+            'mime_type' => $mime,
         ]);
 
         // Return created product
-        $product = $this->productRepository->findById((int)$productId);
+        $product = $this->productRepository->findById((int) $productId);
         $product['variants'] = $this->variantRepository->findByProduct($productId);
         $product['media'] = $this->mediaRepository->findMediaByProductId($productId);
 
-        $response->getBody()->write(json_encode(['success' => true, 'data' => $product]));
+        $response->getBody()->write(json_encode(['success' => true, 'data' => $product, 'message' => 'Product created successfully']));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
     }
 
@@ -487,12 +505,14 @@ class ProductController
         $data = $request->getParsedBody();
         $files = $request->getUploadedFiles();
 
-        if (empty($data['productId'])) {
+        $queryParams = $request->getQueryParams();
+
+        if (!isset($queryParams['productId'])) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'productId is required']));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
         }
+        $productId = (int) $queryParams['productId'];
 
-        $productId = (int)$data['productId'];
 
         // Check if product exists
         if (!$this->productRepository->findById($productId)) {
@@ -502,13 +522,18 @@ class ProductController
 
         // Parse variants if provided
         $variants = !empty($data['variants']) ? json_decode($data['variants'], true) : null;
+        $media = !empty($data['media']) ? json_decode($data['media'], true) : null;
 
         // Update product fields if provided
         $updateData = [];
-        if (!empty($data['title'])) $updateData['title'] = $data['title'];
-        if (!empty($data['description'])) $updateData['description'] = $data['description'];
-        if (!empty($data['price'])) $updateData['price'] = (int)$data['price'];
-        if (!empty($data['categoryId'])) $updateData['categoryId'] = (int)$data['categoryId'];
+        if (!empty($data['title']))
+            $updateData['title'] = $data['title'];
+        if (!empty($data['description']))
+            $updateData['description'] = $data['description'];
+        if (!empty($data['price']))
+            $updateData['price'] = (int) $data['price'];
+        if (!empty($data['categoryId']))
+            $updateData['categoryId'] = (int) $data['categoryId'];
 
         if (!empty($updateData)) {
             if (isset($updateData['title'])) {
@@ -525,45 +550,72 @@ class ProductController
                     'productId' => $productId,
                     'name' => $variant['name'] ?? '',
                     'value' => $variant['value'] ?? '',
-                    'price' => (int)($variant['price'] ?? 0),
+                    'price' => (int) ($variant['price'] ?? 0),
                 ]);
             }
         }
 
-        // Update media if new file provided
-        if (!empty($files['media']) && $files['media']->getError() === UPLOAD_ERR_OK) {
-            $mime = $files['media']->getClientMediaType();
+        // --- Media sync logic ---
+        // 1. Get current media records
+        if ($media) {
+            $currentMedias = $this->mediaRepository->findMediaByProductId($productId); // array of db rows
+            $mediaToKeep = [];
+            if (!empty($data['media']) && is_array($media)) {
+                $mediaToKeep = $media;// array of image paths or IDs to keep
+            }
+
+
+            // 2. Delete media not in data['media']
+            foreach ($currentMedias as $media) {
+                // Use image path for comparison (adjust if you use IDs)
+                $imageIDsToKeep = array_column($mediaToKeep, 'imageID');
+
+                if (!in_array($media['imageID'], $imageIDsToKeep)) {
+                    $filePath = __DIR__ . '/../../../public/' . $media['image'];
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                    // Delete from DB
+                    $this->mediaRepository->delete($media['imageID']);
+                }
+            }
+        }
+
+        // 3. Add new uploaded files (support multiple)
+        $mediaFiles = [];
+        if (!empty($files['file'])) {
+            if (is_array($files['file'])) {
+                foreach ($files['file'] as $file) {
+                    if ($file && $file->getError() === UPLOAD_ERR_OK) {
+                        $mediaFiles[] = $file;
+                    }
+                }
+            } else {
+                if ($files['file']->getError() === UPLOAD_ERR_OK) {
+                    $mediaFiles[] = $files['file'];
+                }
+            }
+        }
+
+        $directory = __DIR__ . '/../../../public/media/products/';
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
+        foreach ($mediaFiles as $mediaFile) {
+            $mime = $mediaFile->getClientMediaType();
             if (!str_starts_with($mime, 'image/') && !str_starts_with($mime, 'video/')) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid media type. Must be image or video']));
                 return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
             }
-
-            // Delete old media
-            $oldMedias = $this->mediaRepository->findMediaByProductId($productId);
-            foreach ($oldMedias as $oldMedia) {
-                $filePath = __DIR__ . '/../../public/' . $oldMedia['image'];
-                if (file_exists($filePath)) {
-                    unlink($filePath);
-                }
-            }
-            $this->mediaRepository->deleteByProductId($productId);
-
-            // Upload new
-            $mediaFile = $files['media'];
             $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
             $filename = sprintf('%s.%s', uniqid(), $extension);
-            $directory = __DIR__ . '/../../../public/media/products/';
-            if (!is_dir($directory)) {
-                mkdir($directory, 0777, true);
-            }
             $mediaFile->moveTo($directory . $filename);
             $path = 'media/products/' . $filename;
-
             $this->mediaRepository->save([
                 'image' => $path,
                 'productID' => $productId,
                 'type' => 'product',
-                'mime_type'=> $mime,
+                'mime_type' => $mime,
             ]);
         }
 
@@ -617,7 +669,7 @@ class ProductController
         // Delete product
         $this->productRepository->delete($productId);
 
-        $response->getBody()->write(json_encode(['success' => true,"message"=>"Product deleted successfully"]));
+        $response->getBody()->write(json_encode(['success' => true, "message" => "Product deleted successfully"]));
         return $response->withHeader('Content-Type', 'application/json');
     }
 
