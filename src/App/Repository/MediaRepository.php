@@ -18,6 +18,11 @@ class MediaRepository extends BaseRepository
         $criteria = ['productID' => $productId, 'type' => 'product'];
         return $this->findBy($criteria);
     }
+    public function findMediaByCampaignId($productId): array
+    {
+        $criteria = ['campaign_id' => $productId, 'type' => 'banner'];
+        return $this->findBy($criteria);
+    }
 
     public function deleteByProductId(int $productId): int
     {

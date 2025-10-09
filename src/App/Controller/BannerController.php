@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Repository\BannerRepository;
+use App\Repository\MediaRepository;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
@@ -11,10 +12,12 @@ use Slim\Factory\AppFactory;
 class BannerController
 {
     private BannerRepository $bannerRepository;
+    private MediaRepository $mediaRepository;
 
     public function __construct(BannerRepository $bannerRepository)
     {
         $this->bannerRepository = $bannerRepository;
+        $this->mediaRepository = new MediaRepository();
     }
 
     /**
@@ -66,14 +69,14 @@ class BannerController
             $limit = (int) ($request->getQueryParams()['limit'] ?? 10);
             $search = ($request->getQueryParams()['search'] ?? null);
 
-            $campaigns = $this->bannerRepository->getAllBanners(1,$search,$limit,$page);
+            $campaigns = $this->bannerRepository->getAllBanners(1, $search, $limit, $page);
 
-            
+
 
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'data' => $campaigns['data'],
-                'pagination'=>[
+                'pagination' => [
                     'limit' => $limit,
                     'page' => $page,
                     'total_pages' => ceil((int) $campaigns['total'] / $limit),
@@ -148,6 +151,7 @@ class BannerController
 
             $data = json_decode($request->getBody()->getContents(), true);
             $user = $request->getAttribute('user');
+            $files = $request->getUploadedFiles();
 
             if (!$user) {
                 $response->getBody()->write(json_encode([
@@ -170,6 +174,20 @@ class BannerController
                 }
             }
 
+
+            if (!isset($files['file'])) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'File upload is required']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            }
+
+            // Validate file upload
+            $mime = $files['file']->getClientMediaType();
+            if (!str_starts_with($mime, 'image/') && !str_starts_with($mime, 'video/')) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid file type. Must be image or video']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            }
+
+
             // Create the campaign via repository
             $campaign = $this->bannerRepository->save([
                 'name' => $data['name'],
@@ -184,6 +202,7 @@ class BannerController
                 'updated_at' => date('Y-m-d H:i:s')
             ]);
 
+
             if (!$campaign) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -191,6 +210,22 @@ class BannerController
                 ]));
                 return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
             }
+
+            $mediaFile = $files['file'];
+            $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
+            $filename = sprintf('%s.%s', uniqid(), $extension);
+            $directory = __DIR__ . '/../../../public/media/banners/';
+            if (!is_dir($directory)) {
+                mkdir($directory, 0777, true);
+            }
+            $mediaFile->moveTo($directory . $filename);
+            $path = 'media/products/' . $filename;
+            $this->mediaRepository->save([
+                'image' => $path,
+                'productID' => $campaign['id'],
+                'type' => 'product',
+                'mime_type' => $mime,
+            ]);
 
             $response->getBody()->write(json_encode([
                 'success' => true,
@@ -215,7 +250,8 @@ class BannerController
         try {
             $data = json_decode($request->getBody()->getContents(), true);
             $user = $request->getAttribute('user');
-
+            $files = $request->getUploadedFiles();
+            $media = !empty($data['media']) ? json_decode($data['media'], true) : [];
             if (!$user) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
@@ -236,9 +272,9 @@ class BannerController
                     return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
                 }
             }
-            // check if compaign is exist 
-            $compaign = $this->bannerRepository->findOneBy(['id' => $data['id']]);
-            if (!$compaign) {
+            // check if campaign is exist 
+            $campaign = $this->bannerRepository->findOneBy(['id' => $data['id']]);
+            if (!$campaign) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
                     'message' => 'Banner campaign not found'
@@ -265,7 +301,6 @@ class BannerController
             // add updated_by and updated_at
             $updateData['updated_by'] = $user_id;
             $updateData['updated_at'] = date('Y-m-d H:i:s');
-
             $updateCampaign = $this->bannerRepository->update((int) $data['id'], $updateData);
             if (!$updateCampaign) {
                 $response->getBody()->write(json_encode([
@@ -274,8 +309,62 @@ class BannerController
                 ]));
                 return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
             }
-
-
+            $campaignId = (int) $campaign['id'];
+            // 1. Get current media records
+            $currentMedias = $this->mediaRepository->findMediaByCampaignId($campaignId); // array of db rows
+            $mediaToKeep = [];
+            if (!empty($data['media']) && is_array($media)) {
+                $mediaToKeep = $media;// array of image paths or IDs to keep
+            }
+            // 2. Delete media not in data['media']
+            foreach ($currentMedias as $media) {
+                // Use image path for comparison (adjust if you use IDs)
+                $imageIDsToKeep = array_column($mediaToKeep, 'imageID');
+                if (!in_array($media['imageID'], $imageIDsToKeep)) {
+                    $filePath = __DIR__ . '/../../../public/' . $media['image'];
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                    // Delete from DB
+                    $this->mediaRepository->delete($media['imageID']);
+                }
+            }
+            // 3. Add new uploaded files (support multiple)
+            $mediaFiles = [];
+            if (!empty($files['file'])) {
+                if (is_array($files['file'])) {
+                    foreach ($files['file'] as $file) {
+                        if ($file && $file->getError() === UPLOAD_ERR_OK) {
+                            $mediaFiles[] = $file;
+                        }
+                    }
+                } else {
+                    if ($files['file']->getError() === UPLOAD_ERR_OK) {
+                        $mediaFiles[] = $files['file'];
+                    }
+                }
+            }
+            $directory = __DIR__ . '/../../../public/media/banners/';
+            if (!is_dir($directory)) {
+                mkdir($directory, 0777, true);
+            }
+            foreach ($mediaFiles as $mediaFile) {
+                $mime = $mediaFile->getClientMediaType();
+                if (!str_starts_with($mime, 'image/') && !str_starts_with($mime, 'video/')) {
+                    $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid media type. Must be image or video']));
+                    return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+                }
+                $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
+                $filename = sprintf('%s.%s', uniqid(), $extension);
+                $mediaFile->moveTo($directory . $filename);
+                $path = 'media/products/' . $filename;
+                $this->mediaRepository->save([
+                    'image' => $path,
+                    'campaign_id' => $campaignId,
+                    'type' => 'banner',
+                    'mime_type' => $mime,
+                ]);
+            }
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'message' => 'Banner campaign updated successfully',
@@ -307,9 +396,9 @@ class BannerController
                     return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
                 }
             }
-            // check if compaign is exist 
-            $compaign = $this->bannerRepository->findOneBy(['id' => $data['id']]);
-            if (!$compaign) {
+            // check if campaign is exist 
+            $campaign = $this->bannerRepository->findOneBy(['id' => $data['id']]);
+            if (!$campaign) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
                     'message' => 'Banner campaign not found'
