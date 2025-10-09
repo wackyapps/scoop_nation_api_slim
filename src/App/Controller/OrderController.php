@@ -89,7 +89,6 @@ class OrderController
                 $order['items'] = $items;
                 // decode customer_address from json string
                 $order['customer_address'] = json_decode($order['customer_address'] ?? '{}', true);
-                var_dump($order['customer_address']);
                 $result[] = $order;
             }
             $response->getBody()->write(json_encode([
