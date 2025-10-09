@@ -149,7 +149,7 @@ class BannerController
     {
         try {
 
-            $data = json_decode($request->getBody()->getContents(), true);
+            $data = $request->getParsedBody();
             $user = $request->getAttribute('user');
             $files = $request->getUploadedFiles();
 
@@ -220,10 +220,11 @@ class BannerController
             }
             $mediaFile->moveTo($directory . $filename);
             $path = 'media/products/' . $filename;
+
             $this->mediaRepository->save([
                 'image' => $path,
-                'productID' => $campaign['id'],
-                'type' => 'product',
+                'campaign_id' => $campaign,
+                'type' => 'banner',
                 'mime_type' => $mime,
             ]);
 
@@ -248,7 +249,7 @@ class BannerController
     public function updateBannerCampaign(Request $request, Response $response): Response
     {
         try {
-            $data = json_decode($request->getBody()->getContents(), true);
+            $data = $request->getParsedBody();
             $user = $request->getAttribute('user');
             $files = $request->getUploadedFiles();
             $media = !empty($data['media']) ? json_decode($data['media'], true) : [];
