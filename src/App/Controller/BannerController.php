@@ -219,7 +219,7 @@ class BannerController
                 mkdir($directory, 0777, true);
             }
             $mediaFile->moveTo($directory . $filename);
-            $path = 'media/products/' . $filename;
+            $path = 'media/banners/' . $filename;
 
             $this->mediaRepository->save([
                 'image' => $path,
@@ -358,7 +358,7 @@ class BannerController
                 $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
                 $filename = sprintf('%s.%s', uniqid(), $extension);
                 $mediaFile->moveTo($directory . $filename);
-                $path = 'media/products/' . $filename;
+                $path = 'media/banners/' . $filename;
                 $this->mediaRepository->save([
                     'image' => $path,
                     'campaign_id' => $campaignId,
