@@ -32,7 +32,7 @@ class CustomerRepository extends BaseRepository
                 phone LIKE %s
             ORDER BY fullname
         ";
-        
+
         $searchTerm = "%{$query}%";
         return DB::query($sql, $searchTerm, $searchTerm, $searchTerm);
     }
@@ -72,7 +72,7 @@ class CustomerRepository extends BaseRepository
             INNER JOIN `user` u ON c.user_id = u.id 
             ORDER BY c.fullname
         ";
-        
+
         return DB::query($sql);
     }
 
@@ -98,7 +98,7 @@ class CustomerRepository extends BaseRepository
                 COUNT(DISTINCT city) as cities_count
             FROM `customer`
         ";
-        
+
         return DB::queryFirstRow($sql);
     }
 
@@ -117,7 +117,7 @@ class CustomerRepository extends BaseRepository
             GROUP BY c.id
             ORDER BY total_spent DESC, order_count DESC
         ";
-        
+
         return DB::query($sql);
     }
 
@@ -134,28 +134,30 @@ class CustomerRepository extends BaseRepository
     {
         // Build the base query with LEFT JOINs to include customers without orders
         $sql = "
-            SELECT 
-                c.id,
-                c.fullname,
-                u.email,
-                u.phone,
-                c.gender,
-                c.date_of_birth,
-                c.createdAt as customer_since,
-                u.role as user_role,
-                u.createdAt as user_created_at,
-                COUNT(DISTINCT o.id) as total_orders,
-                COALESCE(SUM(o.total), 0) as total_revenue,
-                MIN(o.dateTime) as first_ordered_at,
-                MAX(o.dateTime) as last_ordered_at,
-                CASE 
-                    WHEN u.id IS NOT NULL THEN 'Registered'
-                    ELSE 'Guest'
-                END as customer_type
-            FROM `customer` c
-            LEFT JOIN `user` u ON c.user_id = u.id
-            LEFT JOIN `order` o ON c.id = o.customer_id
-        ";
+        SELECT 
+            c.id,
+            c.fullname,
+            u.email,
+            u.phone,
+            c.gender,
+            c.date_of_birth,
+            c.createdAt as customer_since,
+            u.role as user_role,
+            u.createdAt as user_created_at,
+            COUNT(DISTINCT o.id) as total_orders,
+            COALESCE(SUM(o.total), 0) as total_revenue,
+            MIN(o.dateTime) as first_ordered_at,
+            MAX(o.dateTime) as last_ordered_at,
+            CASE 
+                WHEN u.id IS NOT NULL THEN 'Registered'
+                ELSE 'Guest'
+            END as customer_type,
+            COUNT(DISTINCT w.id) as total_favourites
+        FROM `customer` c
+        LEFT JOIN `user` u ON c.user_id = u.id
+        LEFT JOIN `order` o ON c.id = o.customer_id
+        LEFT JOIN `wishlist` w ON u.id = w.userId
+    ";
 
         $whereConditions = [];
         $params = [];
@@ -184,22 +186,22 @@ class CustomerRepository extends BaseRepository
 
         if (!empty($filters['min_orders'])) {
             $whereConditions[] = "COUNT(DISTINCT o.id) >= %i";
-            $params[] = (int)$filters['min_orders'];
+            $params[] = (int) $filters['min_orders'];
         }
 
         if (!empty($filters['max_orders'])) {
             $whereConditions[] = "COUNT(DISTINCT o.id) <= %i";
-            $params[] = (int)$filters['max_orders'];
+            $params[] = (int) $filters['max_orders'];
         }
 
         if (!empty($filters['min_revenue'])) {
-            $whereConditions[] = "COALESCE(SUM(o.total), 0) >= %i";
-            $params[] = (float)$filters['min_revenue'];
+            $whereConditions[] = "COALESCE(SUM(o.total), 0) >= %f";
+            $params[] = (float) $filters['min_revenue'];
         }
 
         if (!empty($filters['max_revenue'])) {
-            $whereConditions[] = "COALESCE(SUM(o.total), 0) <= %i";
-            $params[] = (float)$filters['max_revenue'];
+            $whereConditions[] = "COALESCE(SUM(o.total), 0) <= %f";
+            $params[] = (float) $filters['max_revenue'];
         }
 
         if (!empty($filters['date_from'])) {
@@ -226,17 +228,23 @@ class CustomerRepository extends BaseRepository
         }
 
         // Add GROUP BY
-        $sql .= " GROUP BY c.id";
+        $sql .= " GROUP BY c.id, c.fullname, u.email, u.phone, c.gender, c.date_of_birth, c.createdAt, u.role, u.createdAt";
 
         // Apply sorting
         $orderBy = [];
         if (!empty($sort['field'])) {
             $direction = strtoupper($sort['direction'] ?? 'ASC');
             $allowedFields = [
-                'fullname', 'email', 'phone', 'total_orders', 'total_revenue', 
-                'first_ordered_at', 'last_ordered_at', 'customer_since'
+                'fullname',
+                'email',
+                'phone',
+                'total_orders',
+                'total_revenue',
+                'first_ordered_at',
+                'last_ordered_at',
+                'customer_since'
             ];
-            
+
             if (in_array($sort['field'], $allowedFields)) {
                 $orderBy[] = "{$sort['field']} {$direction}";
             }
@@ -253,18 +261,17 @@ class CustomerRepository extends BaseRepository
         $offset = ($page - 1) * $perPage;
         $sql .= " LIMIT %i OFFSET %i";
 
-
-        $params2  = [...$params,$perPage, $offset];
+        $params2 = [...$params, $perPage, $offset];
         // Execute the main query
         $customers = DB::query($sql, ...$params2);
 
         // Get total count for pagination
         $countSql = "
-            SELECT COUNT(DISTINCT c.id) as total
-            FROM `customer` c
-            LEFT JOIN `user` u ON c.user_id = u.id
-            LEFT JOIN `order` o ON c.id = o.customer_id
-        ";
+        SELECT COUNT(DISTINCT c.id) as total
+        FROM `customer` c
+        LEFT JOIN `user` u ON c.user_id = u.id
+        LEFT JOIN `order` o ON c.id = o.customer_id
+    ";
 
         if (!empty($whereConditions)) {
             $countSql .= " WHERE " . implode(' AND ', $whereConditions);
@@ -289,25 +296,27 @@ class CustomerRepository extends BaseRepository
     public function getCustomerDetails(int $customerId): ?array
     {
         $sql = "
-            SELECT 
-                c.*,
-                u.email as user_email,
-                u.role as user_role,
-                u.phone_verified,
-                u.email_verified,
-                u.phone,
-                u.createdAt as user_created_at,
-                COUNT(DISTINCT o.id) as total_orders,
-                COALESCE(SUM(o.total), 0) as total_spent,
-                MIN(o.dateTime) as first_order_date,
-                MAX(o.dateTime) as last_order_date,
-                AVG(o.total) as average_order_value
-            FROM `customer` c
-            LEFT JOIN `user` u ON c.user_id = u.id
-            LEFT JOIN `order` o ON c.id = o.customer_id
-            WHERE c.id = %i
-            GROUP BY c.id
-        ";
+        SELECT 
+            c.*,
+            u.email as user_email,
+            u.role as user_role,
+            u.phone_verified,
+            u.email_verified,
+            u.phone,
+            u.createdAt as user_created_at,
+            COUNT(DISTINCT o.id) as total_orders,
+            COALESCE(SUM(o.total), 0) as total_spent,
+            MIN(o.dateTime) as first_order_date,
+            MAX(o.dateTime) as last_order_date,
+            AVG(o.total) as average_order_value,
+            COUNT(DISTINCT w.id) as total_favourites
+        FROM `customer` c
+        LEFT JOIN `user` u ON c.user_id = u.id
+        LEFT JOIN `order` o ON c.id = o.customer_id
+        LEFT JOIN `wishlist` w ON u.id = w.userId
+        WHERE c.id = %i
+        GROUP BY c.id, c.user_id, u.email, u.role, u.phone_verified, u.email_verified, u.phone, u.createdAt
+    ";
 
         $customer = DB::queryFirstRow($sql, $customerId);
 
@@ -317,37 +326,78 @@ class CustomerRepository extends BaseRepository
 
         // Get recent orders
         $recentOrdersSql = "
-            SELECT 
-                o.id,
-                o.order_number,
-                o.dateTime,
-                o.status,
-                o.total,
-                b.name as branch_name
-            FROM `order` o
-            LEFT JOIN `branch` b ON o.branch_id = b.id
-            WHERE o.customer_id = %i
-            ORDER BY o.dateTime DESC
-            LIMIT 10
-        ";
+        SELECT 
+            o.id,
+            o.order_number,
+            o.dateTime,
+            o.status,
+            o.total,
+            b.name as branch_name
+        FROM `order` o
+        LEFT JOIN `branch` b ON o.branch_id = b.id
+        WHERE o.customer_id = %i
+        ORDER BY o.dateTime DESC
+        LIMIT 10
+    ";
         $orderItemRepository = new OrderItemRepository();
-        $productReposity = new ProductRepository();
+        $productRepository = new ProductRepository();
 
         $recentOrders = DB::query($recentOrdersSql, $customerId);
         $orders = [];
-        foreach($recentOrders as $order ){
-            $items = $orderItemRepository->findByOrderId( (int) $order['id']);
+        foreach ($recentOrders as $order) {
+            $items = $orderItemRepository->findByOrderId((int) $order['id']);
             $orderItems = [];
-            foreach($items as $item){
-                    $item['product'] = $productReposity->findById( (int) $item['productId']);
-                    $item['variant'] = $productReposity->getProductVariantByVariantId( (int) $item['variantId']);
-                    $orderItems[] = $item;
+            foreach ($items as $item) {
+                $item['product'] = $productRepository->findById((int) $item['productId']);
+                $item['variant'] = $productRepository->getProductVariantByVariantId((int) $item['variantId']);
+                $orderItems[] = $item;
             }
             $order['items'] = $orderItems;
             $orders[] = $order;
         }
 
-        $customer['recent_orders']  = $orders;
+        $customer['recent_orders'] = $orders;
+
+        // Get favorite products with product details
+        $favoritesSql = "
+        SELECT 
+            p.id,
+            p.slug,
+            p.title,
+            p.mainImage,
+            p.price,
+            p.discountType,
+            p.discountValue,
+            p.originalPrice,
+            p.discountStartDate,
+            p.discountEndDate,
+            p.rating,
+            p.description,
+            p.manufacturer,
+            p.inStock,
+            p.categoryId
+        FROM `wishlist` w
+        LEFT JOIN `product` p ON w.productId = p.id
+        LEFT JOIN `user` u ON w.userId = u.id
+        LEFT JOIN `customer` c ON c.user_id = u.id
+        WHERE c.id = %i
+        ORDER BY w.id DESC
+        LIMIT 10
+    ";
+
+        $favoriteProducts = DB::query($favoritesSql, $customerId);
+        $favorites = [];
+        foreach ($favoriteProducts as $product) {
+            // Get variants for each favorite product
+          
+
+            $mediaRepository = new MediaRepository();
+            $product['variants'] = $productRepository->getProductVariantByProductId((int) $product['id']);
+            $product['media'] = $mediaRepository->findMediaByProductId((int) $product['id']);
+            $favorites[] = $product;
+        }
+
+        $customer['favourites'] = $favorites;
 
         return $customer;
     }
