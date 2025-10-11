@@ -109,6 +109,7 @@ require __DIR__ . '/../src/App/Routes/session.routes.php';
 require __DIR__ . '/../src/App/Routes/branch.routes.php';
 require __DIR__ . '/../src/App/Routes/contact.routes.php';
 require __DIR__ . '/../src/App/Routes/order.routes.php';
+require __DIR__ . '/../src/App/Routes/company.routes.php';
 
 
 // Run the application
