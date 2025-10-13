@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use App\Controller\BannerController;
+use App\Services\EmailService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
