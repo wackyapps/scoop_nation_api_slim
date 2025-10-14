@@ -16,6 +16,7 @@ use App\Repository\SessionRepository;
 use App\Services\EmailService;
 use App\Services\OtpService;
 use App\Services\Authentication\JWT;
+use DB;
 
 class UserController
 {
@@ -90,12 +91,22 @@ class UserController
     /**
      * Get a single user by ID with customer profile
      * 
-     * @Route GET /api/users/{id}
+     * @Route GET /api/users/by-id?id={id}
      */
-    public function getUserById(Request $request, Response $response, array $args): Response
+    public function getUserById(Request $request, Response $response): Response
     {
         try {
-            $userId = (int) $args['id'];
+            $queryParams = $request->getQueryParams();
+            
+            if (!isset($queryParams['id']) || empty($queryParams['id'])) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'User ID is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+            
+            $userId = (int) $queryParams['id'];
 
             $user = $this->userRepository->findUserWithCustomerProfile($userId);
 
@@ -126,12 +137,22 @@ class UserController
     /**
      * Get user by email with customer profile
      * 
-     * @Route GET /api/users/email/{email}
+     * @Route GET /api/users/email?email={email}
      */
-    public function getUserByEmail(Request $request, Response $response, array $args): Response
+    public function getUserByEmail(Request $request, Response $response): Response
     {
         try {
-            $email = urldecode($args['email']);
+            $queryParams = $request->getQueryParams();
+            
+            if (!isset($queryParams['email']) || empty($queryParams['email'])) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Email is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+            
+            $email = urldecode($queryParams['email']);
 
             $user = $this->userRepository->findByEmailWithProfile($email);
 
@@ -162,15 +183,23 @@ class UserController
     /**
      * Get users by role
      * 
-     * @Route GET /api/users/role/{role}
+     * @Route GET /api/users/role?role={role}
      */
-    public function getUsersByRole(Request $request, Response $response, array $args): Response
+    public function getUsersByRole(Request $request, Response $response): Response
     {
         try {
-            $role = $args['role'];
-
-            // Get optional query parameters
+            // Get query parameters
             $queryParams = $request->getQueryParams();
+            
+            if (!isset($queryParams['role']) || empty($queryParams['role'])) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Role is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+            
+            $role = $queryParams['role'];
             $orderBy = isset($queryParams['sort']) ? [$queryParams['sort'] => $queryParams['order'] ?? 'ASC'] : null;
             $limit = isset($queryParams['limit']) ? (int) $queryParams['limit'] : null;
             $offset = isset($queryParams['offset']) ? (int) $queryParams['offset'] : null;
@@ -222,6 +251,62 @@ class UserController
     }
 
     /**
+     * Link customer to user account
+     * 
+     * @Route POST /api/users/link-customer?id={id}&customerId={customerId}
+     */
+    public function linkCustomerToUser(Request $request, Response $response): Response
+    {
+        try {
+            $queryParams = $request->getQueryParams();
+            
+            // Validate required parameters
+            if (!isset($queryParams['id']) || empty($queryParams['id'])) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'User ID is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+            
+            if (!isset($queryParams['customerId']) || empty($queryParams['customerId'])) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Customer ID is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+            
+            $userId = (int) $queryParams['id'];
+            $customerId = (int) $queryParams['customerId'];
+
+            // Link customer to user
+            $success = $this->userRepository->linkCustomerToUser($userId, $customerId);
+
+            if (!$success) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Failed to link customer to user'
+                ]));
+                return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+            }
+
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'message' => 'Customer linked to user successfully'
+            ]));
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (\Exception $e) {
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'Failed to link customer: ' . $e->getMessage()
+            ]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+    /**
      * Register a new customer user
      * 
      * @Route POST /api/users/register-customer
@@ -265,7 +350,19 @@ class UserController
 
             $userId = $this->userRepository->registerCustomerUser($userData, $customerData);
 
-            $response->getBody()->write(json_encode(['success' => true, 'message' => 'Customer user registered successfully', 'user_id' => $userId]));
+            // Generate and send verification email
+            $token = $this->userRepository->generateEmailVerificationToken((int)$userId);
+            $this->emailService->sendEmailVerification(
+                $data['email'],
+                $token,
+                $customerData['fullname']
+            );
+
+            $response->getBody()->write(json_encode([
+                'success' => true, 
+                'message' => 'Registration successful. Please check your email to verify your account.',
+                'user_id' => $userId
+            ]));
             return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
 
         } catch (\Exception $e) {
@@ -301,6 +398,18 @@ class UserController
             if (isset($user["success"]) && $user["success"] == false) {
                 $response->getBody()->write(json_encode($user));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
+            /**
+             * Check if email is verified
+             */
+            if (!$user['email_verified']) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Please verify your email address before logging in',
+                    'code' => 'EMAIL_NOT_VERIFIED'
+                ]));
+                return $response->withStatus(403)->withHeader('Content-Type', 'application/json');
             }
 
             // Generate token (assuming you have a method for this)
@@ -358,6 +467,18 @@ class UserController
                 $response->getBody()->write(json_encode(['success' => $user["success"], 'error' => $user["error"]]));
                 // $response->getBody()->write(json_encode($user));
                 return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
+            /**
+             * Check if email is verified
+             */
+            if (!$user['email_verified']) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Please verify your email address before logging in',
+                    'code' => 'EMAIL_NOT_VERIFIED'
+                ]));
+                return $response->withStatus(403)->withHeader('Content-Type', 'application/json');
             }
 
             /**
@@ -461,22 +582,55 @@ class UserController
             if (!isset($data['email']) || empty($data['email'])) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Email is required']));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
-
             }
 
-            $success = $this->userRepository->forgotUserPassword($data['email']);
+            // Generate password reset token
+            $result = $this->userRepository->generatePasswordResetToken($data['email']);
 
-            if (!$success) {
-                $response->getBody()->write(json_encode(['success' => false, 'error' => 'User not found']));
-                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
-
+            // Handle rate limiting errors
+            if (!$result['success'] && isset($result['error']) && $result['error'] === 'RATE_LIMIT_EXCEEDED') {
+                $response->getBody()->write(json_encode([
+                    'success' => false, 
+                    'error' => 'Too many password reset requests. Please try again later.',
+                    'code' => 'RATE_LIMIT_EXCEEDED'
+                ]));
+                return $response->withStatus(429)->withHeader('Content-Type', 'application/json');
             }
 
-            $response->getBody()->write(json_encode(['success' => true, 'message' => 'OTP sent to your email']));
+            // If token was generated successfully, send the email
+            if ($result['success'] && $result['token']) {
+                // Get user details for email
+                $user = $this->userRepository->findByEmail($data['email']);
+                
+                if ($user) {
+                    // Get user name from customer profile or use email
+                    $userName = $user['email'];
+                    if (isset($user['customer_fullname'])) {
+                        $userName = $user['customer_fullname'];
+                    }
+                    
+                    // Send password reset email
+                    $this->emailService->sendPasswordResetRequest(
+                        $data['email'],
+                        $result['token'],
+                        $userName
+                    );
+                }
+            }
+
+            // Always return generic success message to prevent email enumeration
+            $response->getBody()->write(json_encode([
+                'success' => true, 
+                'message' => 'If an account exists with this email, you will receive password reset instructions.'
+            ]));
             return $response->withStatus(200)->withHeader('Content-Type', 'application/json');
 
         } catch (\Exception $e) {
-            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to process request: ' . $e->getMessage()]));
+            error_log("Error in forgotUserPassword: " . $e->getMessage());
+            $response->getBody()->write(json_encode([
+                'success' => false, 
+                'error' => 'Failed to process request'
+            ]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
     }
@@ -794,6 +948,249 @@ class UserController
             return $response->withHeader('Content-Type', 'application/json');
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to get orders: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+    /**
+     * Verify email address
+     * 
+     * @Route GET /api/users/verify-email
+     */
+    public function verifyEmail(Request $request, Response $response): Response
+    {
+        try {
+            $queryParams = $request->getQueryParams();
+            $token = $queryParams['token'] ?? null;
+
+            if (!$token) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Verification token is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            $result = $this->userRepository->verifyEmailWithToken($token);
+
+            if (!$result) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Invalid or expired verification token',
+                    'code' => 'TOKEN_INVALID'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'message' => 'Email verified successfully'
+            ]));
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (\Exception $e) {
+            error_log("Error in verifyEmail: " . $e->getMessage());
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'An error occurred processing your request'
+            ]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+    /**
+     * Resend verification email
+     * 
+     * @Route POST /api/users/resend-verification
+     */
+    public function resendVerificationEmail(Request $request, Response $response): Response
+    {
+        try {
+            $data = $request->getParsedBody();
+            $email = $data['email'] ?? null;
+
+            if (!$email) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Email is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Check if user exists first
+            $user = $this->userRepository->findByEmail($email);
+            
+            if (!$user) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'User not found',
+                    'code' => 'USER_NOT_FOUND'
+                ]));
+                return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Check if already verified
+            if ($user['email_verified'] == 1) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Email address is already verified',
+                    'code' => 'ALREADY_VERIFIED'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            $result = $this->userRepository->resendVerificationEmail($email);
+
+            if (!$result) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Failed to send verification email'
+                ]));
+                return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+            }
+
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'message' => 'Verification email sent successfully'
+            ]));
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (\Exception $e) {
+            error_log("Error in resendVerificationEmail: " . $e->getMessage());
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'An error occurred processing your request'
+            ]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+    /**
+     * Reset password with token
+     * 
+     * @Route POST /api/users/reset-password
+     */
+    public function resetPassword(Request $request, Response $response): Response
+    {
+        try {
+            $data = $request->getParsedBody();
+            $token = $data['token'] ?? null;
+            $newPassword = $data['password'] ?? null;
+
+            if (!$token || !$newPassword) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Token and password are required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Validate password length before attempting reset
+            if (strlen($newPassword) < 8) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Password must be at least 8 characters',
+                    'code' => 'WEAK_PASSWORD'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Validate token and get user data before resetting
+            $user = $this->userRepository->validatePasswordResetToken($token);
+
+            if (!$user) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Invalid or expired reset token',
+                    'code' => 'TOKEN_INVALID'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Reset the password
+            $result = $this->userRepository->resetPasswordWithToken($token, $newPassword);
+
+            if (!$result) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Failed to reset password'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Get user name for confirmation email
+            $userName = $user['email'];
+            $sql = "SELECT c.fullname FROM " . TABLE_CUSTOMER . " c WHERE c.user_id = %i";
+            $customer = DB::queryFirstRow($sql, $user['id']);
+            if ($customer && !empty($customer['fullname'])) {
+                $userName = $customer['fullname'];
+            }
+
+            // Send confirmation email
+            $this->emailService->sendPasswordResetConfirmation(
+                $user['email'],
+                $userName
+            );
+
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'message' => 'Password reset successfully'
+            ]));
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (\Exception $e) {
+            error_log("Error in resetPassword: " . $e->getMessage());
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'An error occurred processing your request'
+            ]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+    /**
+     * Validate reset token
+     * 
+     * @Route GET /api/users/validate-reset-token
+     */
+    public function validateResetToken(Request $request, Response $response): Response
+    {
+        try {
+            $queryParams = $request->getQueryParams();
+            $token = $queryParams['token'] ?? null;
+
+            if (!$token) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'error' => 'Token is required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            $user = $this->userRepository->validatePasswordResetToken($token);
+
+            if (!$user) {
+                $response->getBody()->write(json_encode([
+                    'success' => false,
+                    'valid' => false,
+                    'message' => 'Invalid or expired token'
+                ]));
+                return $response->withHeader('Content-Type', 'application/json');
+            }
+
+            $response->getBody()->write(json_encode([
+                'success' => true,
+                'valid' => true,
+                'message' => 'Token is valid'
+            ]));
+            return $response->withHeader('Content-Type', 'application/json');
+
+        } catch (\Exception $e) {
+            error_log("Error in validateResetToken: " . $e->getMessage());
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'An error occurred processing your request'
+            ]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
     }

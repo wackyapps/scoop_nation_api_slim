@@ -37,6 +37,12 @@ define('BCC_EMAIL', 'usmanzaidi@gmail.com');
 define('BCC_NAME', 'Zaidis Photographers');
 define('IMAGE_SERVER_BASE_PATH', 'https://idiaz.zaidis.com.pk');
 
+/**
+ * URL Configuration
+ */
+define('FRONTEND_URL', 'https://scoopnation.pk');
+define('API_BASE_URL', 'https://api.scoopnation.pk');
+
 
 /**
  * JWT Configuration

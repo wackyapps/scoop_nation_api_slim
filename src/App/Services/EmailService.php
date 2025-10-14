@@ -145,4 +145,78 @@ class EmailService
             return false;
         }
     }
+
+    /**
+     * Send email verification email
+     * 
+     * @param string $email Recipient email
+     * @param string $token Verification token
+     * @param string $userName User's name
+     * @return bool Success status
+     */
+    public function sendEmailVerification(string $email, string $token, string $userName): bool
+    {
+        $verificationUrl = API_BASE_URL . '/api/users/verify-email?token=' . $token;
+        
+        $data = [
+            'name' => $userName,
+            'verification_url' => $verificationUrl,
+            'expiry_hours' => '24'
+        ];
+
+        return $this->sendEmail(
+            $email,
+            'Verify Your Email Address',
+            'email_verification',
+            $data
+        );
+    }
+
+    /**
+     * Send password reset request email
+     * 
+     * @param string $email Recipient email
+     * @param string $token Reset token
+     * @param string $userName User's name
+     * @return bool Success status
+     */
+    public function sendPasswordResetRequest(string $email, string $token, string $userName): bool
+    {
+        $resetUrl = FRONTEND_URL . '/reset-password?token=' . $token;
+        
+        $data = [
+            'name' => $userName,
+            'reset_url' => $resetUrl,
+            'expiry_minutes' => '60'
+        ];
+
+        return $this->sendEmail(
+            $email,
+            'Password Reset Request',
+            'password_reset_request',
+            $data
+        );
+    }
+
+    /**
+     * Send password reset confirmation email
+     * 
+     * @param string $email Recipient email
+     * @param string $userName User's name
+     * @return bool Success status
+     */
+    public function sendPasswordResetConfirmation(string $email, string $userName): bool
+    {
+        $data = [
+            'name' => $userName,
+            'reset_date' => date('F j, Y, g:i a')
+        ];
+
+        return $this->sendEmail(
+            $email,
+            'Password Reset Confirmation',
+            'password_reset_confirmation',
+            $data
+        );
+    }
 }

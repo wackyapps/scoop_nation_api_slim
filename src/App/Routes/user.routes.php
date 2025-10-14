@@ -23,13 +23,13 @@ $app->get('/api/users/guests', function ($request, $response) use ($app) {
 
 /**
  * @OA\Get(
- *     path="/api/users/email/{email}",
+ *     path="/api/users/email",
  *     summary="Get user by email",
  *     description="Retrieves a user by email.",
  *     tags={"Users"},
  *     @OA\Parameter(
  *         name="email",
- *         in="path",
+ *         in="query",
  *         required=true,
  *         description="Email of the user to retrieve.",
  *         @OA\Schema(type="string")
@@ -41,20 +41,20 @@ $app->get('/api/users/guests', function ($request, $response) use ($app) {
  *     security={{"bearerAuth": {}}}
  * )
  */
-$app->get('/api/users/email/{email}', function ($request, $response, $args) use ($app) {
+$app->get('/api/users/email', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->getUserByEmail($request, $response, $args);
+    return $controller->getUserByEmail($request, $response);
 });
 
 /**
  * @OA\Get(
- *     path="/api/users/role/{role}",
+ *     path="/api/users/role",
  *     summary="Get users by role",
  *     description="Retrieves users by their role.",
  *     tags={"Users"},
  *     @OA\Parameter(
  *         name="role",
- *         in="path",
+ *         in="query",
  *         required=true,
  *         description="User role.",
  *         @OA\Schema(type="string")
@@ -66,9 +66,9 @@ $app->get('/api/users/email/{email}', function ($request, $response, $args) use 
  *     security={{"bearerAuth": {}}}
  * )
  */
-$app->get('/api/users/role/{role}', function ($request, $response, $args) use ($app) {
+$app->get('/api/users/role', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->getUsersByRole($request, $response, $args);
+    return $controller->getUsersByRole($request, $response);
 });
 
 /**
@@ -93,13 +93,13 @@ $app->get('/api/users', function ($request, $response) use ($app) {
 
 /**
  * @OA\Get(
- *     path="/api/users/{id}",
+ *     path="/api/users/by-id",
  *     summary="Get user by ID",
  *     description="Get user by ID with profile.",
  *     tags={"Users"},
  *     @OA\Parameter(
  *         name="id",
- *         in="path",
+ *         in="query",
  *         required=true,
  *         description="User ID.",
  *         @OA\Schema(type="integer")
@@ -112,9 +112,9 @@ $app->get('/api/users', function ($request, $response) use ($app) {
  * )
  */
 
-$app->get('/api/users/{id}', function ($request, $response, $args) use ($app) {
+$app->get('/api/users/by-id', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->getUserById($request, $response, $args);
+    return $controller->getUserById($request, $response);
 });
 
 /**
@@ -144,20 +144,20 @@ $app->post('/api/users', function ($request, $response) use ($app) {
 
 /**
  * @OA\Post(
- *     path="/api/users/{id}/link-customer/{customerId}",
+ *     path="/api/users/link-customer",
  *     summary="Link customer to user account",
  *     description="Link a customer to a user account.",
  *     tags={"Users"},
  *     @OA\Parameter(
  *         name="id",
- *         in="path",
+ *         in="query",
  *         required=true,
  *         description="User ID.",
  *         @OA\Schema(type="integer")
  *     ),
  *     @OA\Parameter(
  *         name="customerId",
- *         in="path",
+ *         in="query",
  *         required=true,
  *         description="Customer ID.",
  *         @OA\Schema(type="integer")
@@ -170,9 +170,9 @@ $app->post('/api/users', function ($request, $response) use ($app) {
  * )
  */
 
-$app->post('/api/users/{id}/link-customer/{customerId}', function ($request, $response, $args) use ($app) {
+$app->post('/api/users/link-customer', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->linkCustomerToUser($request, $response, $args);
+    return $controller->linkCustomerToUser($request, $response);
 });
 
 
@@ -282,6 +282,219 @@ $app->post('/api/users/register-with-role', function ($request, $response) use (
 $app->post('/api/users/forgot-password', function ($request, $response) use ($app) {
     $controller = $app->getContainer()->get(App\Controller\UserController::class);
     return $controller->forgotUserPassword($request, $response);
+});
+
+/**
+ * @OA\Get(
+ *     path="/api/users/verify-email",
+ *     summary="Verify email address",
+ *     description="Verify a user's email address using the verification token sent via email.",
+ *     tags={"Users"},
+ *     @OA\Parameter(
+ *         name="token",
+ *         in="query",
+ *         required=true,
+ *         description="Email verification token",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Email verified successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="Email verified successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid or expired token",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=false),
+ *             @OA\Property(property="error", type="string", example="Invalid or expired verification token"),
+ *             @OA\Property(property="code", type="string", example="TOKEN_INVALID")
+ *         )
+ *     )
+ * )
+ */
+$app->get('/api/users/verify-email', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->verifyEmail($request, $response);
+});
+
+/**
+ * @OA\Post(
+ *     path="/api/users/resend-verification",
+ *     summary="Resend verification email",
+ *     description="Resend the email verification link to a user who hasn't verified their email yet.",
+ *     tags={"Users"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             required={"email"},
+ *             @OA\Property(
+ *                 property="email",
+ *                 type="string",
+ *                 format="email",
+ *                 description="User's email address",
+ *                 example="user@example.com"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Verification email sent successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="Verification email sent successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Email already verified or user not found",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=false),
+ *             @OA\Property(property="error", type="string", example="Email is already verified"),
+ *             @OA\Property(property="code", type="string", example="ALREADY_VERIFIED")
+ *         )
+ *     )
+ * )
+ */
+$app->post('/api/users/resend-verification', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->resendVerificationEmail($request, $response);
+});
+
+/**
+ * @OA\Post(
+ *     path="/api/users/reset-password",
+ *     summary="Reset password with token",
+ *     description="Reset a user's password using the reset token sent via email.",
+ *     tags={"Users"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             required={"token", "password"},
+ *             @OA\Property(
+ *                 property="token",
+ *                 type="string",
+ *                 description="Password reset token from email",
+ *                 example="a1b2c3d4e5f6..."
+ *             ),
+ *             @OA\Property(
+ *                 property="password",
+ *                 type="string",
+ *                 format="password",
+ *                 description="New password (minimum 8 characters)",
+ *                 example="newSecurePassword123"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Password reset successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="Password reset successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid token or weak password",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=false),
+ *             @OA\Property(property="error", type="string", example="Invalid or expired reset token"),
+ *             @OA\Property(property="code", type="string", example="TOKEN_INVALID")
+ *         )
+ *     )
+ * )
+ */
+$app->post('/api/users/reset-password', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->resetPassword($request, $response);
+});
+
+/**
+ * @OA\Post(
+ *     path="/api/users/resend-password-reset",
+ *     summary="Resend password reset email",
+ *     description="Resend the password reset link to a user who requested a password reset but didn't receive the email or the email expired.",
+ *     tags={"Users"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             type="object",
+ *             required={"email"},
+ *             @OA\Property(
+ *                 property="email",
+ *                 type="string",
+ *                 format="email",
+ *                 description="User's email address",
+ *                 example="user@example.com"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Password reset email sent successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="If an account exists with this email, you will receive password reset instructions.")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Validation error",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="s
+
+/**
+ * @OA\Get(
+ *     path="/api/users/validate-reset-token",
+ *     summary="Validate password reset token",
+ *     description="Check if a password reset token is valid and not expired. Used by frontend to determine if the reset form should be displayed.",
+ *     tags={"Users"},
+ *     @OA\Parameter(
+ *         name="token",
+ *         in="query",
+ *         required=true,
+ *         description="Password reset token to validate",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Token validation result",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=true),
+ *             @OA\Property(property="valid", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string", example="Token is valid")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid or expired token",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=false),
+ *             @OA\Property(property="valid", type="boolean", example=false),
+ *             @OA\Property(property="error", type="string", example="Invalid or expired token")
+ *         )
+ *     )
+ * )
+ */
+$app->get('/api/users/validate-reset-token', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->validateResetToken($request, $response);
 });
 
 $app->get('/api/users/addresses/get', function ($request, $response) use ($app) {
@@ -420,23 +633,18 @@ $app->get('/api/users/favorites/get', function ($request, $response) use ($app) 
 });
 /**
  * @OA\Post(
- *     path="/api/users/{userId}/favorites/add/{productId}",
+ *     path="/api/users/favorites/add",
  *     summary="Add product to favorite",
  *     description="Add a product to a user's favorites.",
  *     tags={"Users"},
- *     @OA\Parameter(
- *         name="userId",
- *         in="path",
+ *     @OA\RequestBody(
  *         required=true,
- *         description="User ID.",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Parameter(
- *         name="productId",
- *         in="path",
- *         required=true,
- *         description="Product ID.",
- *         @OA\Schema(type="integer")
+ *         @OA\JsonContent(
+ *             type="object",
+ *             required={"userId", "productId"},
+ *             @OA\Property(property="userId", type="integer", description="User ID"),
+ *             @OA\Property(property="productId", type="integer", description="Product ID")
+ *         )
  *     ),
  *     @OA\Response(
  *         response=200,
@@ -451,24 +659,19 @@ $app->post('/api/users/favorites/add', function ($request, $response) use ($app)
 });
 
 /**
- * @OA\Delete(
- *     path="/api/users/{userId}/favorites/remove/{productId}",
+ * @OA\Post(
+ *     path="/api/users/favorites/remove",
  *     summary="Remove product from favorite",
  *     description="Remove a product from a user's favorites.",
  *     tags={"Users"},
- *     @OA\Parameter(
- *         name="userId",
- *         in="path",
+ *     @OA\RequestBody(
  *         required=true,
- *         description="User ID.",
- *         @OA\Schema(type="integer")
- *     ),
- *     @OA\Parameter(
- *         name="productId",
- *         in="path",
- *         required=true,
- *         description="Product ID.",
- *         @OA\Schema(type="integer")
+ *         @OA\JsonContent(
+ *             type="object",
+ *             required={"userId", "productId"},
+ *             @OA\Property(property="userId", type="integer", description="User ID"),
+ *             @OA\Property(property="productId", type="integer", description="Product ID")
+ *         )
  *     ),
  *     @OA\Response(
  *         response=200,
@@ -484,17 +687,10 @@ $app->post('/api/users/favorites/remove', function ($request, $response) use ($a
 
 /**
  * @OA\Put(
- *     path="/api/users/{id}/profile",
+ *     path="/api/users/profile",
  *     summary="Save profile",
  *     description="Save a user's profile.",
  *     tags={"Users"},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="User ID.",
- *         @OA\Schema(type="integer")
- *     ),
  *     @OA\RequestBody(
  *         required=true,
  *         @OA\JsonContent(

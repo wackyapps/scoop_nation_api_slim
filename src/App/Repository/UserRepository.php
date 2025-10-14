@@ -275,4 +275,270 @@ class UserRepository extends BaseRepository
         $customerRepository = new CustomerRepository();
         return $customerRepository->update($customerId, ['user_id' => $userId]);
     }
+
+    /**
+     * Generate and store email verification token
+     * 
+     * @param int $userId
+     * @return string Plain token (to be sent in email)
+     */
+    public function generateEmailVerificationToken(int $userId): string
+    {
+        // Generate secure 64-character token
+        $plainToken = bin2hex(random_bytes(32));
+        
+        // Hash token before storing
+        $hashedToken = password_hash($plainToken, PASSWORD_DEFAULT);
+        
+        // Set expiration to 24 hours from now
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
+        
+        // Update user record with hashed token and expiration
+        $this->update($userId, [
+            'email_verification_token' => $hashedToken,
+            'email_verification_expires_at' => $expiresAt
+        ]);
+        
+        // Return plain token for email
+        return $plainToken;
+    }
+
+    /**
+     * Verify email using token
+     * 
+     * @param string $token Plain token from email link
+     * @return bool Success status
+     */
+    public function verifyEmailWithToken(string $token): bool
+    {
+        // Find all users to check token match
+        $sql = "SELECT * FROM " . TABLE_USER . " WHERE email_verification_token IS NOT NULL";
+        $users = DB::query($sql);
+        
+        $matchedUser = null;
+        foreach ($users as $user) {
+            if (password_verify($token, $user['email_verification_token'])) {
+                $matchedUser = $user;
+                break;
+            }
+        }
+        
+        if (!$matchedUser) {
+            return false;
+        }
+        
+        // Check if token is expired
+        if ($this->isVerificationTokenExpired((int) $matchedUser['id'])) {
+            return false;
+        }
+        
+        // Update email_verified to 1 and clear verification token fields
+        $this->update($matchedUser['id'], [
+            'email_verified' => 1,
+            'email_verification_token' => null,
+            'email_verification_expires_at' => null
+        ]);
+        
+        return true;
+    }
+
+    /**
+     * Check if verification token is expired
+     * 
+     * @param int $userId
+     * @return bool True if expired
+     */
+    public function isVerificationTokenExpired(int $userId): bool
+    {
+        $user = $this->find($userId);
+        
+        if (!$user || !$user['email_verification_expires_at']) {
+            return true;
+        }
+        
+        $expiresAt = strtotime($user['email_verification_expires_at']);
+        $now = time();
+        
+        return $now > $expiresAt;
+    }
+
+    /**
+     * Resend verification email
+     * 
+     * @param string $email
+     * @return bool Success status
+     */
+    public function resendVerificationEmail(string $email): bool
+    {
+        // Find user by email
+        $user = $this->findByEmail($email);
+        
+        if (!$user) {
+            return false;
+        }
+        
+        // Check if email is already verified
+        if ($user['email_verified'] == 1) {
+            return false;
+        }
+        
+        // Generate new verification token (this also invalidates existing token)
+        $token = $this->generateEmailVerificationToken((int)$user['id']);
+        
+        // Get user name for email
+        $userName = $user['email'];
+        $sql = "SELECT c.fullname FROM " . TABLE_CUSTOMER . " c WHERE c.user_id = %i";
+        $customer = DB::queryFirstRow($sql, $user['id']);
+        if ($customer && !empty($customer['fullname'])) {
+            $userName = $customer['fullname'];
+        }
+        
+        // Send verification email via EmailService
+        $emailService = new EmailService();
+        return $emailService->sendEmailVerification($email, $token, $userName);
+    }
+
+    /**
+     * Generate and store password reset token
+     * 
+     * @param string $email
+     * @return array ['success' => bool, 'token' => string|null]
+     */
+    public function generatePasswordResetToken(string $email): array
+    {
+        // Find user by email
+        $user = $this->findByEmail($email);
+        
+        if (!$user) {
+            // Return success even if user not found (prevent email enumeration)
+            return ['success' => true, 'token' => null];
+        }
+        
+        // Check rate limit (max 3 requests per hour)
+        if (!$this->checkResetRateLimit($email)) {
+            return ['success' => false, 'token' => null, 'error' => 'RATE_LIMIT_EXCEEDED'];
+        }
+        
+        // Generate secure 64-character token
+        $plainToken = bin2hex(random_bytes(32));
+        
+        // Hash token before storing
+        $hashedToken = password_hash($plainToken, PASSWORD_DEFAULT);
+        
+        // Set expiration to 1 hour from now
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
+        
+        // Update user record with hashed token and expiration
+        $this->update($user['id'], [
+            'password_reset_token' => $hashedToken,
+            'password_reset_expires_at' => $expiresAt
+        ]);
+        
+        // Return array with success status and plain token
+        return ['success' => true, 'token' => $plainToken];
+    }
+
+    /**
+     * Validate password reset token
+     * 
+     * @param string $token Plain token from email link
+     * @return array|null User data if valid, null otherwise
+     */
+    public function validatePasswordResetToken(string $token): ?array
+    {
+        // Find all users to check token match
+        $sql = "SELECT * FROM " . TABLE_USER . " WHERE password_reset_token IS NOT NULL";
+        $users = DB::query($sql);
+        
+        $matchedUser = null;
+        foreach ($users as $user) {
+            if (password_verify($token, $user['password_reset_token'])) {
+                $matchedUser = $user;
+                break;
+            }
+        }
+        
+        if (!$matchedUser) {
+            return null;
+        }
+        
+        // Check if token is expired
+        if ($this->isResetTokenExpired($matchedUser['id'])) {
+            return null;
+        }
+        
+        // Return user data if valid
+        return $matchedUser;
+    }
+
+    /**
+     * Reset password using token
+     * 
+     * @param string $token
+     * @param string $newPassword
+     * @return bool Success status
+     */
+    public function resetPasswordWithToken(string $token, string $newPassword): bool
+    {
+        // Validate token
+        $user = $this->validatePasswordResetToken($token);
+        
+        if (!$user) {
+            return false;
+        }
+        
+        // Validate new password meets requirements (min 8 characters)
+        if (strlen($newPassword) < 8) {
+            return false;
+        }
+        
+        // Hash new password
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        
+        // Update user password and clear password reset token fields
+        $this->update($user['id'], [
+            'password' => $hashedPassword,
+            'password_reset_token' => null,
+            'password_reset_expires_at' => null
+        ]);
+        
+        return true;
+    }
+
+    /**
+     * Check if reset token is expired
+     * 
+     * @param int $userId
+     * @return bool True if expired
+     */
+    public function isResetTokenExpired(int $userId): bool
+    {
+        $user = $this->find($userId);
+        
+        if (!$user || !$user['password_reset_expires_at']) {
+            return true;
+        }
+        
+        $expiresAt = strtotime($user['password_reset_expires_at']);
+        $now = time();
+        
+        return $now > $expiresAt;
+    }
+
+    /**
+     * Check reset rate limit (max 3 requests per hour)
+     * 
+     * @param string $email
+     * @return bool True if within limit
+     */
+    private function checkResetRateLimit(string $email): bool
+    {
+        $sql = "SELECT COUNT(*) as count 
+                FROM " . TABLE_USER . " 
+                WHERE email = %s 
+                AND password_reset_expires_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)";
+        
+        $result = DB::queryFirstRow($sql, $email);
+        return $result['count'] < 3;
+    }
 }
