@@ -783,8 +783,8 @@ class UserController
     {
         try {
             $queryParams = $request->getQueryParams();
-            $page = isset($queryParams['page']) ? max(1, (int) $queryParams['page']) : 1;
-            $perPage = isset($queryParams['per_page']) ? max(1, min(100, (int) $queryParams['per_page'])) : 10;
+            $page = max(1, (int)($queryParams['page'] ?? 1));
+            $perPage = min(100, max(1, (int)($queryParams['limit'] ?? 10)));
             $userId = (int) $request->getAttribute('user')['id'];
             $wishlistRepository = new WishlistRepository();
             $favoritesResponse  = $wishlistRepository->getAllFavorites($userId,$page,$perPage);
@@ -934,8 +934,8 @@ class UserController
         try {
             $userId = (int) $request->getAttribute('user')['id'];
             $queryParams = $request->getQueryParams();
-            $page = isset($queryParams['page']) ? max(1, (int) $queryParams['page']) : 1;
-            $perPage = isset($queryParams['per_page']) ? max(1, min(100, (int) $queryParams['per_page'])) : 10;
+            $page = max(1, (int)($queryParams['page'] ?? 1));
+            $perPage = min(100, max(1, (int)($queryParams['limit'] ?? 10)));
             $customer = $this->customerRepository->findCustomerByUserId($userId);
             if (!$customer) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Customer not found']));
