@@ -75,12 +75,26 @@ class OrderRepository extends BaseRepository
         return DB::affectedRows() > 0;
     }
 
-    public function findByCustomerId(int $customer_id): array
+    public function findByCustomerId(int $customer_id,int $page,int $perPage): array
     {
-        $criteria = ['customer_id' => $customer_id];
-        $query = "SELECT * FROM `order` WHERE customer_id = %i";
-        $params = [$customer_id];
-        return $this->executeQuery($query, $params);
+        $offset = ($page - 1) * $perPage;
+        $query = "SELECT o.*, c.fullname FROM `order` o INNER JOIN customer c ON o.customer_id = c.id WHERE o.customer_id = %i LIMIT %i OFFSET %i";
+        $countQuery = "SELECT COUNT(*) as total FROM `order` WHERE customer_id = %i";
+
+        $params = [$customer_id, $perPage, $offset];
+        $countParams = [$customer_id];
+        $orders = DB::query($query, ...$params);
+        $total = DB::queryFirstRow($countQuery, ...$countParams);
+        
+        $totalCount = $total['total'] ?? 0;
+        
+        return [
+            'orders' => $orders,
+            'total' => $totalCount,
+            'per_page' => $perPage,
+            'total_pages' => ceil($totalCount / $perPage),
+            'page' => $page
+        ];
     }
 
     public function findByStatus(string $status, array $orderBy = null, $limit = null, $offset = null): array

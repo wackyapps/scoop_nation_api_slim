@@ -919,14 +919,19 @@ class UserController
     {
         try {
             $userId = (int) $request->getAttribute('user')['id'];
-            
+            $queryParams = $request->getQueryParams();
+            $page = isset($queryParams['page']) ? max(1, (int) $queryParams['page']) : 1;
+            $perPage = isset($queryParams['per_page']) ? max(1, min(100, (int) $queryParams['per_page'])) : 10;
             $customer = $this->customerRepository->findCustomerByUserId($userId);
             if (!$customer) {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Customer not found']));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
             $customerId = (int) $customer['id'];
-            $orders = $this->orderRepository->findByCustomerId($customerId);
+            $orderResponse = $this->orderRepository->findByCustomerId($customerId, $page, $perPage);
+            $orders = $orderResponse['orders'];
+            $total = $orderResponse['total'];
+            $totalPages = $orderResponse['total_pages'];
             $result = [];
 
             foreach ($orders as $order) {
@@ -944,7 +949,15 @@ class UserController
                 $order['customer_address'] = json_decode($order['customer_address'] ?? '{}', true);
                 $result[] = $order;
             }
-            $response->getBody()->write(json_encode(['success' => true, 'data' => $result]));
+            $response->getBody()->write(json_encode(['success' => true, 'data' => [
+                "orders"=>$result,
+                'pagination'=>[
+                    'total'=> $total,
+                    'page'=> $page,
+                    'limit'=> $perPage,
+                    'total_pages'=> $totalPages
+                ]
+            ]]));
             return $response->withHeader('Content-Type', 'application/json');
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to get orders: ' . $e->getMessage()]));
