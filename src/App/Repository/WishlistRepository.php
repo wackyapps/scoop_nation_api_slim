@@ -7,16 +7,33 @@ use DB;
 
 class WishlistRepository extends BaseRepository
 {
-    protected $table = 'wishlist';
+    protected $table = TABLE_WISHLIST;
     protected $primaryKey = 'id';
 
 
     /**
      * Get all favorites for a user
      */
-    public function getAllFavorites(int $userId): array
+    public function getAllFavorites(int $userId ,int $page,int $perPage): array
     {
-        return $this->findBy(['userId' => $userId]);
+        $offset = ($page - 1) * $perPage;
+        
+        $query = "SELECT * FROM {$this->table}  WHERE userId = %i LIMIT %i OFFSET %i";
+        $countQuery = "SELECT COUNT(*) as total FROM {$this->table} WHERE userId = %i";
+
+        $params = [$userId, $perPage, $offset];
+        $countParams = [$userId];
+        $items = DB::query($query, ...$params);
+        $total = DB::queryFirstRow($countQuery, ...$countParams);
+        
+        $totalCount = $total['total'] ?? 0;
+        return [
+            'data' => $items,
+            'total' => $totalCount,
+            'per_page' => $perPage,
+            'total_pages' => ceil($totalCount / $perPage),
+            'page' => $page
+        ];
     }
 
     /**

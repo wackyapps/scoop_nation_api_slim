@@ -782,11 +782,17 @@ class UserController
     public function getFavorites(Request $request, Response $response): Response
     {
         try {
+            $queryParams = $request->getQueryParams();
+            $page = isset($queryParams['page']) ? max(1, (int) $queryParams['page']) : 1;
+            $perPage = isset($queryParams['per_page']) ? max(1, min(100, (int) $queryParams['per_page'])) : 10;
             $userId = (int) $request->getAttribute('user')['id'];
             $wishlistRepository = new WishlistRepository();
-            $favorites = $wishlistRepository->getAllFavorites($userId);
+            $favoritesResponse  = $wishlistRepository->getAllFavorites($userId,$page,$perPage);
+            $favorites = $favoritesResponse['data'];
+            $total = $favoritesResponse['total'];
+            $totalPages = $favoritesResponse['total_pages'];
             $productRepository = new ProductRepository();
-
+            
             $result = [];
 
             foreach ($favorites as $favorite) {
@@ -801,7 +807,15 @@ class UserController
                 ];
             }
 
-            $response->getBody()->write(json_encode(['success' => true, 'data' => $result]));
+            $response->getBody()->write(json_encode(['success' => true, 'data' => [
+                "favorites"=>$result,
+                'pagination'=>[
+                    'total'=> $total,
+                    'page'=> $page,
+                    'limit'=> $perPage,
+                    'total_pages'=> $totalPages
+                ]
+            ]]));
             return $response->withHeader('Content-Type', 'application/json');
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to get favorites: ' . $e->getMessage()]));
