@@ -156,7 +156,7 @@ class EmailService
      */
     public function sendEmailVerification(string $email, string $token, string $userName): bool
     {
-        $verificationUrl = API_BASE_URL . '/api/users/verify-email?token=' . $token;
+        $verificationUrl = FRONTEND_URL . '?verify-email-token=' . $token;
         
         $data = [
             'name' => $userName,
@@ -182,7 +182,7 @@ class EmailService
      */
     public function sendPasswordResetRequest(string $email, string $token, string $userName): bool
     {
-        $resetUrl = FRONTEND_URL . '/reset-password?token=' . $token;
+        $resetUrl = FRONTEND_URL . '?reset-password-token=' . $token;
         
         $data = [
             'name' => $userName,
