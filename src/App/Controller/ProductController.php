@@ -502,6 +502,9 @@ class ProductController
             if (isset($variant['discountValue'])) {
                 $payload['discountValue'] = $variant['discountValue'];
             }
+            if (isset($variant['inStock'])) {
+                $payload['inStock'] = (int) $variant['inStock'];
+            }
             if (isset($variant['originalPrice'])) {
                 $payload['originalPrice'] = $variant['originalPrice'];
             }
@@ -625,6 +628,9 @@ class ProductController
                     }
                     if (isset($variant['originalPrice'])) {
                         $payload['originalPrice'] = $variant['originalPrice'];
+                    }
+                    if (isset($variant['inStock'])) {
+                        $payload['inStock'] = (int) $variant['inStock'];
                     }
                     if (isset($variant['discountStartDate'])) {
                         $payload['discountStartDate'] = $variant['discountStartDate'];
