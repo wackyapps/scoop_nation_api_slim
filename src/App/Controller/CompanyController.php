@@ -75,36 +75,163 @@ public function updateCompany(Request $request, Response $response): Response
 
         // Handle logo upload if present
         if (!empty($mediaFiles)) {
-            $directory = __DIR__ . '/../../../public/media/company/';
-            if (!is_dir($directory)) {
-                mkdir($directory, 0777, true);
-            }
+            try {
+                // Check if GD library is available
+                if (!extension_loaded('gd')) {
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'error' => 'GD library is not installed. Please enable GD extension in php.ini'
+                    ]));
+                    return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+                }
 
-            $mediaFile = $mediaFiles[0];
-            $mime = $mediaFile->getClientMediaType();
+                $directory = __DIR__ . '/../../../public/media/company/';
+                if (!is_dir($directory)) {
+                    mkdir($directory, 0777, true);
+                }
 
-            // Validate media type
-            if (!str_starts_with($mime, 'image/')) {
+                $mediaFile = $mediaFiles[0];
+                $mime = $mediaFile->getClientMediaType();
+
+                // Validate media type
+                if (!str_starts_with($mime, 'image/')) {
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'error' => 'Invalid media type. Must be image. Received: ' . $mime
+                    ]));
+                    return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+                }
+
+                // Delete existing logo if it exists
+                if (!empty($company['logo'])) {
+                    $existingLogoPath = __DIR__ . '/../../../public/' . $company['logo'];
+                    if (file_exists($existingLogoPath)) {
+                        unlink($existingLogoPath);
+                    }
+                }
+
+                // Move uploaded file to temporary location
+                $tempFilename = uniqid() . '_temp_' . $mediaFile->getClientFilename();
+                $tempPath = $directory . $tempFilename;
+                $mediaFile->moveTo($tempPath);
+
+                if (!file_exists($tempPath)) {
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'error' => 'Failed to upload file to temporary location'
+                    ]));
+                    return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+                }
+
+                // Convert image to PNG
+                $image = null;
+                $extension = strtolower(pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION));
+                
+                // Suppress warnings and capture errors
+                error_reporting(E_ALL);
+                
+                // Create image resource based on file type
+                try {
+                    switch ($extension) {
+                        case 'jpg':
+                        case 'jpeg':
+                            $image = @imagecreatefromjpeg($tempPath);
+                            break;
+                        case 'png':
+                            $image = @imagecreatefrompng($tempPath);
+                            break;
+                        case 'gif':
+                            $image = @imagecreatefromgif($tempPath);
+                            break;
+                        case 'webp':
+                            if (function_exists('imagecreatefromwebp')) {
+                                $image = @imagecreatefromwebp($tempPath);
+                            }
+                            break;
+                        case 'bmp':
+                            if (function_exists('imagecreatefrombmp')) {
+                                $image = @imagecreatefrombmp($tempPath);
+                            }
+                            break;
+                        default:
+                            // Try to detect from MIME type if extension fails
+                            if (strpos($mime, 'jpeg') !== false) {
+                                $image = @imagecreatefromjpeg($tempPath);
+                            } elseif (strpos($mime, 'png') !== false) {
+                                $image = @imagecreatefrompng($tempPath);
+                            } elseif (strpos($mime, 'gif') !== false) {
+                                $image = @imagecreatefromgif($tempPath);
+                            } elseif (strpos($mime, 'webp') !== false && function_exists('imagecreatefromwebp')) {
+                                $image = @imagecreatefromwebp($tempPath);
+                            } elseif (strpos($mime, 'bmp') !== false && function_exists('imagecreatefrombmp')) {
+                                $image = @imagecreatefrombmp($tempPath);
+                            }
+                    }
+                } catch (\Exception $imgEx) {
+                    if (file_exists($tempPath)) {
+                        unlink($tempPath);
+                    }
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'error' => 'Failed to read image: ' . $imgEx->getMessage()
+                    ]));
+                    return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+                }
+
+                if (!$image) {
+                    // Clean up temp file
+                    if (file_exists($tempPath)) {
+                        unlink($tempPath);
+                    }
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'error' => 'Failed to process image. Format: ' . $extension . ', MIME: ' . $mime . '. Make sure the file is a valid image.'
+                    ]));
+                    return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+                }
+
+                // Save as PNG with filename logo.png
+                $filename = 'logo.png';
+                $finalPath = $directory . $filename;
+                
+                // Enable alpha blending and save alpha channel
+                imagealphablending($image, false);
+                imagesavealpha($image, true);
+                
+                // Save as PNG
+                $saveResult = @imagepng($image, $finalPath, 9);
+                
+                if (!$saveResult) {
+                    imagedestroy($image);
+                    if (file_exists($tempPath)) {
+                        unlink($tempPath);
+                    }
+                    $response->getBody()->write(json_encode([
+                        'success' => false,
+                        'error' => 'Failed to save PNG image. Check directory permissions.'
+                    ]));
+                    return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+                }
+
+                // Clean up
+                imagedestroy($image);
+                if (file_exists($tempPath)) {
+                    unlink($tempPath);
+                }
+
+                $updateData['logo'] = 'media/company/' . $filename;
+                
+            } catch (\Exception $fileEx) {
+                // Clean up temp file if it exists
+                if (isset($tempPath) && file_exists($tempPath)) {
+                    unlink($tempPath);
+                }
                 $response->getBody()->write(json_encode([
                     'success' => false,
-                    'error' => 'Invalid media type. Must be image'
+                    'error' => 'Image processing error: ' . $fileEx->getMessage()
                 ]));
-                return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
             }
-
-            // Delete existing logo if it exists
-            if (!empty($company['logo'])) {
-                $existingLogoPath = __DIR__ . '/../../../public/' . $company['logo'];
-                if (file_exists($existingLogoPath)) {
-                    unlink($existingLogoPath);
-                }
-            }
-
-            // Generate unique filename and move file
-            $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
-            $filename = sprintf('%s.%s', uniqid(), $extension);
-            $mediaFile->moveTo($directory . $filename);
-            $updateData['logo'] = 'media/company/' . $filename;
         }
 
         // Update company in repository
