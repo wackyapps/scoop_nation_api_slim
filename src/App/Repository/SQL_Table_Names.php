@@ -52,3 +52,6 @@ define("TABLE_ROLES", "roles");
 define("TABLE_USER_ROLES", "user_roles");
 define("TABLE_SPACE", "space"); // Included from original example
 define("TABLE_USERS_LOGINS", "user_logins"); // Included from original example
+
+// Email Subscriptions
+define("TABLE_EMAIL_SUBSCRIPTIONS", "email_subscriptions");

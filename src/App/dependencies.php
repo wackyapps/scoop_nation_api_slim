@@ -13,11 +13,13 @@ use App\Repository\VariantRepository;
 use App\Repository\BundleRepository;
 use App\Repository\PromoCodeRepository;
 use App\Repository\CustomerRepository;
+use App\Repository\EmailSubscriptionRepository;
 use App\Controller\CategoryController; // ADD THIS LINE
 use App\Controller\ProductController;
 use App\Controller\BundleController;
 use App\Controller\CustomerController;
 use App\Controller\UserController;
+use App\Controller\EmailSubscriptionController;
 use Psr\Container\ContainerInterface;
 use DI\Container;
 
@@ -71,6 +73,10 @@ return [
         return new CustomerRepository();
     },
 
+    EmailSubscriptionRepository::class => function (Container $container) {
+        return new EmailSubscriptionRepository();
+    },
+
     // Controller dependencies
     CategoryController::class => function (Container $container) { // ADD THIS ENTRY
         $categoryRepository = $container->get(CategoryRepository::class);
@@ -95,6 +101,11 @@ return [
     UserController::class => function (Container $container) {
         $userRepository = $container->get(UserRepository::class);
         return new UserController($userRepository);
+    },
+
+    EmailSubscriptionController::class => function (Container $container) {
+        $subscriptionRepository = $container->get(EmailSubscriptionRepository::class);
+        return new EmailSubscriptionController($subscriptionRepository);
     },
 
     // Aliases

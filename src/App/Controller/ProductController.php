@@ -461,6 +461,9 @@ class ProductController
         if (!empty($slug)) {
             $payload['slug'] = $slug;
         }
+        if (isset($data['priority'])) {
+            $payload['priority'] = (int) $data['priority'];
+        }
         if (isset($data['inStock'])) {
             $payload['inStock'] = (int) $data['inStock'];
         }
@@ -586,6 +589,8 @@ class ProductController
                 $updateData['description'] = $data['description'];
             if (!empty($data['price']))
                 $updateData['price'] = (int) $data['price'];
+            if (!empty($data['priority']))
+                $updateData['priority'] = (int) $data['priority'];
             if (!empty($data['categoryId']))
                 $updateData['categoryId'] = (int) $data['categoryId'];
             if (!empty($data['manufacturer']))
