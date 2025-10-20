@@ -19,6 +19,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Repository\ProductRepository;
 use App\Repository\VariantRepository;
 use App\Repository\MediaRepository;
+use Exception;
 
 /**
  * ProductController - Handles HTTP requests for product operations
@@ -551,164 +552,170 @@ class ProductController
      */
     public function update(Request $request, Response $response, ): Response
     {
-        $data = $request->getParsedBody();
-        $files = $request->getUploadedFiles();
+        try {
+            $data = $request->getParsedBody();
+            $files = $request->getUploadedFiles();
 
-        $queryParams = $request->getQueryParams();
+            $queryParams = $request->getQueryParams();
 
-        if (!isset($queryParams['productId'])) {
-            $response->getBody()->write(json_encode(['success' => false, 'error' => 'productId is required']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
-        }
-        $productId = (int) $queryParams['productId'];
-
-
-        // Check if product exists
-        if (!$this->productRepository->findById($productId)) {
-            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Product not found']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
-        }
-
-        // Parse variants if provided
-        $variants = !empty($data['variants']) ? json_decode($data['variants'], true) : null;
-        $media = !empty($data['media']) ? json_decode($data['media'], true) : [];
-
-        // Update product fields if provided
-        $updateData = [];
-        if (!empty($data['title']))
-            $updateData['title'] = $data['title'];
-        if (!empty($data['description']))
-            $updateData['description'] = $data['description'];
-        if (!empty($data['price']))
-            $updateData['price'] = (int) $data['price'];
-        if (!empty($data['categoryId']))
-            $updateData['categoryId'] = (int) $data['categoryId'];
-        if (!empty($data['manufacturer']))
-            $updateData['manufacturer'] = $data['manufacturer'];
-        if (!empty($data['slug']))
-            $updateData['slug'] = $data['slug'];
-        if (isset($data['inStock']))
-            $updateData['inStock'] = (int) $data['inStock'];
-        if (isset($data['rating']))
-            $updateData['rating'] = (float) $data['rating'];
-        if (!empty($data['discountType']))
-            $updateData['discountType'] = $data['discountType'];
-        if (isset($data['discountValue']))
-            $updateData['discountValue'] = $data['discountValue'];
-        if (isset($data['originalPrice']))
-            $updateData['originalPrice'] = $data['originalPrice'];
-        if (!empty($data['discountStartDate']))
-            $updateData['discountStartDate'] = $data['discountStartDate'];
-        if (!empty($data['discountEndDate']))
-            $updateData['discountEndDate'] = $data['discountEndDate'];
-
-
-        if (!empty($updateData) && empty($updateData['slug'])) {
-            if (isset($updateData['title'])) {
-                $updateData['slug'] = $this->generateUniqueSlug($updateData['title'], $productId);
+            if (!isset($queryParams['productId'])) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'productId is required']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
             }
-            $this->productRepository->update($productId, $updateData);
-        }
+            $productId = (int) $queryParams['productId'];
 
-        // Update variants if provided (replace all)
-        if (is_array($variants)) {
-            $this->variantRepository->deleteByProductId($productId);
-            foreach ($variants as $variant) {
-                $payload = [];
-                if (!empty($variant['discountType'])) {
-                    $payload['discountType'] = $variant['discountType'];
-                }
-                if (isset($variant['discountValue'])) {
-                    $payload['discountValue'] = $variant['discountValue'];
-                }
-                if (isset($variant['originalPrice'])) {
-                    $payload['originalPrice'] = $variant['originalPrice'];
-                }
-                if (isset($variant['discountStartDate'])) {
-                    $payload['discountStartDate'] = $variant['discountStartDate'];
-                }
-                if (isset($variant['discountEndDate'])) {
-                    $payload['discountEndDate'] = $variant['discountEndDate'];
-                }
-                $this->variantRepository->save(array_merge([
-                    'productId' => $productId,
-                    'name' => $variant['name'] ?? '',
-                    'value' => $variant['value'] ?? '',
-                    'price' => (int) ($variant['price'] ?? 0),
-                    ...$payload
-                ]));
+
+            // Check if product exists
+            if (!$this->productRepository->findById($productId)) {
+                $response->getBody()->write(json_encode(['success' => false, 'error' => 'Product not found']));
+                return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
             }
-        }
 
-        // --- Media sync logic ---
-        // 1. Get current media records
-        $currentMedias = $this->mediaRepository->findMediaByProductId($productId); // array of db rows
-        $mediaToKeep = [];
-        if (!empty($data['media']) && is_array($media)) {
-            $mediaToKeep = $media;// array of image paths or IDs to keep
-        }
+            // Parse variants if provided
+            $variants = !empty($data['variants']) ? json_decode($data['variants'], true) : null;
+            $media = !empty($data['media']) ? json_decode($data['media'], true) : [];
+
+            // Update product fields if provided
+            $updateData = [];
+            if (!empty($data['title']))
+                $updateData['title'] = $data['title'];
+            if (!empty($data['description']))
+                $updateData['description'] = $data['description'];
+            if (!empty($data['price']))
+                $updateData['price'] = (int) $data['price'];
+            if (!empty($data['categoryId']))
+                $updateData['categoryId'] = (int) $data['categoryId'];
+            if (!empty($data['manufacturer']))
+                $updateData['manufacturer'] = $data['manufacturer'];
+            if (!empty($data['slug']))
+                $updateData['slug'] = $data['slug'];
+            if (isset($data['inStock']))
+                $updateData['inStock'] = (int) $data['inStock'];
+            if (isset($data['rating']))
+                $updateData['rating'] = (float) $data['rating'];
+            if (!empty($data['discountType']))
+                $updateData['discountType'] = $data['discountType'];
+            if (isset($data['discountValue']))
+                $updateData['discountValue'] = $data['discountValue'];
+            if (isset($data['originalPrice']))
+                $updateData['originalPrice'] = $data['originalPrice'];
+            if (!empty($data['discountStartDate']))
+                $updateData['discountStartDate'] = $data['discountStartDate'];
+            if (!empty($data['discountEndDate']))
+                $updateData['discountEndDate'] = $data['discountEndDate'];
 
 
-        // 2. Delete media not in data['media']
-        foreach ($currentMedias as $media) {
-            // Use image path for comparison (adjust if you use IDs)
-            $imageIDsToKeep = array_column($mediaToKeep, 'imageID');
-
-            if (!in_array($media['imageID'], $imageIDsToKeep)) {
-                $filePath = __DIR__ . '/../../../public/' . $media['image'];
-                if (file_exists($filePath)) {
-                    unlink($filePath);
+            if (!empty($updateData)) {
+                if (!isset($updateData['slug'])) {
+                    $updateData['slug'] = $this->generateUniqueSlug($updateData['title'], $productId);
                 }
-                // Delete from DB
-                $this->mediaRepository->delete($media['imageID']);
+                $this->productRepository->update($productId, $updateData);
             }
-        }
 
-        // 3. Add new uploaded files (support multiple)
-        $mediaFiles = [];
-        if (!empty($files['file'])) {
-            if (is_array($files['file'])) {
-                foreach ($files['file'] as $file) {
-                    if ($file && $file->getError() === UPLOAD_ERR_OK) {
-                        $mediaFiles[] = $file;
+            // Update variants if provided (replace all)
+            if (is_array($variants)) {
+                $this->variantRepository->deleteByProductId($productId);
+                foreach ($variants as $variant) {
+                    $payload = [];
+                    if (!empty($variant['discountType'])) {
+                        $payload['discountType'] = $variant['discountType'];
+                    }
+                    if (isset($variant['discountValue'])) {
+                        $payload['discountValue'] = $variant['discountValue'];
+                    }
+                    if (isset($variant['originalPrice'])) {
+                        $payload['originalPrice'] = $variant['originalPrice'];
+                    }
+                    if (isset($variant['discountStartDate'])) {
+                        $payload['discountStartDate'] = $variant['discountStartDate'];
+                    }
+                    if (isset($variant['discountEndDate'])) {
+                        $payload['discountEndDate'] = $variant['discountEndDate'];
+                    }
+
+                    $this->variantRepository->save(array_merge([
+                        'productId' => $productId,
+                        'name' => $variant['name'] ?? '',
+                        'value' => $variant['value'] ?? '',
+                        'price' => (int) ($variant['price'] ?? 0),
+                        ...$payload
+                    ]));
+                }
+            }
+
+            // --- Media sync logic ---
+            // 1. Get current media records
+            $currentMedias = $this->mediaRepository->findMediaByProductId($productId); // array of db rows
+            $mediaToKeep = [];
+            if (!empty($data['media']) && is_array($media)) {
+                $mediaToKeep = $media;// array of image paths or IDs to keep
+            }
+
+
+            // 2. Delete media not in data['media']
+            foreach ($currentMedias as $media) {
+                // Use image path for comparison (adjust if you use IDs)
+                $imageIDsToKeep = array_column($mediaToKeep, 'imageID');
+
+                if (!in_array($media['imageID'], $imageIDsToKeep)) {
+                    $filePath = __DIR__ . '/../../../public/' . $media['image'];
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                    // Delete from DB
+                    $this->mediaRepository->delete($media['imageID']);
+                }
+            }
+
+            // 3. Add new uploaded files (support multiple)
+            $mediaFiles = [];
+            if (!empty($files['file'])) {
+                if (is_array($files['file'])) {
+                    foreach ($files['file'] as $file) {
+                        if ($file && $file->getError() === UPLOAD_ERR_OK) {
+                            $mediaFiles[] = $file;
+                        }
+                    }
+                } else {
+                    if ($files['file']->getError() === UPLOAD_ERR_OK) {
+                        $mediaFiles[] = $files['file'];
                     }
                 }
-            } else {
-                if ($files['file']->getError() === UPLOAD_ERR_OK) {
-                    $mediaFiles[] = $files['file'];
+            }
+
+            $directory = __DIR__ . '/../../../public/media/products/';
+            if (!is_dir($directory)) {
+                mkdir($directory, 0777, true);
+            }
+            foreach ($mediaFiles as $mediaFile) {
+                $mime = $mediaFile->getClientMediaType();
+                if (!str_starts_with($mime, 'image/') && !str_starts_with($mime, 'video/')) {
+                    $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid media type. Must be image or video']));
+                    return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
                 }
+                $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
+                $filename = sprintf('%s.%s', uniqid(), $extension);
+                $mediaFile->moveTo($directory . $filename);
+                $path = 'media/products/' . $filename;
+                $this->mediaRepository->save([
+                    'image' => $path,
+                    'productID' => $productId,
+                    'type' => 'product',
+                    'mime_type' => $mime,
+                ]);
             }
-        }
 
-        $directory = __DIR__ . '/../../../public/media/products/';
-        if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
-        }
-        foreach ($mediaFiles as $mediaFile) {
-            $mime = $mediaFile->getClientMediaType();
-            if (!str_starts_with($mime, 'image/') && !str_starts_with($mime, 'video/')) {
-                $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid media type. Must be image or video']));
-                return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-            }
-            $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
-            $filename = sprintf('%s.%s', uniqid(), $extension);
-            $mediaFile->moveTo($directory . $filename);
-            $path = 'media/products/' . $filename;
-            $this->mediaRepository->save([
-                'image' => $path,
-                'productID' => $productId,
-                'type' => 'product',
-                'mime_type' => $mime,
-            ]);
-        }
+            // Return updated product
+            $product = $this->productRepository->findById($productId);
+            $product['variants'] = $this->variantRepository->findByProduct($productId);
+            $product['media'] = $this->mediaRepository->findMediaByProductId($productId);
 
-        // Return updated product
-        $product = $this->productRepository->findById($productId);
-        $product['variants'] = $this->variantRepository->findByProduct($productId);
-        $product['media'] = $this->mediaRepository->findMediaByProductId($productId);
-
-        $response->getBody()->write(json_encode(['success' => true, 'data' => $product]));
-        return $response->withHeader('Content-Type', 'application/json');
+            $response->getBody()->write(json_encode(['success' => true, 'data' => $product]));
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (Exception $e) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'An error occurred', 'details' => $e->getMessage()]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
     }
 
     /**

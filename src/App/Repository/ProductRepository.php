@@ -262,5 +262,36 @@ class ProductRepository extends BaseRepository
         $params = [$variantId];
         return $this->executeQueryFirstRow($query, $params) ?: null;
     }
+
+
+    public function updateProduct(int $id, array $data): ?array
+    {
+        if (empty($data)) {
+            return $this->findById($id);
+        }
+
+        // Build SET clause safely (allow only alnum + underscore column names)
+        $setParts = [];
+        $params = [];
+        foreach ($data as $col => $val) {
+            $cleanCol = preg_replace('/[^a-zA-Z0-9_]/', '', (string)$col);
+            if ($cleanCol === '' || $cleanCol === $this->primaryKey) {
+                continue;
+            }
+            $setParts[] = "{$cleanCol} = %s";
+            $params[] = $val;
+        }
+
+        if (empty($setParts)) {
+            return $this->findById($id);
+        }
+
+        $query = "UPDATE {$this->table} SET " . implode(', ', $setParts) . " WHERE {$this->primaryKey} = %i";
+        $params[] = $id;
+
+        DB::query($query, ...$params);
+
+        return $this->findById($id);
+    }
 }
 ?>
