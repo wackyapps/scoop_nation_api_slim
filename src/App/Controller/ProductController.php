@@ -609,9 +609,9 @@ class ProductController
 
 
             if (!empty($updateData)) {
-                if (!isset($updateData['slug'])) {
-                    $updateData['slug'] = $this->generateUniqueSlug($updateData['title'], $productId);
-                }
+                // if (!isset($updateData['slug'])) {
+                //     $updateData['slug'] = $this->generateUniqueSlug($updateData['title'], $productId);
+                // }
                 $this->productRepository->update($productId, $updateData);
             }
 
