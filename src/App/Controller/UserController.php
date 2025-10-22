@@ -352,11 +352,12 @@ class UserController
 
             // Generate and send verification email
             $token = $this->userRepository->generateEmailVerificationToken((int)$userId);
-            $this->emailService->sendEmailVerification(
+            $this->emailService->sendCustomerVerificationEmail(
                 $data['email'],
                 $token,
                 $customerData['fullname']
             );
+            $this->emailService->sendAdminNewCustomerNotification((int)$userId, );
 
             $response->getBody()->write(json_encode([
                 'success' => true, 
@@ -609,8 +610,8 @@ class UserController
                         $userName = $user['customer_fullname'];
                     }
                     
-                    // Send password reset email
-                    $this->emailService->sendPasswordResetRequest(
+                    // Send password reset email notification to customer
+                    $this->emailService->sendPasswordResetRequestEmail(
                         $data['email'],
                         $result['token'],
                         $userName
@@ -1009,6 +1010,20 @@ class UserController
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
 
+            // TODO:Hamza need to send a welcome email after verification
+            // $this->emailService->sendEmail(
+            // '',
+            // '',
+            // '',
+            // []
+            // );
+            // TO DO:Hamza need to send a email to admin notifying new user registration
+            // $this->emailService->sendEmail(
+            // '',
+            // '',
+            // '',
+            // []
+            // );
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'message' => 'Email verified successfully'
@@ -1154,7 +1169,7 @@ class UserController
             }
 
             // Send confirmation email
-            $this->emailService->sendPasswordResetConfirmation(
+            $this->emailService->sendPasswordResetConfirmationEmail(
                 $user['email'],
                 $userName
             );

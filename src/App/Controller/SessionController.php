@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Services\EmailService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use App\Repository\SessionRepository;
@@ -661,7 +662,10 @@ class SessionController
                 ]));
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
-
+            $emailService = new EmailService();
+            $emailService->sendCustomerNewOrderEmail((int) $order['id']);
+            $emailService->sendAdminNewOrderNotification((int) $order['id']);
+            
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'message' => 'Order created successfully',

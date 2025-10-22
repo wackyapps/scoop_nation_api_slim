@@ -395,7 +395,7 @@ class UserRepository extends BaseRepository
         
         // Send verification email via EmailService
         $emailService = new EmailService();
-        return $emailService->sendEmailVerification($email, $token, $userName);
+        return $emailService->sendCustomerVerificationEmail($email, $token, $userName);
     }
 
     /**

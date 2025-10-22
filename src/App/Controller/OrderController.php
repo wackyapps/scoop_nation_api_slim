@@ -190,6 +190,10 @@ class OrderController
             $success = $this->orderRepository->updateOrder($orderId, $updateData);
 
             if ($success) {
+                if ($data['status'] === 'delivered' ) {
+                    $this->emailService->sendCustomerOrderShippedEmail((int) $orderId);
+                    $this->emailService->sendAdminOrderShippedNotification((int) $orderId);
+                }
                 $response->getBody()->write(json_encode(['success' => true, 'message' => 'Order updated successfully.']));
             } else {
                 $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to update order or no changes were made.']));

@@ -149,6 +149,7 @@ require __DIR__ . '/../src/App/Routes/contact.routes.php';
 require __DIR__ . '/../src/App/Routes/order.routes.php';
 require __DIR__ . '/../src/App/Routes/company.routes.php';
 require __DIR__ . '/../src/App/Routes/email_subscription.routes.php';
+require __DIR__ . '/../src/App/Routes/email_templates.routes.php';
 
 
 // --------------------------------------------------
