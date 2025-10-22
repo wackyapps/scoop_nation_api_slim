@@ -315,7 +315,7 @@ class EmailService
             'reset_date' => date('F j, Y, g:i a')
         ];
 
-        return $this->sendEmail(
+        return $this->sendEmailNotificationByTemplate(
             $email,
             'Password Reset Confirmation',
             'password_reset_confirmation',
