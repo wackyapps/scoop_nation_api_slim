@@ -426,7 +426,13 @@ class EmailService
             
             $productTitle = $product['title'] ?? 'Unknown Product';
             $mainImage = $product['mainImage'] ?? '';
-            $imageUrl = !empty($mainImage) ? FRONTEND_URL . '/' . $mainImage : '';
+            $imageUrl = '';
+            if (!empty($mainImage)) {
+                $path = ltrim($mainImage, '/');
+                $encodedPath = implode('/', array_map('rawurlencode', explode('/', $path)));
+                $imageUrl = rtrim(API_BASE_URL, '/') . '/' . $encodedPath;
+            }
+
             
             $variantValue = !empty($variant['value']) ? $variant['value'] : '';
             $price = $variant['price'] ?? $product['price'] ?? '0';

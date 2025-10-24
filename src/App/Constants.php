@@ -5,9 +5,9 @@
  */
 
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'orgitelc_commerc');
-define('DB_USER', 'orgitelc_ecomm');
-define('DB_PASS', '6n]kKW4PRVW)t@QW');
+define('DB_NAME', 'u424919133_orgitelc_comme');
+define('DB_USER', 'u424919133_orgitelc_ecomm');
+define('DB_PASS', 'DJS3baJKjPmJ');
 define('DB_PORT', '3306');
 define('DB_CHARSET', 'utf8');
 
@@ -40,7 +40,7 @@ define('IMAGE_SERVER_BASE_PATH', 'https://idiaz.zaidis.com.pk');
 /**
  * URL Configuration
  */
-define('FRONTEND_URL', 'https://scoopnation.vercel.app');
+define('FRONTEND_URL', 'https://scoopnation.pk');
 define('API_BASE_URL', 'https://scoopnation.pk/api/public');
 
 
