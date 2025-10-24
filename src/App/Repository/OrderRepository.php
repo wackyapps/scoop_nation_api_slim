@@ -50,6 +50,19 @@ class OrderRepository extends BaseRepository
         if (!$order) {
             return null;
         }
+        $orderItemRepository = new OrderItemRepository();
+        $orderItems = $orderItemRepository->findByOrderId((int) $order['id']);
+        $items = [];
+        // decoding product and variant from json string
+        foreach ($orderItems as $item) {
+                $item2 = [...$item];
+                $item2['product'] = json_decode($item['product'] ?? '{}', true);
+                $item2['variant'] = json_decode($item['variant'] ?? '{}', true);
+                $items[] = $item2;
+            }
+            $order['items'] = $items;
+            // decode customer_address from json string
+            $order['customer_address'] = json_decode($order['customer_address'] ?? '{}', true);
         return $order;
     }
     

@@ -406,6 +406,67 @@ class EmailService
     }
 
     /**
+     * Format order items for email display
+     * 
+     * @param array $items Order items array
+     * @return string HTML formatted items list
+     */
+    private function formatOrderItemsForEmail(array $items): string
+    {
+        if (empty($items)) {
+            return '<p>No items found.</p>';
+        }
+
+        $html = '<div style="margin: 20px 0;">';
+
+        foreach ($items as $item) {
+            $product = $item['product'] ?? [];
+            $variant = $item['variant'] ?? [];
+            $quantity = $item['quantity'] ?? 0;
+            
+            $productTitle = $product['title'] ?? 'Unknown Product';
+            $mainImage = $product['mainImage'] ?? '';
+            $imageUrl = !empty($mainImage) ? FRONTEND_URL . '/' . $mainImage : '';
+            
+            $variantValue = !empty($variant['value']) ? $variant['value'] : '';
+            $price = $variant['price'] ?? $product['price'] ?? '0';
+            $itemTotal = (float)$price * (int)$quantity;
+
+            // Card-like item layout
+            $html .= '<div style="display: flex; align-items: center; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 15px; background-color: #ffffff;">';
+            
+            // Image section
+            $html .= '<div style="flex-shrink: 0; margin-right: 15px;">';
+            if (!empty($imageUrl)) {
+                $html .= '<img src="' . htmlspecialchars($imageUrl) . '" alt="' . htmlspecialchars($productTitle) . '" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" />';
+            } else {
+                $html .= '<div style="width: 80px; height: 80px; background-color: #f0f0f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999;">No Image</div>';
+            }
+            $html .= '</div>';
+            
+            // Product details section
+            $html .= '<div style="flex-grow: 1;">';
+            $html .= '<h3 style="margin: 0 0 5px 0; font-size: 16px; font-weight: 600; color: #333;">' . htmlspecialchars($productTitle) . '</h3>';
+            
+            if (!empty($variantValue)) {
+                $html .= '<p style="margin: 0 0 8px 0; font-size: 14px; color: #666;">Size: <span style="font-weight: 500;">' . htmlspecialchars($variantValue) . '</span></p>';
+            }
+            
+            $html .= '</div>';
+            
+            // Price section
+            $html .= '<div style="text-align: right; margin-left: 15px;">';
+            $html .= '<p style="margin: 0 0 5px 0; font-size: 18px; font-weight: 700; color: #e91e63;">' . $quantity . ' x Rs. ' . number_format((float)$price, 0) . '/-</p>';
+            $html .= '</div>';
+            
+            $html .= '</div>';
+        }
+
+        $html .= '</div>';
+        return $html;
+    }
+
+    /**
      * Send customer new order confirmation email
      * 
      * @param string $email Customer email address
@@ -423,19 +484,21 @@ class EmailService
             return false;
         }
 
+        $orderItemsHtml = $this->formatOrderItemsForEmail($order['items'] ?? []);
+
         $data =[
             'customer_name' => $order['fullname'],
             'order_id' => $orderId,
+            'order_number' => $order['order_number'] ?? '',
             'order_date' => date('F j, Y'),
-            'order_total' => $order['total'] ?? '',
-            // 'order_items' => $order['items'] ?? [],
-            // 'tracking_url' => $order['tracking_url'] ?? '',
+            'order_total' => 'Rs. ' . number_format((float)($order['total'] ?? 0), 2),
+            'order_items' => $orderItemsHtml,
             'customer_service_email' => FROM_EMAIL
         ];
 
         return $this->sendEmailNotificationByTemplate(
-            ADMIN_EMAIL,
-            'Order Confirmation - #' . $orderId,
+            $order['email'] ?? ADMIN_EMAIL,
+            'Order Confirmation - #' . $order['order_number'],
             'customer_order_new_placed',
             $data
         );
@@ -458,22 +521,35 @@ class EmailService
             return false;
         }
 
+        $orderItemsHtml = $this->formatOrderItemsForEmail($order['items'] ?? []);
+        
+        // Format shipping address
+        $customerAddress = $order['customer_address'] ?? [];
+        $shippingAddress = '';
+        if (!empty($customerAddress)) {
+            $shippingAddress = ($customerAddress['street_address'] ?? '') . '<br>';
+            $shippingAddress .= ($customerAddress['city'] ?? '') . ', ' . ($customerAddress['state'] ?? '') . '<br>';
+            $shippingAddress .= ($customerAddress['country'] ?? '');
+            if (!empty($customerAddress['postal_code'])) {
+                $shippingAddress .= ' - ' . $customerAddress['postal_code'];
+            }
+        }
+
         $data = [
             'order_id' => $orderId,
+            'order_number' => $order['order_number'] ?? '',
             'order_date' => date('F j, Y g:i A'),
-            'order_total' => $order['total'] ?? '',
+            'order_total' => 'Rs. ' . number_format((float)($order['total'] ?? 0), 2),
             'customer_name' => $order['fullname'] ?? '',
             'customer_email' => $order['email'] ?? '',
             'customer_phone' => $order['phone'] ?? '',
-            // 'shipping_address' => $order['shipping_address'] ?? '',
-            // 'billing_address' => $order['billing_address'] ?? '',
-            // 'order_items' => $order['items'] ?? [],
-            // 'admin_order_url' => $order['admin_order_url'] ?? ''
+            'shipping_address' => $shippingAddress,
+            'order_items' => $orderItemsHtml
         ];
 
         return $this->sendEmailNotificationByTemplate(
-            'ameerarif12348@gmail.com',
-            'New Order Received - #' . $orderId,
+            ADMIN_EMAIL ?? 'ameerarif12348@gmail.com',
+            'New Order Received - #' . $order['order_number'],
             'admin_order_new_placed',
             $data
         );

@@ -41,7 +41,7 @@ define('IMAGE_SERVER_BASE_PATH', 'https://idiaz.zaidis.com.pk');
  * URL Configuration
  */
 define('FRONTEND_URL', 'https://scoopnation.vercel.app');
-define('API_BASE_URL', 'https://api.scoopnation.pk');
+define('API_BASE_URL', 'https://scoopnation.pk/api/public');
 
 
 /**

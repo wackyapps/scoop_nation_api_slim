@@ -122,25 +122,13 @@ class OrderController
                 return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
             }
             $order = $this->orderRepository->getOrderByOrderId($id);
-            if (!$order) {
+             if (!$order) {
                 $response->getBody()->write(json_encode([
                     'success' => false,
                     'error' => 'Order not found.'
                 ]));
                 return $response->withStatus(404)->withHeader('Content-Type', 'application/json');
             }
-            $orderItems = $this->orderItemRepository->findByOrderId((int) $order['id']);
-            $items = [];
-            // decoding product and variant from json string
-            foreach ($orderItems as $item) {
-                $item2 = [...$item];
-                $item2['product'] = json_decode($item['product'] ?? '{}', true);
-                $item2['variant'] = json_decode($item['variant'] ?? '{}', true);
-                $items[] = $item2;
-            }
-            $order['items'] = $items;
-            // decode customer_address from json string
-            $order['customer_address'] = json_decode($order['customer_address'] ?? '{}', true);
             $response->getBody()->write(json_encode([
                 'success' => true,
                 'data' => $order
