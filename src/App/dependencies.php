@@ -14,6 +14,11 @@ use App\Repository\BundleRepository;
 use App\Repository\PromoCodeRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\EmailSubscriptionRepository;
+use App\Repository\AddressRepository;
+use App\Repository\SessionRepository;
+use App\Services\EmailService;
+use App\Services\OtpService;
+use App\Services\FirebaseService;
 use App\Controller\CategoryController; // ADD THIS LINE
 use App\Controller\ProductController;
 use App\Controller\BundleController;
@@ -77,6 +82,27 @@ return [
         return new EmailSubscriptionRepository();
     },
 
+    AddressRepository::class => function (Container $container) {
+        return new AddressRepository();
+    },
+
+    SessionRepository::class => function (Container $container) {
+        return new SessionRepository();
+    },
+
+    // Service dependencies
+    EmailService::class => function (Container $container) {
+        return new EmailService();
+    },
+
+    OtpService::class => function (Container $container) {
+        return new OtpService();
+    },
+
+    FirebaseService::class => function (Container $container) {
+        return new FirebaseService();
+    },
+
     // Controller dependencies
     CategoryController::class => function (Container $container) { // ADD THIS ENTRY
         $categoryRepository = $container->get(CategoryRepository::class);
@@ -100,7 +126,30 @@ return [
 
     UserController::class => function (Container $container) {
         $userRepository = $container->get(UserRepository::class);
-        return new UserController($userRepository);
+        $wishlistRepository = $container->get(WishlistRepository::class);
+        $addressRepository = $container->get(AddressRepository::class);
+        $sessionRepository = $container->get(SessionRepository::class);
+        $emailService = $container->get(EmailService::class);
+        $otpService = $container->get(OtpService::class);
+        $orderRepository = $container->get(OrderRepository::class);
+        $customerRepository = $container->get(CustomerRepository::class);
+        $orderItemRepository = $container->get(OrderItemRepository::class);
+        $productRepository = $container->get(ProductRepository::class);
+        $firebaseService = $container->get(FirebaseService::class);
+        
+        return new UserController(
+            $userRepository,
+            $wishlistRepository,
+            $addressRepository,
+            $sessionRepository,
+            $emailService,
+            $otpService,
+            $orderRepository,
+            $customerRepository,
+            $orderItemRepository,
+            $productRepository,
+            $firebaseService
+        );
     },
 
     EmailSubscriptionController::class => function (Container $container) {

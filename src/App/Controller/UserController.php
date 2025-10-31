@@ -15,6 +15,7 @@ use App\Repository\AddressRepository;
 use App\Repository\SessionRepository;
 use App\Services\EmailService;
 use App\Services\OtpService;
+use App\Services\FirebaseService;
 use App\Services\Authentication\JWT;
 use DB;
 
@@ -30,6 +31,7 @@ class UserController
     private $customerRepository;
     private $orderItemRepository;
     private $productRepository;
+    private $firebaseService;
 
     public function __construct(
         UserRepository $userRepository,
@@ -41,7 +43,8 @@ class UserController
         OrderRepository $orderRepository,
         CustomerRepository $customerRepository,
         OrderItemRepository $orderItemRepository,
-        ProductRepository $productRepository
+        ProductRepository $productRepository,
+        FirebaseService $firebaseService
     ) {
         $this->userRepository = $userRepository;
         $this->wishlistRepository = $wishlistRepository;
@@ -53,6 +56,7 @@ class UserController
         $this->customerRepository = $customerRepository;
         $this->orderItemRepository = $orderItemRepository;
         $this->productRepository = $productRepository;
+        $this->firebaseService = $firebaseService;
     }
 
     /**
@@ -566,6 +570,180 @@ class UserController
 
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Failed to register user: ' . $e->getMessage()]));
+            return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+        }
+    }
+
+    /**
+     * Login or register customer via Google OAuth
+     * 
+     * @Route POST /api/users/google-auth
+     */
+    public function googleAuth(Request $request, Response $response): Response
+    {
+        try {
+            $data = $request->getParsedBody();
+
+            // Validate required fields
+            if (!isset($data['idToken']) || !isset($data['email']) || !isset($data['fullname'])) {
+                $response->getBody()->write(json_encode([
+                    'success' => false, 
+                    'error' => 'ID token, email, and full name are required'
+                ]));
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+
+            // Verify the Firebase ID token
+            $verifiedData = $this->firebaseService->verifyIdToken(
+                $data['idToken'],
+                [
+                    'email' => $data['email'],
+                    'name' => $data['fullname'],
+                    'picture' => $data['photoURL'] ?? null
+                ]
+            );
+
+            if (!$verifiedData) {
+                $response->getBody()->write(json_encode([
+                    'success' => false, 
+                    'error' => 'Invalid Google authentication token'
+                ]));
+                return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
+            }
+
+            $email = $verifiedData['email'];
+            $fullname = $verifiedData['name'];
+
+            // Check if user already exists
+            $existingUser = $this->userRepository->findByEmail($email);
+
+            if ($existingUser) {
+                // User exists - log them in
+                // Get the full user with customer profile
+                $user = $this->userRepository->findByEmailWithProfile($email);
+
+                if (!$user) {
+                    $response->getBody()->write(json_encode([
+                        'success' => false, 
+                        'error' => 'User account error'
+                    ]));
+                    return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+                }
+
+                // Check if this is a customer account
+                if ($user['role'] !== 'customer') {
+                    $response->getBody()->write(json_encode([
+                        'success' => false, 
+                        'error' => 'This account is not a customer account'
+                    ]));
+                    return $response->withStatus(403)->withHeader('Content-Type', 'application/json');
+                }
+
+                // Link session cart if provided
+                $sessionId = $data['session_id'] ?? null;
+                $cookieToken = $data['cookie_token'] ?? null;
+                $businessId = isset($data['business_id']) ? (int) $data['business_id'] : null;
+                $branchId = isset($data['branch_id']) ? (int) $data['branch_id'] : null;
+
+                if ($sessionId && $cookieToken && $user['id']) {
+                    $this->sessionRepository->linkSessionCartToUser(
+                        $sessionId, 
+                        $cookieToken, 
+                        $user['id'], 
+                        $businessId, 
+                        $branchId
+                    );
+                }
+
+                // Generate JWT token
+                $jwt = new JWT();
+                $token = $jwt->generate($user);
+
+                $response->getBody()->write(json_encode([
+                    'success' => true, 
+                    'token' => $token, 
+                    'user' => $user,
+                    'message' => 'Login successful'
+                ]));
+                return $response->withHeader('Content-Type', 'application/json');
+
+            } else {
+                // User doesn't exist - register them
+                // Generate a random password (won't be used for Google auth)
+                $randomPassword = bin2hex(random_bytes(16));
+
+                // Prepare user data
+                $userData = [
+                    'email' => $email,
+                    'password' => password_hash($randomPassword, PASSWORD_DEFAULT),
+                    'phone' => $data['phone'] ?? null,
+                    'role' => 'customer'
+                ];
+
+                // Prepare customer data
+                $customerData = [
+                    'fullname' => $fullname,
+                    'gender' => null,
+                    'date_of_birth' => null,
+                ];
+
+                // Register the user
+                $userId = $this->userRepository->registerCustomerUser($userData, $customerData);
+
+                // Since Google accounts have verified emails, mark as verified
+                DB::update('users', [
+                    'email_verified' => 1
+                ], 'id=%i', $userId);
+
+                // Send welcome email (without verification link)
+                $this->emailService->sendAdminNewCustomerNotification((int)$userId);
+
+                // Get the newly created user
+                $user = $this->userRepository->findByEmailWithProfile($email);
+
+                if (!$user) {
+                    $response->getBody()->write(json_encode([
+                        'success' => false, 
+                        'error' => 'Failed to retrieve created user'
+                    ]));
+                    return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
+                }
+
+                // Link session cart if provided
+                $sessionId = $data['session_id'] ?? null;
+                $cookieToken = $data['cookie_token'] ?? null;
+                $businessId = isset($data['business_id']) ? (int) $data['business_id'] : null;
+                $branchId = isset($data['branch_id']) ? (int) $data['branch_id'] : null;
+
+                if ($sessionId && $cookieToken && $user['id']) {
+                    $this->sessionRepository->linkSessionCartToUser(
+                        $sessionId, 
+                        $cookieToken, 
+                        $user['id'], 
+                        $businessId, 
+                        $branchId
+                    );
+                }
+
+                // Generate JWT token
+                $jwt = new JWT();
+                $token = $jwt->generate($user);
+
+                $response->getBody()->write(json_encode([
+                    'success' => true, 
+                    'token' => $token, 
+                    'user' => $user,
+                    'message' => 'Account created successfully'
+                ]));
+                return $response->withStatus(201)->withHeader('Content-Type', 'application/json');
+            }
+
+        } catch (\Exception $e) {
+            error_log('Google auth error: ' . $e->getMessage());
+            $response->getBody()->write(json_encode([
+                'success' => false, 
+                'error' => 'Failed to authenticate with Google: ' . $e->getMessage()
+            ]));
             return $response->withStatus(500)->withHeader('Content-Type', 'application/json');
         }
     }

@@ -33,7 +33,9 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
         // contact us
         '/api/contact/submit',
         '/api/products',
-        '/api/banners/active'
+        '/api/banners/active',
+        '/api/email-subscription/subscribe',
+        '/api/users/google-auth'
     ];
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -69,7 +71,7 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
 
         // === TOKEN CHECKING DISABLED TEMPORARILY ===
         // Get Bearer token from headers
-        /* $authHeader = $request->getHeaderLine('Authorization');
+       /* $authHeader = $request->getHeaderLine('Authorization');
          $token = '';
          if (preg_match('/Bearer\s+(.+)/i', $authHeader, $m)) {
              $token = trim($m[1]);
@@ -100,7 +102,8 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
 
          $decoded = $jwt->decodeJWT($token);
          $request = $request->withAttribute('user', $decoded);*/
-        $user = array(
+
+         $user = array(
             'id' => '7',
             'email' => 'waqasmahmood@gmail.com',
             'role' => 'customer',
@@ -114,6 +117,7 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
             'date_of_birth' => '0000-00-00'
         );
         $request = $request->withAttribute('user', $user);
+     
 
 
         // Proceed to next middleware or route handler

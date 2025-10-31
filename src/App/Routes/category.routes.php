@@ -9,16 +9,16 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 // Get all categories (basic info)
 // Accepts an optional X-Branch-Id header to filter branch-specific categories
-$app->get('/api/categories', [CategoryController::class, 'getAllCategories']);
+// $app->get('/api/categories', [CategoryController::class, 'getAllCategories']);
 
-// Get all categories with banners and products
-// Accepts an optional X-Branch-Id header to filter branch-specific categories
-$app->get('/api/categories/with-products', [CategoryController::class, 'getAllCategoriesWithBannersAndProducts']);
+// // Get all categories with banners and products
+// // Accepts an optional X-Branch-Id header to filter branch-specific categories
+// $app->get('/api/categories/with-products', [CategoryController::class, 'getAllCategoriesWithBannersAndProducts']);
 
-// Get category by ID (basic info)
-// Accepts an optional X-Branch-Id header to filter branch-specific categories
-$app->get('/api/categories/{id}', [CategoryController::class, 'getCategoryById']);
+// // Get category by ID (basic info)
+// // Accepts an optional X-Branch-Id header to filter branch-specific categories
+// $app->get('/api/categories/{id}', [CategoryController::class, 'getCategoryById']);
 
-// Get specific category with banner and products
-// Accepts an optional X-Branch-Id header to filter branch-specific categories
-$app->get('/api/categories/{id}/with-products', [CategoryController::class, 'getCategoryWithBannerAndProducts']);
+// // Get specific category with banner and products
+// // Accepts an optional X-Branch-Id header to filter branch-specific categories
+// $app->get('/api/categories/{id}/with-products', [CategoryController::class, 'getCategoryWithBannerAndProducts']);

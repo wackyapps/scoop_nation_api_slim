@@ -148,76 +148,76 @@ $app->post('/api/contact/submit', function ($request, $response) use ($app) {
  *     )
  * )
  */
-$app->get('/api/contact/submissions', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\ContactController::class);
-    return $controller->getSubmissions($request, $response);
-});
+// $app->get('/api/contact/submissions', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\ContactController::class);
+//     return $controller->getSubmissions($request, $response);
+// });
 
-/**
- * @OA\Put(
- *     path="/api/contact/submissions/{id}/status",
- *     summary="Update submission status (Admin Only)",
- *     description="Update the status of a contact form submission. Requires administrator authentication.",
- *     tags={"Contact"},
- *     security={{"bearerAuth": {}}},
- *     @OA\Parameter(
- *         name="id",
- *         in="path",
- *         required=true,
- *         description="Contact submission ID",
- *         @OA\Schema(type="integer", example=1)
- *     ),
- *     @OA\RequestBody(
- *         required=true,
- *         description="New status for the submission",
- *         @OA\JsonContent(
- *             required={"status"},
- *             @OA\Property(property="status", type="string", enum={"new", "in_progress", "resolved", "closed"}, example="in_progress", description="New status for the submission")
- *         )
- *     ),
- *     @OA\Response(
- *         response=200,
- *         description="Status updated successfully",
- *         @OA\JsonContent(
- *             @OA\Property(property="success", type="boolean", example=true),
- *             @OA\Property(property="message", type="string", example="Submission status updated successfully")
- *         )
- *     ),
- *     @OA\Response(
- *         response=400,
- *         description="Bad Request - Invalid status value",
- *         @OA\JsonContent(
- *             @OA\Property(property="success", type="boolean", example=false),
- *             @OA\Property(property="error", type="string", example="Invalid status value")
- *         )
- *     ),
- *     @OA\Response(
- *         response=401,
- *         description="Unauthorized - Admin authentication required",
- *         @OA\JsonContent(
- *             @OA\Property(property="success", type="boolean", example=false),
- *             @OA\Property(property="error", type="string", example="Token not found")
- *         )
- *     ),
- *     @OA\Response(
- *         response=404,
- *         description="Submission not found",
- *         @OA\JsonContent(
- *             @OA\Property(property="success", type="boolean", example=false),
- *             @OA\Property(property="error", type="string", example="Submission not found")
- *         )
- *     ),
- *     @OA\Response(
- *         response=500,
- *         description="Internal Server Error",
- *         @OA\JsonContent(
- *             @OA\Property(property="success", type="boolean", example=false),
- *             @OA\Property(property="error", type="string", example="Failed to update submission status")
- *         )
- *     )
- * )
- */
-$app->put('/api/contact/submissions/{id}/status', function ($request, $response, $args) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\ContactController::class);
-    return $controller->updateSubmissionStatus($request, $response, $args);
-});
+// /**
+//  * @OA\Put(
+//  *     path="/api/contact/submissions/{id}/status",
+//  *     summary="Update submission status (Admin Only)",
+//  *     description="Update the status of a contact form submission. Requires administrator authentication.",
+//  *     tags={"Contact"},
+//  *     security={{"bearerAuth": {}}},
+//  *     @OA\Parameter(
+//  *         name="id",
+//  *         in="path",
+//  *         required=true,
+//  *         description="Contact submission ID",
+//  *         @OA\Schema(type="integer", example=1)
+//  *     ),
+//  *     @OA\RequestBody(
+//  *         required=true,
+//  *         description="New status for the submission",
+//  *         @OA\JsonContent(
+//  *             required={"status"},
+//  *             @OA\Property(property="status", type="string", enum={"new", "in_progress", "resolved", "closed"}, example="in_progress", description="New status for the submission")
+//  *         )
+//  *     ),
+//  *     @OA\Response(
+//  *         response=200,
+//  *         description="Status updated successfully",
+//  *         @OA\JsonContent(
+//  *             @OA\Property(property="success", type="boolean", example=true),
+//  *             @OA\Property(property="message", type="string", example="Submission status updated successfully")
+//  *         )
+//  *     ),
+//  *     @OA\Response(
+//  *         response=400,
+//  *         description="Bad Request - Invalid status value",
+//  *         @OA\JsonContent(
+//  *             @OA\Property(property="success", type="boolean", example=false),
+//  *             @OA\Property(property="error", type="string", example="Invalid status value")
+//  *         )
+//  *     ),
+//  *     @OA\Response(
+//  *         response=401,
+//  *         description="Unauthorized - Admin authentication required",
+//  *         @OA\JsonContent(
+//  *             @OA\Property(property="success", type="boolean", example=false),
+//  *             @OA\Property(property="error", type="string", example="Token not found")
+//  *         )
+//  *     ),
+//  *     @OA\Response(
+//  *         response=404,
+//  *         description="Submission not found",
+//  *         @OA\JsonContent(
+//  *             @OA\Property(property="success", type="boolean", example=false),
+//  *             @OA\Property(property="error", type="string", example="Submission not found")
+//  *         )
+//  *     ),
+//  *     @OA\Response(
+//  *         response=500,
+//  *         description="Internal Server Error",
+//  *         @OA\JsonContent(
+//  *             @OA\Property(property="success", type="boolean", example=false),
+//  *             @OA\Property(property="error", type="string", example="Failed to update submission status")
+//  *         )
+//  *     )
+//  * )
+//  */
+// $app->put('/api/contact/submissions/{id}/status', function ($request, $response, $args) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\ContactController::class);
+//     return $controller->updateSubmissionStatus($request, $response, $args);
+// });

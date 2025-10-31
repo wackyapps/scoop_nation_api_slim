@@ -107,7 +107,7 @@ $app->post('/api/email-subscription/subscribe', function ($request, $response) u
  *     )
  * )
  */
-$app->get('/api/email-subscription/subscriptions', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\EmailSubscriptionController::class);
-    return $controller->getAllSubscriptions($request, $response);
-});
+// $app->get('/api/email-subscription/subscriptions', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\EmailSubscriptionController::class);
+//     return $controller->getAllSubscriptions($request, $response);
+// });

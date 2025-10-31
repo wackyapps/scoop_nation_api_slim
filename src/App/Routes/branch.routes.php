@@ -52,10 +52,10 @@
  *     )
  * )
  */
-$app->get('/api/branches/{branchId}/summary', function ($request, $response, $args) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\BranchController::class);
-    return $controller->getBranchSummary($request, $response, $args);
-});
+// $app->get('/api/branches/{branchId}/summary', function ($request, $response, $args) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\BranchController::class);
+//     return $controller->getBranchSummary($request, $response, $args);
+// });
 
 /**
  * @OA\Get(
@@ -83,10 +83,10 @@ $app->get('/api/branches/{branchId}/summary', function ($request, $response, $ar
  *     )
  * )
  */
-$app->get('/api/branches/{branchId}/timings/{dayOfWeek}', function ($request, $response, $args) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\BranchController::class);
-    return $controller->getBranchTimingByDay($request, $response, $args);
-});
+// $app->get('/api/branches/{branchId}/timings/{dayOfWeek}', function ($request, $response, $args) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\BranchController::class);
+//     return $controller->getBranchTimingByDay($request, $response, $args);
+// });
 
 /**
  * @OA\Get(
@@ -107,10 +107,10 @@ $app->get('/api/branches/{branchId}/timings/{dayOfWeek}', function ($request, $r
  *     )
  * )
  */
-$app->get('/api/businesses/{businessId}/branches', function ($request, $response, $args) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\BranchController::class);
-    return $controller->getActiveBranchesByBusiness($request, $response, $args);
-});
+// $app->get('/api/businesses/{businessId}/branches', function ($request, $response, $args) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\BranchController::class);
+//     return $controller->getActiveBranchesByBusiness($request, $response, $args);
+// });
 
 /**
  * @OA\Get(
@@ -131,10 +131,10 @@ $app->get('/api/businesses/{businessId}/branches', function ($request, $response
  *     )
  * )
  */
-$app->get('/api/branches/{branchId}/is-open', function ($request, $response, $args) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\BranchController::class);
-    return $controller->isBranchOpen($request, $response, $args);
-});
+// $app->get('/api/branches/{branchId}/is-open', function ($request, $response, $args) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\BranchController::class);
+//     return $controller->isBranchOpen($request, $response, $args);
+// });
 
 /**
  * @OA\Get(
@@ -155,10 +155,10 @@ $app->get('/api/branches/{branchId}/is-open', function ($request, $response, $ar
  *     )
  * )
  */
-$app->get('/api/branches/{branchId}/timings', function ($request, $response, $args) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\BranchController::class);
-    return $controller->getBranchTimings($request, $response, $args);
-});
+// $app->get('/api/branches/{branchId}/timings', function ($request, $response, $args) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\BranchController::class);
+//     return $controller->getBranchTimings($request, $response, $args);
+// });
 
 /**
  * @OA\Get(
@@ -179,10 +179,10 @@ $app->get('/api/branches/{branchId}/timings', function ($request, $response, $ar
  *     )
  * )
  */
-$app->get('/api/branches/{branchId}/banners', function ($request, $response, $args) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\BranchController::class);
-    return $controller->getActiveBannerCampaignsForBranch($request, $response, $args);
-});
+// $app->get('/api/branches/{branchId}/banners', function ($request, $response, $args) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\BranchController::class);
+//     return $controller->getActiveBannerCampaignsForBranch($request, $response, $args);
+// });
 
 /**
  * @OA\Get(
@@ -203,10 +203,10 @@ $app->get('/api/branches/{branchId}/banners', function ($request, $response, $ar
  *     )
  * )
  */
-$app->get('/api/branches/{branchId}/products', function ($request, $response, $args) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\BranchController::class);
-    return $controller->getAvailableProductsForBranch($request, $response, $args);
-});
+// $app->get('/api/branches/{branchId}/products', function ($request, $response, $args) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\BranchController::class);
+//     return $controller->getAvailableProductsForBranch($request, $response, $args);
+// });
 
 // Branch parameterized routes 
 

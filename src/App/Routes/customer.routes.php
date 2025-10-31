@@ -47,10 +47,10 @@
  * });
  * const data = await response.json();
  */
-$app->get('/api/admin/customers', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
-    return $controller->getCustomersWithSearchAndPaginated($request, $response);
-});
+// $app->get('/api/admin/customers', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
+//     return $controller->getCustomersWithSearchAndPaginated($request, $response);
+// });
 
 /**
  * @api {get} /api/admin/customer-details Get Customer Detailed Information
@@ -70,10 +70,10 @@ $app->get('/api/admin/customers', function ($request, $response) use ($app) {
  * });
  * const data = await response.json();
  */
-$app->get('/api/admin/customer-details', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
-    return $controller->getCustomerDetails($request, $response);
-});
+// $app->get('/api/admin/customer-details', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
+//     return $controller->getCustomerDetails($request, $response);
+// });
 
 // =============================================================================
 // CUSTOMER SEARCH & FILTER ROUTES
@@ -98,10 +98,10 @@ $app->get('/api/admin/customer-details', function ($request, $response) use ($ap
  * const response = await fetch('/api/customers/search?q=john&limit=20');
  * const data = await response.json();
  */
-$app->get('/api/customers/search', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
-    return $controller->searchCustomers($request, $response);
-});
+// $app->get('/api/customers/search', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
+//     return $controller->searchCustomers($request, $response);
+// });
 
 /**
  * @api {get} /api/customers/by-city Get Customers by City
@@ -122,10 +122,10 @@ $app->get('/api/customers/search', function ($request, $response) use ($app) {
  * const response = await fetch('/api/customers/by-city?city=Karachi&limit=50');
  * const data = await response.json();
  */
-$app->get('/api/customers/by-city', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
-    return $controller->getCustomersByCity($request, $response);
-});
+// $app->get('/api/customers/by-city', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
+//     return $controller->getCustomersByCity($request, $response);
+// });
 
 /**
  * @api {get} /api/customers/by-email Get Customer by Email
@@ -143,10 +143,10 @@ $app->get('/api/customers/by-city', function ($request, $response) use ($app) {
  * const response = await fetch('/api/customers/by-email?email=customer@example.com');
  * const data = await response.json();
  */
-$app->get('/api/customers/by-email', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
-    return $controller->getCustomerByEmail($request, $response);
-});
+// $app->get('/api/customers/by-email', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
+//     return $controller->getCustomerByEmail($request, $response);
+// });
 
 // =============================================================================
 // BASIC CUSTOMER CRUD ROUTES
@@ -173,10 +173,10 @@ $app->get('/api/customers/by-email', function ($request, $response) use ($app) {
  * const response = await fetch('/api/customers?limit=20&offset=0&sort=createdAt&order=DESC');
  * const data = await response.json();
  */
-$app->get('/api/customers', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
-    return $controller->getAllCustomers($request, $response);
-});
+// $app->get('/api/customers', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
+//     return $controller->getAllCustomers($request, $response);
+// });
 
 /**
  * @api {get} /api/customers/by-id Get Customer by ID
@@ -194,10 +194,10 @@ $app->get('/api/customers', function ($request, $response) use ($app) {
  * const response = await fetch('/api/customers/by-id?id=123');
  * const data = await response.json();
  */
-$app->get('/api/customers/by-id', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
-    return $controller->getCustomerById($request, $response);
-});
+// $app->get('/api/customers/by-id', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
+//     return $controller->getCustomerById($request, $response);
+// });
 
 /**
  * @api {post} /api/customers Create New Customer
@@ -241,10 +241,10 @@ $app->get('/api/customers/by-id', function ($request, $response) use ($app) {
  * });
  * const data = await response.json();
  */
-$app->post('/api/customers', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
-    return $controller->createCustomer($request, $response);
-});
+// $app->post('/api/customers', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
+//     return $controller->createCustomer($request, $response);
+// });
 
 /**
  * @api {put} /api/customers/update Update Customer
@@ -284,10 +284,10 @@ $app->post('/api/customers', function ($request, $response) use ($app) {
  * });
  * const data = await response.json();
  */
-$app->put('/api/customers/update', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
-    return $controller->updateCustomer($request, $response);
-});
+// $app->put('/api/customers/update', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
+//     return $controller->updateCustomer($request, $response);
+// });
 
 /**
  * @api {delete} /api/customers/delete Delete Customer
@@ -307,10 +307,10 @@ $app->put('/api/customers/update', function ($request, $response) use ($app) {
  * });
  * const data = await response.json();
  */
-$app->delete('/api/customers/delete', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
-    return $controller->deleteCustomer($request, $response);
-});
+// $app->delete('/api/customers/delete', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
+//     return $controller->deleteCustomer($request, $response);
+// });
 
 /**
  * @api {get} /api/customers/statistics Get Customer Statistics
@@ -331,7 +331,7 @@ $app->delete('/api/customers/delete', function ($request, $response) use ($app) 
  * const response = await fetch('/api/customers/statistics');
  * const data = await response.json();
  */
-$app->get('/api/customers/statistics', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
-    return $controller->getCustomerStatistics($request, $response);
-});
+// $app->get('/api/customers/statistics', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\CustomerController::class);
+//     return $controller->getCustomerStatistics($request, $response);
+// });

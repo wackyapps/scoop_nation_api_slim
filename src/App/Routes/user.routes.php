@@ -16,10 +16,10 @@
  * )
  */
 
-$app->get('/api/users/guests', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->getGuestCustomers($request, $response);
-});
+// $app->get('/api/users/guests', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\UserController::class);
+//     return $controller->getGuestCustomers($request, $response);
+// });
 
 /**
  * @OA\Get(
@@ -41,10 +41,10 @@ $app->get('/api/users/guests', function ($request, $response) use ($app) {
  *     security={{"bearerAuth": {}}}
  * )
  */
-$app->get('/api/users/email', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->getUserByEmail($request, $response);
-});
+// $app->get('/api/users/email', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\UserController::class);
+//     return $controller->getUserByEmail($request, $response);
+// });
 
 /**
  * @OA\Get(
@@ -66,10 +66,10 @@ $app->get('/api/users/email', function ($request, $response) use ($app) {
  *     security={{"bearerAuth": {}}}
  * )
  */
-$app->get('/api/users/role', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->getUsersByRole($request, $response);
-});
+// $app->get('/api/users/role', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\UserController::class);
+//     return $controller->getUsersByRole($request, $response);
+// });
 
 /**
  * @OA\Get(
@@ -84,10 +84,10 @@ $app->get('/api/users/role', function ($request, $response) use ($app) {
  *     security={{"bearerAuth": {}}}
  * )
  */
-$app->get('/api/users', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->getAllUsers($request, $response);
-});
+// $app->get('/api/users', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\UserController::class);
+//     return $controller->getAllUsers($request, $response);
+// });
 
 
 
@@ -112,10 +112,10 @@ $app->get('/api/users', function ($request, $response) use ($app) {
  * )
  */
 
-$app->get('/api/users/by-id', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->getUserById($request, $response);
-});
+// $app->get('/api/users/by-id', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\UserController::class);
+//     return $controller->getUserById($request, $response);
+// });
 
 /**
  * @OA\Post(
@@ -137,10 +137,10 @@ $app->get('/api/users/by-id', function ($request, $response) use ($app) {
  * )
  */
 
-$app->post('/api/users', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->createUser($request, $response);
-});
+// $app->post('/api/users', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\UserController::class);
+//     return $controller->createUser($request, $response);
+// });
 
 /**
  * @OA\Post(
@@ -170,10 +170,10 @@ $app->post('/api/users', function ($request, $response) use ($app) {
  * )
  */
 
-$app->post('/api/users/link-customer', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->linkCustomerToUser($request, $response);
-});
+// $app->post('/api/users/link-customer', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\UserController::class);
+//     return $controller->linkCustomerToUser($request, $response);
+// });
 
 
 /**
@@ -224,13 +224,108 @@ $app->post('/api/users/login-customer', function ($request, $response) use ($app
 });
 
 /**
+ * @OA\Post(
+ *     path="/api/users/google-auth",
+ *     summary="Login or register customer with Google OAuth",
+ *     description="Authenticate a customer using Google OAuth. If the user exists, logs them in. If not, creates a new account.",
+ *     tags={"Users"},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"idToken", "email", "fullname"},
+ *             @OA\Property(
+ *                 property="idToken",
+ *                 type="string",
+ *                 description="Firebase ID token from Google sign-in"
+ *             ),
+ *             @OA\Property(
+ *                 property="email",
+ *                 type="string",
+ *                 format="email",
+ *                 description="User's email from Google"
+ *             ),
+ *             @OA\Property(
+ *                 property="fullname",
+ *                 type="string",
+ *                 description="User's full name from Google"
+ *             ),
+ *             @OA\Property(
+ *                 property="photoURL",
+ *                 type="string",
+ *                 description="User's profile picture URL from Google (optional)"
+ *             ),
+ *             @OA\Property(
+ *                 property="phone",
+ *                 type="string",
+ *                 description="User's phone number (optional)"
+ *             ),
+ *             @OA\Property(
+ *                 property="session_id",
+ *                 type="string",
+ *                 description="Session ID for cart linking (optional)"
+ *             ),
+ *             @OA\Property(
+ *                 property="cookie_token",
+ *                 type="string",
+ *                 description="Cookie token for cart linking (optional)"
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Login successful",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=true),
+ *             @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJhbGci..."),
+ *             @OA\Property(property="user", type="object"),
+ *             @OA\Property(property="message", type="string", example="Login successful")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Account created successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=true),
+ *             @OA\Property(property="token", type="string"),
+ *             @OA\Property(property="user", type="object"),
+ *             @OA\Property(property="message", type="string", example="Account created successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=400,
+ *         description="Invalid request",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=false),
+ *             @OA\Property(property="error", type="string", example="ID token, email, and full name are required")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Invalid Google token",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="success", type="boolean", example=false),
+ *             @OA\Property(property="error", type="string", example="Invalid Google authentication token")
+ *         )
+ *     )
+ * )
+ */
+$app->post('/api/users/google-auth', function ($request, $response) use ($app) {
+    $controller = $app->getContainer()->get(App\Controller\UserController::class);
+    return $controller->googleAuth($request, $response);
+});
+
+/**
  * Login Admin User
  */
 
-$app->post('/api/users/login-admin', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->loginAdminUser($request, $response);
-});
+// $app->post('/api/users/login-admin', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\UserController::class);
+//     return $controller->loginAdminUser($request, $response);
+// });
 
 /**
  * @OA\Post(
@@ -251,10 +346,10 @@ $app->post('/api/users/login-admin', function ($request, $response) use ($app) {
  *     security={{"bearerAuth": {}}}
  * )
  */
-$app->post('/api/users/register-with-role', function ($request, $response) use ($app) {
-    $controller = $app->getContainer()->get(App\Controller\UserController::class);
-    return $controller->registerUserWithRole($request, $response);
-});
+// $app->post('/api/users/register-with-role', function ($request, $response) use ($app) {
+//     $controller = $app->getContainer()->get(App\Controller\UserController::class);
+//     return $controller->registerUserWithRole($request, $response);
+// });
 
 /**
  * @OA\Post(
