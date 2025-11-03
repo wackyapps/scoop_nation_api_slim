@@ -12,8 +12,10 @@
 // Assumes media table has 'productID' and 'type' columns for linking
 
 declare(strict_types=1);
+
 namespace App\Controller;
 
+use App\Repository\CategoryRepository;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Repository\ProductRepository;
@@ -458,32 +460,41 @@ class ProductController
         if (!empty($data['manufacturer'])) {
             $payload['manufacturer'] = $data['manufacturer'];
         }
-        if (!empty($slug)) {
-            $payload['slug'] = $slug;
-        }
+        // if (!empty($slug)) {
+        //     $payload['slug'] = $slug;
+        // }
         if (isset($data['priority'])) {
             $payload['priority'] = (int) $data['priority'];
         }
         if (isset($data['inStock'])) {
             $payload['inStock'] = (int) $data['inStock'];
         }
-        if (isset($data['rating'])) {
-            $payload['rating'] = (float) $data['rating'];
+        if (isset($data['is_available'])) {
+            $payload['is_available'] = (bool) $data['is_available'] ? 1 : 0;
         }
-        if (!empty($data['discountType'])) {
-            $payload['discountType'] = $data['discountType'];
-        }
-        if (isset($data['discountValue'])) {
-            $payload['discountValue'] = $data['discountValue'];
-        }
+        // if (isset($data['rating'])) {
+        //     $payload['rating'] = (float) $data['rating'];
+        // }
+        // if (!empty($data['discountType'])) {
+        //     $payload['discountType'] = $data['discountType'];
+        // }
+        // if (isset($data['discountValue'])) {
+        //     $payload['discountValue'] = $data['discountValue'];
+        // }
         if (isset($data['originalPrice'])) {
             $payload['originalPrice'] = $data['originalPrice'];
         }
-        if (!empty($data['discountStartDate'])) {
-            $payload['discountStartDate'] = $data['discountStartDate'];
-        }
-        if (!empty($data['discountEndDate'])) {
-            $payload['discountEndDate'] = $data['discountEndDate'];
+        // if (!empty($data['discountStartDate'])) {
+        //     $payload['discountStartDate'] = $data['discountStartDate'];
+        // }
+        // if (!empty($data['discountEndDate'])) {
+        //     $payload['discountEndDate'] = $data['discountEndDate'];
+        // }
+        $categoryRepository = new CategoryRepository();
+        $category = $categoryRepository->getCategoryById((int) $data['categoryId']);
+        if (!$category) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid categoryId category does not exist']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
         $productId = $this->productRepository->save(array_merge([
@@ -499,24 +510,24 @@ class ProductController
         // Insert variants
         foreach ($variants as $variant) {
             $payload = [];
-            if (!empty($variant['discountType'])) {
-                $payload['discountType'] = $variant['discountType'];
-            }
-            if (isset($variant['discountValue'])) {
-                $payload['discountValue'] = $variant['discountValue'];
-            }
+            // if (!empty($variant['discountType'])) {
+            //     $payload['discountType'] = $variant['discountType'];
+            // }
+            // if (isset($variant['discountValue'])) {
+            //     $payload['discountValue'] = $variant['discountValue'];
+            // }
             if (isset($variant['inStock'])) {
                 $payload['inStock'] = (int) $variant['inStock'];
             }
             if (isset($variant['originalPrice'])) {
                 $payload['originalPrice'] = $variant['originalPrice'];
             }
-            if (isset($variant['discountStartDate'])) {
-                $payload['discountStartDate'] = $variant['discountStartDate'];
-            }
-            if (isset($variant['discountEndDate'])) {
-                $payload['discountEndDate'] = $variant['discountEndDate'];
-            }
+            // if (isset($variant['discountStartDate'])) {
+            //     $payload['discountStartDate'] = $variant['discountStartDate'];
+            // }
+            // if (isset($variant['discountEndDate'])) {
+            //     $payload['discountEndDate'] = $variant['discountEndDate'];
+            // }
             $this->variantRepository->save([
                 'productId' => $productId,
                 'name' => $variant['name'],
@@ -556,7 +567,7 @@ class ProductController
      * @param int $productId Product ID to update
      * @return Response JSON response with updated product
      */
-    public function update(Request $request, Response $response, ): Response
+    public function update(Request $request, Response $response,): Response
     {
         try {
             $data = $request->getParsedBody();
@@ -591,26 +602,35 @@ class ProductController
                 $updateData['price'] = (int) $data['price'];
             if (!empty($data['priority']))
                 $updateData['priority'] = (int) $data['priority'];
-            if (!empty($data['categoryId']))
+            if (!empty($data['categoryId'])) {
                 $updateData['categoryId'] = (int) $data['categoryId'];
+                $categoryRepository = new CategoryRepository();
+                $category = $categoryRepository->getCategoryById((int) $data['categoryId']);
+                if (!$category) {
+                    $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid categoryId category does not exist']));
+                    return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+                }
+            }
             if (!empty($data['manufacturer']))
                 $updateData['manufacturer'] = $data['manufacturer'];
-            if (!empty($data['slug']))
-                $updateData['slug'] = $data['slug'];
+            if (!empty($data['is_available']))
+                $updateData['is_available'] = (bool) $data['is_available'] ? 1 : 0;
+            // if (!empty($data['slug']))
+            //     $updateData['slug'] = $data['slug'];
             if (isset($data['inStock']))
                 $updateData['inStock'] = (int) $data['inStock'];
-            if (isset($data['rating']))
-                $updateData['rating'] = (float) $data['rating'];
-            if (!empty($data['discountType']))
-                $updateData['discountType'] = $data['discountType'];
-            if (isset($data['discountValue']))
-                $updateData['discountValue'] = $data['discountValue'];
+            // if (isset($data['rating']))
+            //     $updateData['rating'] = (float) $data['rating'];
+            // if (!empty($data['discountType']))
+            //     $updateData['discountType'] = $data['discountType'];
+            // if (isset($data['discountValue']))
+            //     $updateData['discountValue'] = $data['discountValue'];
             if (isset($data['originalPrice']))
                 $updateData['originalPrice'] = $data['originalPrice'];
-            if (!empty($data['discountStartDate']))
-                $updateData['discountStartDate'] = $data['discountStartDate'];
-            if (!empty($data['discountEndDate']))
-                $updateData['discountEndDate'] = $data['discountEndDate'];
+            // if (!empty($data['discountStartDate']))
+            //     $updateData['discountStartDate'] = $data['discountStartDate'];
+            // if (!empty($data['discountEndDate']))
+            //     $updateData['discountEndDate'] = $data['discountEndDate'];
 
 
             if (!empty($updateData)) {
@@ -625,24 +645,24 @@ class ProductController
                 $this->variantRepository->deleteByProductId($productId);
                 foreach ($variants as $variant) {
                     $payload = [];
-                    if (!empty($variant['discountType'])) {
-                        $payload['discountType'] = $variant['discountType'];
-                    }
-                    if (isset($variant['discountValue'])) {
-                        $payload['discountValue'] = $variant['discountValue'];
-                    }
+                    // if (!empty($variant['discountType'])) {
+                    //     $payload['discountType'] = $variant['discountType'];
+                    // }
+                    // if (isset($variant['discountValue'])) {
+                    //     $payload['discountValue'] = $variant['discountValue'];
+                    // }
                     if (isset($variant['originalPrice'])) {
                         $payload['originalPrice'] = $variant['originalPrice'];
                     }
                     if (isset($variant['inStock'])) {
                         $payload['inStock'] = (int) $variant['inStock'];
                     }
-                    if (isset($variant['discountStartDate'])) {
-                        $payload['discountStartDate'] = $variant['discountStartDate'];
-                    }
-                    if (isset($variant['discountEndDate'])) {
-                        $payload['discountEndDate'] = $variant['discountEndDate'];
-                    }
+                    // if (isset($variant['discountStartDate'])) {
+                    //     $payload['discountStartDate'] = $variant['discountStartDate'];
+                    // }
+                    // if (isset($variant['discountEndDate'])) {
+                    //     $payload['discountEndDate'] = $variant['discountEndDate'];
+                    // }
 
                     $this->variantRepository->save(array_merge([
                         'productId' => $productId,
@@ -659,7 +679,7 @@ class ProductController
             $currentMedias = $this->mediaRepository->findMediaByProductId($productId); // array of db rows
             $mediaToKeep = [];
             if (!empty($data['media']) && is_array($media)) {
-                $mediaToKeep = $media;// array of image paths or IDs to keep
+                $mediaToKeep = $media; // array of image paths or IDs to keep
             }
 
 
@@ -799,4 +819,3 @@ class ProductController
         return $slug;
     }
 }
-?>

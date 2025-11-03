@@ -412,4 +412,48 @@ class CategoryRepository extends BaseRepository
         $query = "SELECT * FROM category" . ($branchId ? " WHERE (branch_id = %i OR branch_id IS NULL)" : "");
         return $branchId ? DB::query($query, $branchId) : $this->findAll();
     }
+
+    /**
+     * Get all categories for admin panel with pagination and search
+     * 
+     * @param int|null $branchId The ID of the branch to filter categories, or null for all
+     * @param string|null $search Search term for category name
+     * @param int $limit Number of items per page
+     * @param int $page Current page number
+     * @return array Array with 'data' and 'total' keys
+     */
+    public function getAllCategoriesAdmin(?int $branchId = null, ?string $search = null, int $limit = 10, int $page = 1): array
+    {
+        $offset = ($page - 1) * $limit;
+        
+        $whereConditions = [];
+        $params = [];
+        
+        if ($branchId) {
+            $whereConditions[] = "(branch_id = %i OR branch_id IS NULL)";
+            $params[] = $branchId;
+        }
+        
+        if ($search) {
+            $whereConditions[] = "name LIKE %ss";
+            $params[] = '%' . $search . '%';
+        }
+        
+        $whereClause = !empty($whereConditions) ? " WHERE " . implode(" AND ", $whereConditions) : "";
+        
+        // Get total count
+        $countQuery = "SELECT COUNT(*) as total FROM category" . $whereClause;
+        $totalResult = !empty($params) ? DB::queryFirstRow($countQuery, ...$params) : DB::queryFirstRow($countQuery);
+        $total = $totalResult['total'] ?? 0;
+        
+        // Get paginated data
+        $dataQuery = "SELECT * FROM category" . $whereClause . " ORDER BY id DESC LIMIT %i OFFSET %i";
+        $allParams = array_merge($params, [$limit, $offset]);
+        $data = !empty($params) ? DB::query($dataQuery, ...$allParams) : DB::query($dataQuery, $limit, $offset);
+        
+        return [
+            'data' => $data,
+            'total' => $total
+        ];
+    }
 }

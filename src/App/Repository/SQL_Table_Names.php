@@ -33,6 +33,7 @@ define("TABLE_ORDER_ITEM", "order_item");
 // Customer and User Tables
 define("TABLE_CUSTOMER", "customer");
 define("TABLE_USER", "user"); // Assuming 'user' table exists based on foreign keys
+define("TABLE_ADMIN_PROFILE", "admin_profile");
 define("TABLE_ADDRESSES", "addresses");
 define("TABLE_WISHLIST", "wishlist");
 define("TABLE_FAVORITE_PRODUCTS", "favorite_products");

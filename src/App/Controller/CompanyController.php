@@ -283,6 +283,95 @@ public function getCompany(Request $request, Response $response): Response
     }
 }
 
+/**
+ * Get layout design for business
+ * 
+ * @Route GET /api/admin/get-layout-design
+ */
+public function getLayoutDesign(Request $request, Response $response): Response
+{
+    try {
+        $businessId = 1;
+
+        $layoutDesign = $this->companyRepository->findLayoutDesignByBusinessId($businessId);
+
+        if (!$layoutDesign) {
+            // Return default layout if not found
+            $layoutDesign = [
+                'businessId' => $businessId,
+                'products_layout' => 'TWO_ROWS'
+            ];
+        }
+
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'data' => $layoutDesign
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+
+    } catch (\Exception $e) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'Failed to get layout design: ' . $e->getMessage()
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+    }
+}
+
+/**
+ * Update layout design for business
+ * 
+ * @Route POST /api/admin/update-layout-design
+ */
+public function updateLayoutDesign(Request $request, Response $response): Response
+{
+    try {
+        $data = $request->getParsedBody() ?? [];
+        $businessId = 1;
+
+        // Validate required field
+        if (empty($data['products_layout'])) {
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'products_layout is required'
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        // Validate enum value
+        $validLayouts = ['TWO_ROWS', 'THREE_ROWS', 'SECTIONS_PRODUCTS'];
+        if (!in_array($data['products_layout'], $validLayouts)) {
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => 'Invalid products_layout. Must be one of: ' . implode(', ', $validLayouts)
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        // Prepare update data
+        $updateData = [
+            'products_layout' => $data['products_layout']
+        ];
+
+        // Update layout design in repository
+        $layoutDesign = $this->companyRepository->updateLayoutDesign($updateData, $businessId);
+
+        $response->getBody()->write(json_encode([
+            'success' => true,
+            'message' => 'Layout design updated successfully',
+            'data' => $layoutDesign
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+
+    } catch (\Exception $e) {
+        $response->getBody()->write(json_encode([
+            'success' => false,
+            'error' => 'Failed to update layout design: ' . $e->getMessage()
+        ]));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+    }
+}
+
 
 
 

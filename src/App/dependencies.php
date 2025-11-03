@@ -4,6 +4,7 @@ declare(strict_types=1);
 use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
+use App\Repository\AdminProfileRepository;
 use App\Repository\OrderRepository;
 use App\Repository\OrderItemRepository;
 use App\Repository\ImageRepository;
@@ -19,6 +20,7 @@ use App\Controller\ProductController;
 use App\Controller\BundleController;
 use App\Controller\CustomerController;
 use App\Controller\UserController;
+use App\Controller\AdminProfileController;
 use App\Controller\EmailSubscriptionController;
 use Psr\Container\ContainerInterface;
 use DI\Container;
@@ -77,6 +79,10 @@ return [
         return new EmailSubscriptionRepository();
     },
 
+    AdminProfileRepository::class => function (Container $container) {
+        return new AdminProfileRepository();
+    },
+
     // Controller dependencies
     CategoryController::class => function (Container $container) { // ADD THIS ENTRY
         $categoryRepository = $container->get(CategoryRepository::class);
@@ -106,6 +112,12 @@ return [
     EmailSubscriptionController::class => function (Container $container) {
         $subscriptionRepository = $container->get(EmailSubscriptionRepository::class);
         return new EmailSubscriptionController($subscriptionRepository);
+    },
+
+    AdminProfileController::class => function (Container $container) {
+        $adminProfileRepository = $container->get(AdminProfileRepository::class);
+        $userRepository = $container->get(UserRepository::class);
+        return new AdminProfileController($adminProfileRepository, $userRepository);
     },
 
     // Aliases

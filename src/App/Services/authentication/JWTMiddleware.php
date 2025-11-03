@@ -14,26 +14,9 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
      */
     private $publicApis = [
         '/',
-        '/api/users/login-customer',
         '/api/users/login-admin',
-        '/api/users/register-customer',
         '/api/users/forgot-password',
-        // session routes
-        '/api/sessions/start',
-        '/api/sessions/cart',
-        '/api/sessions/verify',
-        '/api/sessions/cart/add',
-        '/api/sessions/cart/remove',
-        '/api/sessions/cart/increase',
-        '/api/sessions/cart/decrease',
-        '/api/sessions/cart/clear',
-        '/api/sessions',
-        '/api/sessions/active',
-        '/api/branch/homepage',
-        // contact us
-        '/api/contact/submit',
-        '/api/products',
-        '/api/banners/active'
+        '/api/users/reset-password'
     ];
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -69,7 +52,7 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
 
         // === TOKEN CHECKING DISABLED TEMPORARILY ===
         // Get Bearer token from headers
-        /* $authHeader = $request->getHeaderLine('Authorization');
+       /*$authHeader = $request->getHeaderLine('Authorization');
          $token = '';
          if (preg_match('/Bearer\s+(.+)/i', $authHeader, $m)) {
              $token = trim($m[1]);
@@ -97,24 +80,19 @@ class JWTMiddleware implements \Psr\Http\Server\MiddlewareInterface
              ]));
              return $response->withStatus(401)->withHeader('Content-Type', 'application/json');
          }
-
+         
          $decoded = $jwt->decodeJWT($token);
-         $request = $request->withAttribute('user', $decoded);*/
-        $user = array(
-            'id' => '7',
-            'email' => 'waqasmahmood@gmail.com',
-            'role' => 'customer',
-            'phone_verified' => '0',
-            'email_verified' => '0',
-            'phone' => '+923109428554',
-            'user_created' => '2025-09-26 21:10:45',
-            'customer_id' => '4',
-            'fullname' => 'Waqas1 Mahmood',
-            'gender' => 'male',
-            'date_of_birth' => '0000-00-00'
-        );
-        $request = $request->withAttribute('user', $user);
+         if (!$decoded ||  $decoded['role'] !== 'administrator' ) {
+            $response = new Response();
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error'   => 'Unauthorized',
+                'message' => 'User does not have the required role',
+            ]));
+            return $response->withStatus(403)->withHeader('Content-Type', 'application/json');
+         }
 
+         $request = $request->withAttribute('user', $decoded);*/
 
         // Proceed to next middleware or route handler
         return $handler->handle($request);
