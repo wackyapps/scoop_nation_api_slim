@@ -691,7 +691,7 @@ class UserController
                 $userId = $this->userRepository->registerCustomerUser($userData, $customerData);
 
                 // Since Google accounts have verified emails, mark as verified
-                DB::update('users', [
+                DB::update('user', [
                     'email_verified' => 1
                 ], 'id=%i', $userId);
 

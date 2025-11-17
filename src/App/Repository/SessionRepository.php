@@ -206,9 +206,10 @@ class SessionRepository extends BaseRepository
 
         // Get cart items
         $cartItems = DB::query(
-            "SELECT ci.id, ci.productId, ci.variantId, ci.quantity, p.price 
+            "SELECT ci.id, ci.productId, ci.variantId, ci.quantity, pv.price 
              FROM " . TABLE_CART_ITEM . " ci 
              JOIN " . TABLE_PRODUCT . " p ON ci.productId = p.id 
+            LEFT JOIN " . TABLE_VARIANT . " pv ON ci.variantId = pv.id
              WHERE ci.cartId = %i",
             $cartId
         );

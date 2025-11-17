@@ -1,7 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Repository;
+
 require_once __DIR__ . '/SQL_Table_Names.php';
 
 use DB;
@@ -169,138 +171,164 @@ class BranchRepository extends BaseRepository
     {
         // Main optimized query to fetch all required data in a single join
         $query = "
-        SELECT 
-            -- Branch data
-            b.id as branch_id,
-            b.name as branch_name,
-            b.city,
-            b.address,
-            b.apartment,
-            b.area,
-            b.country,
-            b.postal_code,
-            b.latitude,
-            b.longitude,
-            b.is_physical,
-            b.pickup_instructions,
-            b.delivery_status,
-            b.customer_support_email,
-            b.contact_number,
-            b.delivery_module,
-            b.is_active as branch_is_active,
-            b.created_at as branch_created_at,
-            b.updated_at as branch_updated_at,
-            
-            -- Business data
-            bs.id as business_id,
-            bs.name as business_name,
-            bs.logo as business_logo,
-            bs.description as business_description,
-            
-            -- Branch timings
-            bt.id as timing_id,
-            bt.day_of_week,
-            bt.open_time,
-            bt.close_time,
-            bt.is_closed,
-            bt.created_at as timing_created_at,
-            bt.updated_at as timing_updated_at,
-            
-            -- Banner campaigns (both global and branch-specific)
-            bc.id as campaign_id,
-            bc.name as campaign_name,
-            bc.description as campaign_description,
-            bc.start_date,
-            bc.end_date,
-            bc.is_active as campaign_is_active,
-            bc.branch_id as campaign_branch_id,
-            
-            -- Banner media
-            m.imageID,
-            m.type as media_type,
-            m.title as media_title,
-            m.description as media_description,
-            m.alt_text,
-            m.mime_type,
-            m.file_size,
-            m.width,
-            m.height,
-            m.is_featured,
-            m.sort_order,
-            m.banner_position,
-            m.banner_url,
-            m.banner_target,
-            m.status as media_status,
-            m.image,
-            
-            -- Branch products (optional, for override data)
-            bp.id as branch_product_id,
-            bp.product_id,
-            bp.variant_id,
-            bp.is_available,
-            bp.branch_price,
-            bp.min_order_quantity,
-            bp.max_order_quantity,
-            bp.created_at as branch_product_created_at,
-            bp.updated_at as branch_product_updated_at,
-            
-            -- Products
-            p.id as product_id,
-            p.slug,
-            p.title as product_title,
-            p.mainImage,
-            p.price,
-            p.discountType,
-            p.discountValue,
-            p.originalPrice,
-            p.discountStartDate,
-            p.discountEndDate,
-            p.rating,
-            p.description as product_description,
-            p.manufacturer,
-            p.inStock,
-            p.categoryId,
-            
-            -- Bundles
-            bd.id as bundle_id,
-            bd.name as bundle_name,
-            bd.discountedPrice,
-            bd.discountType as bundle_discountType,
-            bd.discountValue as bundle_discountValue,
-            bd.originalPrice as bundle_originalPrice,
-            bd.discountStartDate as bundle_discountStartDate,
-            bd.discountEndDate as bundle_discountEndDate,
-            
-            -- Bundle products
-            bdp.id as bundle_product_id,
-            bdp.productId as bundle_productId,
-            bdp.variantId as bundle_variantId
-            
-        FROM branch b
-        LEFT JOIN business bs ON b.business_id = bs.id
-        LEFT JOIN branch_timings bt ON b.id = bt.branch_id
-        LEFT JOIN banner_campaign bc ON (bc.branch_id = b.id OR bc.branch_id IS NULL)
-            AND bc.is_active = 1 
-            AND bc.start_date <= NOW() 
-            AND bc.end_date >= NOW()
-        LEFT JOIN media m ON bc.id = m.campaign_id 
-            AND m.type = 'banner' 
-            AND m.status = 'active'
-        LEFT JOIN category c ON c.branch_id = b.id
-        LEFT JOIN product p ON p.categoryId = c.id
-        LEFT JOIN branch_product bp ON b.id = bp.branch_id AND bp.product_id = p.id AND bp.is_available = 1
-        LEFT JOIN bundle_product bdp ON p.id = bdp.productId
-        LEFT JOIN bundle bd ON bdp.bundleId = bd.id
-            AND (bd.discountStartDate IS NULL OR bd.discountStartDate <= NOW())
-            AND (bd.discountEndDate IS NULL OR bd.discountEndDate >= NOW())
-        WHERE b.business_id = %i 
-            AND b.id = %i
-            AND b.is_active = 1
-        ORDER BY 
-            bt.day_of_week ASC,
-            m.sort_order ASC,
-            m.is_featured DESC,
-            p.title ASC
+       SELECT 
+    -- Branch data
+    b.id as branch_id,
+    b.name as branch_name,
+    b.city,
+    b.address,
+    b.apartment,
+    b.area,
+    b.country,
+    b.postal_code,
+    b.latitude,
+    b.longitude,
+    b.is_physical,
+    b.pickup_instructions,
+    b.delivery_status,
+    b.customer_support_email,
+    b.contact_number,
+    b.delivery_module,
+    b.is_active as branch_is_active,
+    b.created_at as branch_created_at,
+    b.updated_at as branch_updated_at,
+    
+    -- Business data
+    bs.id as business_id,
+    bs.name as business_name,
+    bs.logo as business_logo,
+    bs.description as business_description,
+    
+    -- Layout design (new)
+    ld.id as layout_design_id,
+    ld.businessId as layout_business_id,
+    ld.products_layout,
+
+    -- Branch timings
+    bt.id as timing_id,
+    bt.day_of_week,
+    bt.open_time,
+    bt.close_time,
+    bt.is_closed,
+    bt.created_at as timing_created_at,
+    bt.updated_at as timing_updated_at,
+    
+    -- Banner campaigns (both global and branch-specific)
+    bc.id as campaign_id,
+    bc.name as campaign_name,
+    bc.description as campaign_description,
+    bc.start_date,
+    bc.end_date,
+    bc.is_active as campaign_is_active,
+    bc.branch_id as campaign_branch_id,
+    
+    -- Banner media
+    m.imageID,
+    m.type as media_type,
+    m.title as media_title,
+    m.description as media_description,
+    m.alt_text,
+    m.mime_type,
+    m.file_size,
+    m.width,
+    m.height,
+    m.is_featured,
+    m.sort_order,
+    m.banner_position,
+    m.banner_url,
+    m.banner_target,
+    m.status as media_status,
+    m.image,
+    
+    -- Branch products (optional, for override data)
+    bp.id as branch_product_id,
+    bp.product_id,
+    bp.variant_id,
+    bp.is_available,
+    bp.branch_price,
+    bp.min_order_quantity,
+    bp.max_order_quantity,
+    bp.created_at as branch_product_created_at,
+    bp.updated_at as branch_product_updated_at,
+    
+    -- Products
+    p.id as product_id,
+    p.slug,
+    p.title as product_title,
+    p.mainImage,
+    p.price,
+    p.discountType,
+    p.discountValue,
+    p.originalPrice,
+    p.discountStartDate,
+    p.discountEndDate,
+    p.rating,
+    p.description as product_description,
+    p.manufacturer,
+    p.inStock,
+    p.categoryId,
+    
+    -- Bundles
+    bd.id as bundle_id,
+    bd.name as bundle_name,
+    bd.discountedPrice,
+    bd.discountType as bundle_discountType,
+    bd.discountValue as bundle_discountValue,
+    bd.originalPrice as bundle_originalPrice,
+    bd.discountStartDate as bundle_discountStartDate,
+    bd.discountEndDate as bundle_discountEndDate,
+    
+    -- Bundle products
+    bdp.id as bundle_product_id,
+    bdp.productId as bundle_productId,
+    bdp.variantId as bundle_variantId
+
+FROM branch b
+LEFT JOIN business bs ON b.business_id = bs.id
+
+-- Join layout_design (by businessId, since it's per-business)
+LEFT JOIN layout_design ld ON ld.businessId = bs.id
+
+LEFT JOIN branch_timings bt ON b.id = bt.branch_id
+
+LEFT JOIN banner_campaign bc 
+    ON (bc.branch_id = b.id OR bc.branch_id IS NULL)
+    AND bc.is_active = 1 
+    AND bc.start_date <= NOW() 
+    AND bc.end_date >= NOW()
+
+LEFT JOIN media m 
+    ON bc.id = m.campaign_id 
+    AND m.type = 'banner' 
+    AND m.status = 'active'
+
+-- Join products first, then categories. This ensures products whose
+-- category row was removed (orphaned categoryId) are still returned.
+LEFT JOIN product p ON p.is_available = 1
+LEFT JOIN category c ON c.id = p.categoryId
+LEFT JOIN branch_product bp 
+    ON b.id = bp.branch_id 
+    AND bp.product_id = p.id
+
+LEFT JOIN bundle_product bdp ON p.id = bdp.productId
+LEFT JOIN bundle bd 
+    ON bdp.bundleId = bd.id
+    AND (bd.discountStartDate IS NULL OR bd.discountStartDate <= NOW())
+    AND (bd.discountEndDate IS NULL OR bd.discountEndDate >= NOW())
+
+WHERE b.business_id = %i 
+    AND b.id = %i
+    AND b.is_active = 1
+    -- include products that either belong to this branch's categories
+    -- or have no matching category (orphaned categoryId)
+    AND (c.branch_id = b.id OR c.id IS NULL)
+
+ORDER BY 
+    bt.day_of_week ASC,
+    m.sort_order ASC,
+    m.is_featured DESC,
+    c.priority ASC,
+    p.title ASC;
     ";
 
         $results = DB::query($query, $businessId, $branchId);
@@ -512,7 +540,8 @@ class BranchRepository extends BaseRepository
             'timings' => [],
             'banners' => [],
             'products' => [],
-            'bundles' => []
+            'bundles' => [],
+            'layout_design'=>[]
         ];
 
         $bannerCampaigns = [];
@@ -555,7 +584,14 @@ class BranchRepository extends BaseRepository
                     'description' => $row['business_description']
                 ];
             }
-
+            // Initialize layout_design (only once, from layout_design)
+            if (empty($branchData['layout_design'])  && $row['layout_design_id']) {
+                $branchData['layout_design'] = [
+                    'id' => (int) $row['layout_design_id'],
+                    'business_id' => (int) $row['layout_business_id'],
+                    'products_layout' => $row['products_layout'] // 'TWO_ROWS', 'THREE_ROWS', 'FOUR_ROWS'
+                ];
+            }
             // Process timings
             if ($row['timing_id'] && !isset($timings[$row['timing_id']])) {
                 $timings[$row['timing_id']] = [
@@ -686,11 +722,16 @@ class BranchRepository extends BaseRepository
             }
         }
 
+
+        $categoryRepository = new CategoryRepository();
+        $categories = $categoryRepository->getAllCategories((int) $branchData['branch']['id']);
+
         // Assign collected data to branchData
         $branchData['timings'] = array_values($timings);
         $branchData['banners'] = array_values($bannerCampaigns);
         $branchData['products'] = array_values($products);
         $branchData['bundles'] = array_values($bundles);
+        $branchData['categories'] = array_values($categories);
 
         return $branchData;
     }
@@ -915,8 +956,4 @@ class BranchRepository extends BaseRepository
 
         return DB::queryFirstRow($query, $branchId, $businessId);
     }
-
-
-
-
 }
