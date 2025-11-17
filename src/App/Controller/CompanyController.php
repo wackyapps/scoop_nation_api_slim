@@ -339,7 +339,7 @@ public function updateLayoutDesign(Request $request, Response $response): Respon
         }
 
         // Validate enum value
-        $validLayouts = ['TWO_ROWS', 'THREE_ROWS', 'SECTIONS_PRODUCTS'];
+        $validLayouts = ['TWO_ROWS', 'THREE_ROWS', 'FOUR_ROWS'];
         if (!in_array($data['products_layout'], $validLayouts)) {
             $response->getBody()->write(json_encode([
                 'success' => false,

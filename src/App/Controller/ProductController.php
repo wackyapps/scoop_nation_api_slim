@@ -421,38 +421,37 @@ class ProductController
         if (empty($data['price'])) {
             $errors[] = 'Price is required.';
         }
-        if (empty($data['categoryId'])) {
-            $errors[] = 'Category ID is required.';
-        }
         if (!is_array($variants) || count($variants) < 1) {
             $errors[] = 'At least one variant is required and must be a valid JSON array.';
         }
-        if (empty($files['file']) || $files['file']->getError() !== UPLOAD_ERR_OK) {
-            $errors[] = 'Media file is required and must be a valid upload.';
+        if (empty($files['mainImage']) || $files['mainImage']->getError() !== UPLOAD_ERR_OK) {
+            $errors[] = 'Main image is required and must be a valid upload.';
         }
         if (!empty($errors)) {
             $response->getBody()->write(json_encode(['success' => false, 'error' => 'Missing or invalid data', 'details' => $errors]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        // Validate media type (image or video)
-        $mime = $files['file']->getClientMediaType();
-        if (!str_starts_with($mime, 'image/') && !str_starts_with($mime, 'video/')) {
-            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid file type. Must be image or video']));
+        // Validate and upload main image
+        $mainImageFile = $files['mainImage'];
+        $mainImageMime = $mainImageFile->getClientMediaType();
+        if (!str_starts_with($mainImageMime, 'image/')) {
+            $response->getBody()->write(json_encode(['success' => false, 'error' => 'Main image must be an image file']));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        // Generate unique slug
-        $slug = $this->generateUniqueSlug($data['title']);
-        $mediaFile = $files['file'];
-        $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
-        $filename = sprintf('%s.%s', uniqid(), $extension);
         $directory = __DIR__ . '/../../../public/media/products/';
         if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
         }
-        $mediaFile->moveTo($directory . $filename);
-        $path = 'media/products/' . $filename;
+
+        $mainImageExtension = pathinfo($mainImageFile->getClientFilename(), PATHINFO_EXTENSION);
+        $mainImageFilename = sprintf('%s.%s', uniqid('main_'), $mainImageExtension);
+        $mainImageFile->moveTo($directory . $mainImageFilename);
+        $mainImagePath = 'media/products/' . $mainImageFilename;
+
+        // Generate unique slug
+        $slug = $this->generateUniqueSlug($data['title']);
         // Insert product
 
 
@@ -503,50 +502,76 @@ class ProductController
             'description' => $data['description'],
             'price' => (int) $data['price'],
             'categoryId' => (int) $data['categoryId'],
-            'mainImage' => $path,
+            'mainImage' => $mainImagePath,
             ...$payload
         ]));
 
         // Insert variants
         foreach ($variants as $variant) {
-            $payload = [];
+            $variantPayload = [];
             // if (!empty($variant['discountType'])) {
-            //     $payload['discountType'] = $variant['discountType'];
+            //     $variantPayload['discountType'] = $variant['discountType'];
             // }
             // if (isset($variant['discountValue'])) {
-            //     $payload['discountValue'] = $variant['discountValue'];
+            //     $variantPayload['discountValue'] = $variant['discountValue'];
             // }
             if (isset($variant['inStock'])) {
-                $payload['inStock'] = (int) $variant['inStock'];
+                $variantPayload['inStock'] = (int) $variant['inStock'];
             }
             if (isset($variant['originalPrice'])) {
-                $payload['originalPrice'] = $variant['originalPrice'];
+                $variantPayload['originalPrice'] = $variant['originalPrice'];
             }
             // if (isset($variant['discountStartDate'])) {
-            //     $payload['discountStartDate'] = $variant['discountStartDate'];
+            //     $variantPayload['discountStartDate'] = $variant['discountStartDate'];
             // }
             // if (isset($variant['discountEndDate'])) {
-            //     $payload['discountEndDate'] = $variant['discountEndDate'];
+            //     $variantPayload['discountEndDate'] = $variant['discountEndDate'];
             // }
             $this->variantRepository->save([
                 'productId' => $productId,
                 'name' => $variant['name'],
                 'value' => $variant['value'],
                 'price' => (int) ($variant['price'] ?? 0),
-                ...$payload
+                ...$variantPayload
             ]);
         }
 
-        // Handle media upload
+        // Handle multiple media files upload
+        $mediaFiles = [];
+        if (!empty($files['mediaFiles'])) {
+            // Handle multiple files
+            if (is_array($files['mediaFiles'])) {
+                foreach ($files['mediaFiles'] as $file) {
+                    if ($file && $file->getError() === UPLOAD_ERR_OK) {
+                        $mediaFiles[] = $file;
+                    }
+                }
+            } else {
+                // Single file
+                if ($files['mediaFiles']->getError() === UPLOAD_ERR_OK) {
+                    $mediaFiles[] = $files['mediaFiles'];
+                }
+            }
+        }
 
+        // Insert each media file
+        foreach ($mediaFiles as $mediaFile) {
+            $mediaMime = $mediaFile->getClientMediaType();
+            if (!str_starts_with($mediaMime, 'image/') && !str_starts_with($mediaMime, 'video/')) {
+                continue; // Skip invalid media types
+            }
+            $mediaExtension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
+            $mediaFilename = sprintf('%s.%s', uniqid('media_'), $mediaExtension);
+            $mediaFile->moveTo($directory . $mediaFilename);
+            $mediaPath = 'media/products/' . $mediaFilename;
 
-        // Insert media
-        $this->mediaRepository->save([
-            'image' => $path,
-            'productID' => $productId,
-            'type' => 'product',
-            'mime_type' => $mime,
-        ]);
+            $this->mediaRepository->save([
+                'image' => $mediaPath,
+                'productID' => $productId,
+                'type' => 'product',
+                'mime_type' => $mediaMime,
+            ]);
+        }
 
         // Return created product
         $product = $this->productRepository->findById((int) $productId);
@@ -602,15 +627,6 @@ class ProductController
                 $updateData['price'] = (int) $data['price'];
             if (!empty($data['priority']))
                 $updateData['priority'] = (int) $data['priority'];
-            if (!empty($data['categoryId'])) {
-                $updateData['categoryId'] = (int) $data['categoryId'];
-                $categoryRepository = new CategoryRepository();
-                $category = $categoryRepository->getCategoryById((int) $data['categoryId']);
-                if (!$category) {
-                    $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid categoryId category does not exist']));
-                    return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-                }
-            }
             if (!empty($data['manufacturer']))
                 $updateData['manufacturer'] = $data['manufacturer'];
             if (!empty($data['is_available']))
@@ -674,6 +690,38 @@ class ProductController
                 }
             }
 
+            // --- Update Main Image if provided ---
+            if (!empty($files['mainImage']) && $files['mainImage']->getError() === UPLOAD_ERR_OK) {
+                $mainImageFile = $files['mainImage'];
+                $mainImageMime = $mainImageFile->getClientMediaType();
+                if (!str_starts_with($mainImageMime, 'image/')) {
+                    $response->getBody()->write(json_encode(['success' => false, 'error' => 'Main image must be an image file']));
+                    return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+                }
+
+                // Delete old main image if exists
+                $existingProduct = $this->productRepository->findById($productId);
+                if (!empty($existingProduct['mainImage'])) {
+                    $oldMainImagePath = __DIR__ . '/../../../public/' . $existingProduct['mainImage'];
+                    if (file_exists($oldMainImagePath)) {
+                        unlink($oldMainImagePath);
+                    }
+                }
+
+                $directory = __DIR__ . '/../../../public/media/products/';
+                if (!is_dir($directory)) {
+                    mkdir($directory, 0777, true);
+                }
+
+                $mainImageExtension = pathinfo($mainImageFile->getClientFilename(), PATHINFO_EXTENSION);
+                $mainImageFilename = sprintf('%s.%s', uniqid('main_'), $mainImageExtension);
+                $mainImageFile->moveTo($directory . $mainImageFilename);
+                $mainImagePath = 'media/products/' . $mainImageFilename;
+
+                // Update product with new main image
+                $this->productRepository->update($productId, ['mainImage' => $mainImagePath]);
+            }
+
             // --- Media sync logic ---
             // 1. Get current media records
             $currentMedias = $this->mediaRepository->findMediaByProductId($productId); // array of db rows
@@ -684,32 +732,32 @@ class ProductController
 
 
             // 2. Delete media not in data['media']
-            foreach ($currentMedias as $media) {
+            foreach ($currentMedias as $mediaItem) {
                 // Use image path for comparison (adjust if you use IDs)
                 $imageIDsToKeep = array_column($mediaToKeep, 'imageID');
 
-                if (!in_array($media['imageID'], $imageIDsToKeep)) {
-                    $filePath = __DIR__ . '/../../../public/' . $media['image'];
+                if (!in_array($mediaItem['imageID'], $imageIDsToKeep)) {
+                    $filePath = __DIR__ . '/../../../public/' . $mediaItem['image'];
                     if (file_exists($filePath)) {
                         unlink($filePath);
                     }
                     // Delete from DB
-                    $this->mediaRepository->delete($media['imageID']);
+                    $this->mediaRepository->delete($mediaItem['imageID']);
                 }
             }
 
             // 3. Add new uploaded files (support multiple)
             $mediaFiles = [];
-            if (!empty($files['file'])) {
-                if (is_array($files['file'])) {
-                    foreach ($files['file'] as $file) {
+            if (!empty($files['mediaFiles'])) {
+                if (is_array($files['mediaFiles'])) {
+                    foreach ($files['mediaFiles'] as $file) {
                         if ($file && $file->getError() === UPLOAD_ERR_OK) {
                             $mediaFiles[] = $file;
                         }
                     }
                 } else {
-                    if ($files['file']->getError() === UPLOAD_ERR_OK) {
-                        $mediaFiles[] = $files['file'];
+                    if ($files['mediaFiles']->getError() === UPLOAD_ERR_OK) {
+                        $mediaFiles[] = $files['mediaFiles'];
                     }
                 }
             }
@@ -719,20 +767,19 @@ class ProductController
                 mkdir($directory, 0777, true);
             }
             foreach ($mediaFiles as $mediaFile) {
-                $mime = $mediaFile->getClientMediaType();
-                if (!str_starts_with($mime, 'image/') && !str_starts_with($mime, 'video/')) {
-                    $response->getBody()->write(json_encode(['success' => false, 'error' => 'Invalid media type. Must be image or video']));
-                    return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+                $mediaMime = $mediaFile->getClientMediaType();
+                if (!str_starts_with($mediaMime, 'image/') && !str_starts_with($mediaMime, 'video/')) {
+                    continue; // Skip invalid media types instead of erroring
                 }
-                $extension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
-                $filename = sprintf('%s.%s', uniqid(), $extension);
-                $mediaFile->moveTo($directory . $filename);
-                $path = 'media/products/' . $filename;
+                $mediaExtension = pathinfo($mediaFile->getClientFilename(), PATHINFO_EXTENSION);
+                $mediaFilename = sprintf('%s.%s', uniqid('media_'), $mediaExtension);
+                $mediaFile->moveTo($directory . $mediaFilename);
+                $mediaPath = 'media/products/' . $mediaFilename;
                 $this->mediaRepository->save([
-                    'image' => $path,
+                    'image' => $mediaPath,
                     'productID' => $productId,
                     'type' => 'product',
-                    'mime_type' => $mime,
+                    'mime_type' => $mediaMime,
                 ]);
             }
 

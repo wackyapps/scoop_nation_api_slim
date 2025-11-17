@@ -6,8 +6,8 @@
 
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'u424919133_orgitelc_comme');
-define('DB_USER', 'u424919133_orgitelc_ecomm');
-define('DB_PASS', 'DJS3baJKjPmJ');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 define('DB_PORT', '3306');
 define('DB_CHARSET', 'utf8');
 

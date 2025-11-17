@@ -348,8 +348,8 @@ class CustomerRepository extends BaseRepository
             $items = $orderItemRepository->findByOrderId((int) $order['id']);
             $orderItems = [];
             foreach ($items as $item) {
-                $item['product'] = $productRepository->findById((int) $item['productId']);
-                $item['variant'] = $productRepository->getProductVariantByVariantId((int) $item['variantId']);
+                $item['product'] = json_decode($item['product'], true);
+                $item['variant'] = json_decode($item['variant'], true);
                 $orderItems[] = $item;
             }
             $order['items'] = $orderItems;
